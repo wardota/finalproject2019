@@ -37,5 +37,6 @@
       when: username!=new_ansible_ssh_user
     - debug:
         msg: "{{host_ip}} {{username}} {{password}}"   
+
          
 
