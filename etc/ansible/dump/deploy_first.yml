@@ -1,0 +1,19 @@
+- name: top level playbook first approach
+  hosts: localhost
+  gather_facts: yes
+  connection: local
+  vars:
+    ansible_ssh_user: {{ main_user }}
+    ansible_ssh_pass: {{ select_user }}
+  tasks:
+  roles:
+    - role: level2
+      var:
+      - message: "hello" 
+      when: 
+#    - role: level1
+#      var:
+#      - message: "hello" 
+#    - role: level0
+#      var:
+#      - massage: "hello"  

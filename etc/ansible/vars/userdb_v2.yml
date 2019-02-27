@@ -1,0 +1,74 @@
+userdb:  #versi 1 --> formatnya dict hashes
+  sisfo:
+    name: sisfo
+    secret: password123a
+  widi:
+    name: widi
+    secret: password123b
+    privilege: 15
+  cisco2:
+    name: cisco2
+    secret: cisco
+    privilege: 15
+  diazzaid:
+    name: diazzaid
+    secret: password123c
+    privilege: 5
+  cuman:
+    name: cuman
+    secret: password123d
+    privilege: 5     
+  sakti:
+    name: sakti
+    secret: password123e
+    privilege: 1
+  abu:
+    name: abu
+    secret: password123e
+    privilege: 1
+  baba:
+    name: baba
+    secret: password123e
+    privilege: 1 
+  caca:
+    name: caca
+    secret: password123e
+    privilege: 1    
+userdb2: #versi 2 --> formatnya list item
+  - username: sisfo
+    secret: password123a
+    privilege: 
+    view:
+  - username: widi
+    secret: password123b
+    privilege: 12
+    view:
+  - username: cisco2
+    secret: cisco
+    privilege: 15
+    view:
+  - username: diazzaid
+    secret: password123c
+    privilege: 5
+    view:
+  - username: cuman
+    secret: password123d
+    privilege: 5  
+    view:    
+  - username: sakti
+    secret: password123e
+    privilege: 1
+    view:
+  - username: abu
+    secret: password123e
+    privilege: aa
+    view:
+  - username: baba
+    secret: password123e
+    privilege: 1
+    view:    
+  - username: caca
+    secret: password123e
+    privilege: 1 
+    view:    
+    

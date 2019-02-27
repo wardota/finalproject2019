@@ -1,0 +1,15 @@
+vars:
+  neighbor:
+    id: "{{ item.id }}"
+    state: "{{ item.state }}"
+    up: "{{ item.state == 'FULL' }}"
+
+keys:
+  neighbors:
+    type: list
+    value: "{{ neighbor }}"
+    items: "^(?P<id>\\d+\\.\\d+\\.\\d+\\.\\d+))"
+
+#    items: "^(?P<id>\\d+\\.\\d+\\.\\d+\\.\\d+)[ 0-9]+(?P<state>[A-Z0-9-]+)"
+
+

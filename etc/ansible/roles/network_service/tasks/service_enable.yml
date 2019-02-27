@@ -1,0 +1,14 @@
+    - name: configuring services
+      ios_config:
+        lines:
+          - "{{ item }}"  
+        provider:
+          timeout: "{{ timeout }}"
+      loop: "{{ services_on }}"
+      delay: "{{ delay }}"
+      retries: "{{ retries }}"
+      register: result_services
+
+      # - name: save running to startup when modified
+      #   ios_config:
+      #     save_when: modified

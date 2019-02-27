@@ -1,0 +1,10 @@
+# tasks file for network_switch_dhcp
+- name: Deploy Line vty 
+  include_tasks: setup_service_line_vty_ssh.yml
+  when: ansible_network_os == "ios" and ansible_case == "deploy" 
+- name: Usage / Monitor DHCP Pool
+  include_tasks: nxos.yml
+  when: ansible_network_os == "ios" and ansible_case == "usage" 
+- name: Maintenance DHCP Pool
+  include_tasks: nxos.yml
+  when: ansible_network_os == "ios" and ansible_case == "maintenance" 

@@ -1,0 +1,433 @@
+
+
+# curl_res.results | map(attribute='json.snapshots') | sum(start=[]) | map(attribute='indices') | sum(start=[])
+# ###############################
+#  - name: Create vlan range
+#     ios_vlan:
+#       vlan_id: 200-202
+#       name: vlanrange
+#       state: present 
+ 
+ 
+#   - name: reset vlan name
+#     ios_config:
+#       lines:
+#         - vlan {{ item.vlan_id }}
+#         - no name
+#     loop: "{{vlan_db }}"  
+#     when: item.vlan_id in interface_db[hostname_a2] | json_query("[*].[access_vlan,native_vlan,trunk_allowed_vlan,trunk_allowed_vlan_add][]") 
+#     register: reset_vlan
+#     # until: reset_vlan.changed == true  # [problem] first deploy value == true , but when maintenance value == false, while if any update or changes then value == true
+#     # retries: 3
+#   - debug: 
+#       var: reset_vlan
+#       verbosity: 2
+#   - name: Create vlan based on vlan_db
+#     ios_vlan:
+#       vlan_id: "{{ item.vlan_id }}"
+#       name: "{{ item.name }}"
+#       state: present
+#     loop: "{{vlan_db }}"  
+#     when: item.vlan_id in interface_db[hostname_a2] | json_query("[*].[access_vlan,native_vlan,trunk_allowed_vlan,trunk_allowed_vlan_add][]") 
+#     register: create_vlan    
+#   - debug:
+#       var: create_vlan
+#       verbosity: 2
+
+
+    # var: vlan_db | json_query("[*]") 
+    # loop: "{{vlan_db }}"  
+    # when: item.vlan_id in interface_db[hostname_a2] | json_query("[*].[access_vlan,native_vlan,trunk_allowed_vlan,trunk_allowed_vlan_add][]") 
+
+
+
+############################################################
+# REGISTER DEBUG MECHANISM
+#
+    # - name: " [CHECK INFORMATIONAL] valid privilege value  "
+    #   debug:
+    #     msg:  "{{ userdb2[item].username }} is valid "  
+    #   loop:  "{{range(0, (userdb2 | length), 1)| list}}"
+    #   when: (((not userdb2.{{item}}.privilege is none) and  (userdb2.{{item}}.privilege is number)) and ((userdb2.{{item}}.privilege <= 15)  or  (userdb2.{{item}}.privilege >= 0)) and ({{hostname}}.debugging_lvl >= 6))
+    #   register: debug_informational
+
+    # - name: " [CHECK NOTIFICATION] invalid privilege value  "
+    #   debug:
+    #     msg:  "[WARNING] {{ userdb2[item].username }} has no valid privilage"  
+    #   loop:  "{{range(0, (userdb2 | length), 1)| list}}"
+    #   when: (not ((not userdb2.{{item}}.privilege is none) and  (userdb2.{{item}}.privilege is number)) and ((userdb2.{{item}}.privilege <= 15)  or  (userdb2.{{item}}.privilege >= 0)) and ({{hostname}}.debugging_lvl >= 5))
+    #   register: debug_notification
+
+    # - name: " [CHECK WARNING] invalid privilege value  "
+    #   debug:
+    #     msg: "[WARNING] {{ userdb2[item].username }} is not master or whitelist, phraps it is in blocklist"  
+    #   loop:  "{{range(0, (userdb2 | length), 1)| list}}"
+    #   when: (not (userdb2.{{item}}.username not in  {{hostname}}.user.blocked) and ((userdb2.{{item}}.username in {{hostname}}.user.master) or (userdb2.{{item}}.username in {{hostname}}.user.whitelist)) and ({{hostname}}.debugging_lvl >= 4))
+    #   register: debug_warning
+    
+    # # - name: " [CHECK REGISTER] debug debugging  "
+    # #   debug:
+    # #     var: setup_user_v2.debug_debugging
+    # #     verbosity: 4
+    # #   when: setup_user_v2.debug_debugging is defined
+    # # - name: " [CHECK REGISTER] debug informational  "
+    # #   debug:
+    # #     msg: "{{item.msg}}"
+    # #   loop: "{{ lookup('list', setup_user_v2.results)  }}"
+    # #   when: item.msg is defined
+    # - name: " [CHECK REGISTER] debug informational  "
+    #   debug:
+    #     msg: "{{ debug_informational | json_query('results[*].msg') | join(', ')}}"
+    #   # when: not (item.skipped) 
+
+    # - name: " [CHECK REGISTER] debug notification  "
+    #   debug:
+    #     var: setup_user_v2.debug_notification
+    #     verbosity: 3
+    #   when: setup_user_v2.debug_notification is defined
+    # - name: " [CHECK REGISTER] debug warning  "
+    #   debug:
+    #     var: setup_user_v2.debug_warning
+    #     verbosity: 2
+    #   when: setup_user_v2.debug_warning is defined
+    # - name: " [CHECK REGISTER] debug error  "
+    #   debug:
+    #     var: setup_user_v2.debug_error
+    #     verbosity: 1
+    #   when: setup_user_v2.debug_error is defined
+    # - name: " [CHECK REGISTER] debug critical  "
+    #   debug:
+    #     var: setup_user_v2.debug_critical
+    #     verbosity: 1
+    #   when: setup_user_v2.debug_critical is defined
+    # - name: " [CHECK REGISTER] debug alert  "
+    #   debug:
+    #     var: setup_user_v2.debug_alert
+    #     verbosity: 0
+    #   when: setup_user_v2.debug_alert is defined
+    # - name: " [CHECK REGISTER] debug emergency  "
+    #   debug:
+    #     var: setup_user_v2.debug_emergency
+    #     verbosity: 0
+    #   when: setup_user_v2.debug_emergency is defined
+
+    # - name: setup user :{{users_on[hostname].whitelist |  join(", ")}} without privilege if privilege is not defined
+    #   debug:
+    #     msg:  "{{ userdb2[item].username }}"  
+    #   # ios_user:
+    #   #   name: "{{userdb2[item].username}}"
+    #     # state: present
+    #   loop:  "{{range(0, (userdb2 | length), 1)| list}}"
+    #   when: (userdb2.{{item}}.username not in  {{hostname}}.user.blocked) and ((userdb2.{{item}}.username in {{hostname}}.user.master) or (userdb2.{{item}}.username in {{hostname}}.user.whitelist)) 
+
+
+
+
+
+
+
+
+###########################################################
+# manipulasi filter untuk dictionary , list , dan query
+    # - name: "Display all cluster names"
+      # debug:
+        # var: item
+      # loop: "{{ domain_definition | json_query('domain.cluster[*].name') }}"
+    # - name: "Display all server names"
+      # debug:
+        # var: item
+      # loop: "{{ domain_definition | json_query('domain.server[*].name') }}"
+    # - name: "Display all ports from cluster1"
+      # debug:
+        # var: item
+      # loop: "{{ domain_definition | json_query(server_name_cluster1_query) }}"
+      # vars:
+        # server_name_cluster1_query: "domain.server[?cluster=='cluster1'].port"
+    # - name: "Display all ports from cluster1 as a string"
+      # debug:
+        # msg: "{{ domain_definition | json_query('domain.server[?cluster==`cluster1`].port') | join(', ') }}"
+    # - name: "Display all ports from cluster1 as a string"
+      # debug:
+        # var: (domain_definition | json_query('domain.server[?cluster==`cluster1`].port'))
+    # - name: "Display all ports from cluster1"
+      # debug:
+        # var: item
+      # loop: "{{ domain_definition | json_query('domain.server[?cluster==''cluster1''].port') }}"
+    # - name: "Display all server ports and names from cluster1"
+      # debug:
+        # var: item
+      # loop: "{{ domain_definition | json_query(server_name_cluster1_query) }}"
+      # vars:
+        # server_name_cluster1_query: "domain.server[?cluster=='cluster2'].{jeneng: name, colok: port}"
+    # - name: give me shortest combo of two lists
+      # debug:
+        # msg: "{{ [1,2,3] | zip(['a','b','c','d','e','f']) | list }}"
+    # - name: give me list combo of two lists
+      # debug:
+       # msg: "{{ [1,2,3,4,5] | zip(['a','b','c','d','e','f']) | list }}"
+    # - name: give me shortest combo of two lists
+      # debug:
+        # msg: "{{ [1,2,3] | zip(['a','b','c','d','e','f'])  }}"
+    # - name: give me list combo of two lists
+      # debug:
+       # msg: "{{ [1,2,3,4,5] | zip(['a','b','c','d','e','f']) }}"
+    # - name: give me longest combo of three lists , fill with X
+      # debug:
+        # msg: "{{ [1,2,3] | zip_longest(['a','b','c','d','e','f'], [21, 22, 23], fillvalue='X') | list }}"
+    # - name: debug 1
+      # debug: 
+        # msg: "{{  poolss.0 | dict2items }}"
+    # - name: debug 2
+      # debug: 
+        # msg: "{{item}}"
+      # loop: 
+        # - a
+        # - b
+        # - c
+
+
+
+##########################################################
+   # with_nested:
+     # - "{{pool_on[hostname].list}}"
+     # - "{{ range(0, 3 + 1, 2)|list}}"  
+   #when: pooldb.{{item}}.excluded is defined
+# loop: "{{ pool_on[hostname].list|product(pooldb.{{item.0}}.excluded)|list }}"   
+   
+    # - debug:
+        # msg: " {{outer_item}} - {{item}} "
+        # #"ip dhcp excluded-address {{ pooldb[outer_item].excluded[item] }}"
+      # loop: "{{ pooldb[outer_item].excluded }}"    
+      # # with_items:
+        # # - a
+        # # - b
+        # # - c      
+         # # - "{{ range(0, pooldb[outer_item].excluded|length + 1 , 1)| unique}}" 
+      
+    # - name: excluded pool is  
+    # #{{ pooldb[item].excluded[0] | default("NOT DECLARED")}}
+      # debug:
+        # msg: "{{ item[0] ,item[1]}}"
+      # with_nested:
+        # - "{{pool_on[hostname].list}}"
+        # - "{{pooldb.{{poolname}}.excluded}}" 
+      # when: pooldb.{{item}}.excluded is defined
+
+               
+ # - name: with_nested
+   # debug:
+     # msg: "{{ outer_item }} - {{ item }}"
+   # loop:
+     # - "{{ range(0, pooldb[outer_item].excluded|length + 1, 1)|list }}" 
+
+# loop dalam loop dan dengan variabel masing2 indepedent     
+ # - name: with_nested
+   # debug:
+     # msg: "{{ item.0 }} - {{ item.1 }}"
+   # with_nested:
+     # - "{{ pool_on[hostname].list }}"
+     # - "{{ pooldb[poolname].excluded }}" 
+ # - name: with_nested -> loop
+   # debug:
+     # msg: "{{ item.0 }} - {{ item.1 }}"         
+   # loop: "{{ pool_on[hostname].list|product(pooldb[poolname].excluded)|list }}" 
+
+#############################################
+##loop kontrol
+   # - name: count our fruit
+      # debug:
+        # msg: "{{ item }} with index {{ my_idx }}"
+      # loop:
+        # - apple
+        # - banana
+        # - pear
+      # loop_control:
+        # index_var: my_idx
+        # ##
+        
+        
+        
+        
+        
+        
+ #####################################################
+ ##get keys of a 'dict'
+    # - name: remove user on list
+      # debug:
+        # msg: "{{item.key}} - {{users_on[hostname].list}}"
+      # loop: "{{lookup ('dict',userdb)}}"
+      # when: "not((item.key in users_on[hostname].list) or (item.key in users_on[hostname].master))"
+  
+  
+  ####################################################
+  ## iter item/ keys/values of a dict
+  # - debug:
+        # msg: "{{item}}"
+      # loop: "{{ users_on[hostname].keys() }}"
+      # loop: "{{ users_on[hostname].items() }}"    
+      # loop: "{{ users_on[hostname].values() }}"   
+  
+
+    # - name: gather username fact
+      # ios_facts:
+        # gather_subset: config
+      # register: (echo | parse_cli('/etc/ansible/output')
+    # - debug:
+        # var: echo.ansible_facts.ansible_net_config 
+        # verbosity: 1
+        
+        
+   ################################################
+      # - name: give users access to multiple databases
+      # debug:
+      #   msg: "{{item.1}}"
+      # loop: "{{ pooldb2 | subelements('excluded') }}"
+      # when: item.0.name in {{hostname}}.dhcp_pool
+  
+    # - name: Show configured default become user
+      # debug: msg="{{ lookup('config', 'DEFAULT_BECOME_USER')}}"
+
+    # - name: print out role paths
+      # debug:
+        # msg: "These are the configured role paths: {{lookup('config', 'DEFAULT_ROLES_PATH')}}"
+
+    # - name: find retry files, skip if missing that key
+      # find:
+        # paths: "{{lookup('config', 'RETRY_FILES_SAVE_PATH')|default(playbook_dir, True)}}"
+        # patterns: "*.retry"
+
+    # - name: see the colors
+      # debug: msg="{{item}}"
+      # loop: "{{lookup('config', 'COLOR_OK', 'COLOR_CHANGED', 'COLOR_SKIP', wantlist=True)}}"
+
+    # - name: skip if bad value in var
+      # debug: msg="{{ lookup('config', config_in_var, on_missing='skip')}}"
+      # vars:
+        # config_in_var: UNKNOWN
+  
+    # - name: Show configured default become user
+      # debug: msg="{{ lookup('config', 'DEFAULT_BECOME_USER')}}"
+    # - debug:
+        # msg: "all are true!"
+      # when: mylist is all
+
+    # - debug:
+        # msg: "at least one is true"
+      # when: myotherlist is any
+
+    # - debug:
+        # msg: "matched pattern 1"
+      # when: url is match("http://example.com/users/.*/resources/.*")
+
+    # - debug:
+        # msg: "matched pattern 2"
+      # when: url is search("/users/.*/resources/.*")
+
+    # - debug:
+        # msg: "matched pattern 3"
+      # when: url is search("/users/")
+    # - name: asa
+      # debug:
+        # var: #poolss[item].name
+      # loop:  "{{range(0, (poolss | length), 1)| list}}"
+      # when: poolss.{{item}}.name in hostname.dhcp_pool
+    # - name: valid but useless and over complicated chained lookups and filters
+      # debug: msg="find the answer here:\n{{ lookup('url', 'https://google.com/search/?q=' + item|urlencode)|join(' ') }}"
+      # with_nested:
+        # - "{{lookup('consul_kv', 'bcs/' + lookup('file', '/the/question') + ', host=localhost, port=2000')|shuffle}}"
+        # - "{{lookup('sequence', 'end=42 start=2 step=2')|map('log', 4)|list)}}"
+        # - ['a', 'c', 'd', 'c']  
+        
+        
+#########################################################
+    # # # # # - name: valid but useless and over complicated chained lookups and filters
+      # # # # # debug: msg="find the answer here:\n{{ lookup('url', 'https://google.com/search/?q=' + item|urlencode)|join(' ') }}"
+      # # # # # with_nested:
+        # # # # # # - "{{lookup('consul_kv', 'bcs/' + lookup('file', '/the/question') + ', host=localhost, port=2000')|shuffle}}"
+        # # # # # - "{{lookup('sequence', 'end=42 start=2 step=2')|map('log', 4)|list)}}"
+        # # # # # - ['a', 'c', 'd', 'c']
+
+    # # - name: give users access to multiple databases
+      # # debug:
+        # # msg: "{{item.1}}"
+        # # #"{{ item[0] }} - {{ item[1] }}"
+      # # # loop: "{{ pooldb2.[*].list |product(range(0, (pooldb2 | length), 1)| list)|list }}"
+      # # #"{{range(0, (pooldb2 | length), 1)| list}}"
+      # # # loop:  "{{lookup('sequence', 'end=42 start=2 step=2')|map('log', 4)|list)}}" 
+      
+      # # loop:
+        # # - "{{range(0, (pooldb2 | length), 1)| list}}"      
+        # # - "{{ pooldb2 | subelements('excluded') }}"
+      # # when: pooldb2.{{item.0}}.name in {{hostname}}.dhcp_pool
+     
+        
+    # # #  loop: "{{ pool_on[hostname].list |product(range(0, (pooldb2 | length), 1)| list)|list }}"
+
+    # # # - name: asa
+      # # # debug:
+       # # # # var: item
+       # # # msg: "{{ item.0 | join (',')}}"
+      # # # loop: 
+        # # # - "{{pool_on[hostname].list}}"
+        # # # - "{{range(0, (pooldb2 | length), 1)| list}}"
+      
+   # # ##     - {{range(0, (pooldb2 | length), 1)| list}}
+     # # ##   - ['1','2','3']
+   
+    # # # - name: asa
+      # # # debug:
+        # # # msg:  "{{pooldb2 | json_query('[*].name') | join(', ')}}"
+    # # # - name: asa
+      # # # debug:
+       # # #var: pooldb2[item].name
+      # # # loop:  "{{range(0, (pooldb2 | length), 1)| list}}"
+      # # # when: pooldb2.{{item}}.name in {{hostname}}.dhcp_pool
+      # # # loop: "{{pooldb2 | json_query('[*].name')}}"
+
+
+
+      
+
+#  - set_fact:
+#         result_item: '{{ item.name  }}-{{ item.port }}'
+#       with_items:
+#         - '{{ servers }}'
+#       register: result_list
+#     - debug:
+#         var: result_list
+#     - set_fact:
+#         result: '{{ result_list.results | map(attribute="ansible_facts.result_item") | join(",") }}'
+
+#     - debug:
+#         var: result
+#     - set_fact:
+#         result: "{% for item in servers %}{{item.name}}-{{item.port}}{{ '' if loop.last else ',' }}{% endfor %}"
+#     - debug:
+#         var: result
+
+#  - name: "Display all server ports and names from cluster1"
+#       debug:
+#         var: item
+#       loop: "{{ domain_definition | json_query(server_name_cluster1_query) }}"
+#       vars:
+#         server_name_cluster1_query: "domain.server[?cluster=='cluster2'].{jeneng: name, colok: port}"
+
+
+          #count: "{{ interface_db[hostname] | json_query('[*].access_vlan') | map('regex_replace', '^(.*)$', 'v\\1')  | select('equalto','v101') |list  }}"
+          #map('regex_replace', '^(.*)$', 'v\\1') | list | rejectattr('v101')}}"
+          # `101`
+
+          # | select('equalto', 101)
+          #'{{ interface_db[hostname] |  | count }}'
+          
+          # count2: "{{ interface_db[hostname] | json_query('[?access_vlan==`101`].name')  | join(',')  }}"
+
+          #           #count: "{{ interface_db[hostname] | json_query('[*].access_vlan') | map('regex_replace', '^(.*)$', 'v\\1')  | select('equalto','v101') |list  }}"
+#           #map('regex_replace', '^(.*)$', 'v\\1') | list | rejectattr('v101')}}"
+
+#           # | select('equalto', 101)
+#           #'{{ interface_db[hostname] |  | count }}'
+          
+#           count2: "{{ interface_db[hostname] | json_query('[?access_vlan==`101`].name')  | join(',')  }}"
+#       trunk:
+# # `101`

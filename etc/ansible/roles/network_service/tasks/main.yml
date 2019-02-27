@@ -1,0 +1,13 @@
+# network_service used for a non block indentation in cisco config file 
+- name: Deploy Services 
+  include_tasks: service_enable.yml
+  when: ansible_network_os == "ios" and ansible_case == "deploy" 
+# - name: Deploy Disabled Services
+#   include_tasks: service_disable.yml
+#   when: ansible_network_os == "ios" and ansible_case == "deploy" 
+- name: Usage / Monitor Services
+  include_tasks: nxos.yml
+  when: ansible_network_os == "ios" and ansible_case == "usage" 
+- name: Maintenance Services
+  include_tasks: nxos.yml
+  when: ansible_network_os == "ios" and ansible_case == "maintenance" 

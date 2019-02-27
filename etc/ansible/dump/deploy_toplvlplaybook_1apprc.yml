@@ -1,0 +1,13 @@
+- name: top level playbook first approach
+  hosts: localhost
+  gather_facts: yes
+  connection: local
+  vars:
+    ansible_ssh_user:
+  roles:
+    - role: first_deploy
+      var:
+      - massage : "hello"  
+#    - maintainance
+#    - updates
+#    - backuprestore

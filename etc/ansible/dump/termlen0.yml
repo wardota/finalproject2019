@@ -1,0 +1,23 @@
+---
+- name: all 
+  hosts: ku3_a2
+  gather_facts: no
+  gather_timeout: 60
+  connection: local
+  ignore_errors: yes
+  # roles:
+  #   - ansible-network.network-engine
+
+  tasks:
+  - name: CAPTURE SHOW IP INTERFACE
+    ios_command:
+      commands:
+        - show ip interface brief
+    register: output
+    
+  - name: DISPLAY THE OUTPUT
+    debug: 
+      var: output.stdout
+  - command_parser:
+      file: "parsers/ios/show_ip_interface_brief.yaml"
+      content: "{{ output.stdout[0] }}"

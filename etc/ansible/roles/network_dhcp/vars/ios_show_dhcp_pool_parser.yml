@@ -1,0 +1,37 @@
+# sw_ku3_b3#sh ip dhcp pool
+
+# Pool WIFI_C_LT3B :
+#  Utilization mark (high/low)    : 100 / 0
+#  Subnet size (first/next)       : 0 / 0
+#  Total addresses                : 0
+#  Leased addresses               : 0
+#  Pending event                  : none
+#  0 subnet is currently in the pool
+
+# Pool WIFI_D_LT3B :
+#  Utilization mark (high/low)    : 100 / 0
+#  Subnet size (first/next)       : 0 / 0
+#  Total addresses                : 0
+#  Leased addresses               : 0
+#  Pending event                  : none
+#  0 subnet is currently in the pool
+
+# Pool WIFI_C_LT1B :
+#  Utilization mark (high/low)    : 100 / 0
+#  Subnet size (first/next)       : 0 / 0
+#  Total addresses                : 254
+#  Leased addresses               : 0
+#  Pending event                  : none
+#  1 subnet is currently in the pool :
+#  Current index        IP address range                    Leased addresses
+#  192.190.20.1         192.190.20.1     - 192.190.20.254    0
+
+# Pool WIFI_D_LT1B :
+#  Utilization mark (high/low)    : 100 / 0
+#  Subnet size (first/next)       : 0 / 0
+#  Total addresses                : 254
+#  Leased addresses               : 0
+#  Pending event                  : none
+#  1 subnet is currently in the pool :
+#  Current index        IP address range                    Leased addresses
+#  192.168.24.1         192.168.24.1     - 192.168.24.254    0

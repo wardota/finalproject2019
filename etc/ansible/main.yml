@@ -1,0 +1,174 @@
+---
+- name: Automation Project
+  hosts: myall
+  gather_facts: no
+  gather_timeout: 60
+  connection: local
+  ignore_errors: no
+  pre_tasks:
+      #   PING TEST
+    - name: test PING to host
+      ping:
+          data: pong 
+
+      #   CONNECTION AND PING TEST
+        # - name: get show 
+        #   ios_command:
+        #     commands:
+        #       - "show run"
+        #     timeout: "{{ set_timeout }}"
+        #   register: ifaces_output
+        # - set_fact:
+        #     nxos_iface: "{{ ifaces_output.stdout[0] |  parse_cli('ios_show_running_config_parser.yml') }}"  
+        # - set_fact:
+        #     nxss_iface: "{{ ifaces_output.stdout[0] |  parse_cli('ios_show_running_config_username_parser.yml') |  json_query('config_users[].{username:username,privilege:privilege, secret_value:secret_value,fingerprint:fingerprint}')  }}"
+        # - set_fact:
+        #     nxsss_iface: "{{ ifaces_output.stdout[0] |  parse_cli('ios_show_running_config_dhcp_parser.yml') }}"
+        # - set_fact:
+        #     nxssss_iface: "{{ ifaces_output.stdout[0] |  parse_cli('ios_show_running_config_dhcp_excluded_parser.yml') | json_query('ip_dhcp_excluded[].[range]')|flatten}}"
+        # - set_fact:
+        #      crypto_pki_trustpoint: "{{ ifaces_output.stdout[0] |  parse_cli('ios_show_running_config_crypto_pki_trustpoint_parser.yml') }}" 
+        # - set_fact:
+        #      crypto_pki_cert: "{{ ifaces_output.stdout[0] |  parse_cli('ios_show_running_config_crypto_pki_certificate_parser.yml') }}" 
+        # - set_fact:
+        #     vlanaaa: "{{ ifaces_output.stdout[0] |  parse_cli('ios_show_running_config_vlan_parser.yml') }}" 
+        # - set_fact:
+        #      interfaceasdasa: "{{ ifaces_output.stdout[0] |  parse_cli('ios_show_running_config_interface_parser.yml') }}" 
+        # - set_fact:
+        #      linewef3f: "{{ ifaces_output.stdout[0] |  parse_cli('ios_show_running_config_line_parser.yml') }}" 
+        # # - wait_for:
+        # #     sleep: 300
+    
+        # - name: get show interface status
+        #   ios_command:
+        #     commands:
+        #       - "show interface status"
+        #     timeout: "{{ set_timeout }}"
+        #   register: ifaces_output
+        #   until: ifaces_output.failed == false
+        #   retries: 3
+        # - debug: 
+        #     var: ifaces_output
+        #     verbosity: "{{ set_verbosity }}"
+        # - set_fact:
+        #     nxos_iface: "{{ ifaces_output.stdout[0] | parse_cli('ios_show_interface_status_parser.yml') }}"  
+        # - debug: 
+        #     var: nxos_iface
+        #     verbosity: "{{ set_verbosity }}"
+        # # - wait_for:
+        # #     sleep: 300
+
+        # - name: get show interface stats
+        #   ios_command:
+        #     commands:
+        #       - "show interface stats"
+        #     timeout: "{{ set_timeout }}"
+        #   register: ifaces_output
+        #   until: ifaces_output.failed == false
+        #   retries: 3
+        # - debug: 
+        #     var: ifaces_output
+        #     verbosity: "{{ set_verbosity }}"
+        # - set_fact:
+        #     nxos_iface: "{{ ifaces_output.stdout[0] | parse_cli('ios_show_interface_stats_parser.yml') }}"  
+        # - debug: 
+        #     var: nxos_iface
+        #     verbosity: "{{ set_verbosity }}"
+        # - wait_for:
+        #     sleep: 300
+
+        # - name: get show interface 
+        #   ios_command:
+        #     commands:
+        #       - "show interface"
+        #     timeout: "{{ set_timeout }}"
+        #   register: ifaces_output
+        #   until: ifaces_output.failed == false
+        #   retries: 3
+        # - set_fact:
+        #     nxos_iface: "{{ ifaces_output.stdout[0] | parse_cli('ios_show_interface_parser.yml') }}"  
+        # - wait_for:
+        #     sleep: 300
+
+        # - name: get show interface summary
+        #   ios_command:
+        #     commands:
+        #       - "show interface summary"
+        #     timeout: "{{ set_timeout }}"
+        #   register: ifaces_output
+        #   until: ifaces_output.failed == false
+        #   retries: 3
+        # - set_fact:
+        #     nxos_iface: "{{ ifaces_output.stdout[0] | parse_cli('ios_show_interface_summary_parser.yml') }}"  
+
+        # - name: get show vlan-switch
+        #   ios_command:
+        #     commands:
+        #       - "show vlan-switch"
+        #     timeout: "{{ set_timeout }}"
+        #   register: network_cli  
+        # - debug: 
+        #     var: network_cli
+        #     verbosity: "{{ set_verbosity }}"
+        # - set_fact:  
+        #     parsed_cli: "{{ network_cli.stdout[0] | parse_cli('ios_show_vlan_switch_parser.yml') }}"
+        # - wait_for:
+        #     sleep: 300
+
+        # #==================================  
+        #     - debug:
+        #         var: ansible_host
+        #         verbosity: 2 #"{{ verbosity }}" 
+        #     - debug:
+        #         var: hostname
+        #         verbosity: 2 #"{{ verbosity }}" 
+        #     - debug:
+        #         var: "{{hostname}}"
+        #         verbosity: 2 #"{{ verbosity }}"    
+        #       register: host_db        
+        # - name: test set hostname
+        #   ios_config:
+        #     lines:
+        #       - hostname {{hostname}}
+        #     provider:
+        #       timeout: "{{ timeout }}"
+        #   delay: "{{ delay }}"
+        #   retries: "{{ retries }}"
+        #   ignore_errors: yes
+        #   register: result
+        #   until: result.changed == false  
+    - name: test PING reachability using default vrf
+      ios_ping:
+        dest: 10.240.192.1
+        provider:
+          timeout: "{{ timeout }}"
+      delay: "{{ delay }}"
+      retries: "{{ retries }}"
+      register: test_ping
+    - set_fact:
+        ansible_case: deploy
+
+  roles: 
+
+    - network_inspect
+    # - network_dhcp
+    # - network_user
+    # - network_line
+    # - network_service
+    # - network_vlan
+    # - network_interface
+    # - network_inspect
+    # - network_crypto
+    
+    # - evaluate_deploy
+    # - set_to_monitor
+    # - maintenance
+    #migrasi
+# 
+    #mig
+    
+  tasks: 
+  post_tasks:
+
+
+

@@ -1,0 +1,174 @@
+pooldb2:
+# Lantai 1
+  - name: WIFI_A_LT0A 
+    ipv4_network: 192.190.1.0 
+    ipv4_subnet: 255.255.255.0
+    ipv4_prefix: 24
+    default_router: 192.168.1.1
+    lease_days: 0
+    lease_hours: 2
+    domain-name: telkomuniversity.ac.id
+    dns-server: 192.252.252.4 192.252.252.5
+    excluded:
+      - 192.190.1.1 192.190.1.19
+  - name: WIFI_B_LT0A
+    ipv4_network:  192.190.2.0
+    ipv4_subnet: 255.255.255.0
+    ipv4_prefix: 24
+    default_router: 192.168.2.1
+    lease_days: 0
+    lease_hours: 2
+    domain-name: telkomuniversity.ac.id
+    dns-server: 192.252.252.4 192.252.252.5
+    excluded:
+      - 192.168.2.1 192.168.2.19  
+
+
+# Lantai 2
+  - name: WIFI_A_LT1A
+    ipv4_network: 192.190.4.0 
+    ipv4_subnet: 255.255.255.0
+    ipv4_prefix: 24
+    default_router: 192.168.4.1
+    lease_days: 0
+    lease_hours: 2
+    domain-name: telkomuniversity.ac.id
+    dns-server: 192.252.252.4 192.252.252.5
+    excluded:
+      - 192.190.4.1 192.190.4.19
+  - name: WIFI_B_LT1A
+    ipv4_network:  192.190.8.0
+    ipv4_subnet: 255.255.255.0
+    ipv4_prefix: 24
+    default_router: 192.168.8.1
+    lease_days: 0
+    lease_hours: 2
+    domain-name: telkomuniversity.ac.id
+    dns-server: 192.252.252.4 192.252.252.5
+    excluded:
+      - 192.168.8.1 192.168.8.19  
+  - name: WIFI_C_LT1B
+    ipv4_network: 192.190.20.0 
+    ipv4_subnet: 255.255.255.0
+    ipv4_prefix: 24
+    default_router: 192.168.20.1
+    lease_days: 0
+    lease_hours: 2
+    domain-name: telkomuniversity.ac.id
+    dns-server: 192.252.252.4 192.252.252.5
+    excluded:
+      - 192.190.20.1 192.190.20.19
+  - name: WIFI_D_LT1B
+    ipv4_network: 192.168.24.0
+    ipv4_subnet: 255.255.255.0
+    ipv4_prefix: 24
+    default_router: 192.168.24.1
+    lease_days: 0
+    lease_hours: 2
+    domain-name: telkomuniversity.ac.id
+    dns-server: 192.252.252.4 192.252.252.5
+    excluded:
+      - 192.168.24.1 192.168.24.19
+
+  - name: WIFI_PPDU_BAA
+    ipv4_network: 192.168.5.0
+    ipv4_subnet: 255.255.255.0
+    ipv4_prefix: 24
+    default_router: 192.168.5.1
+    lease_days: 0
+    lease_hours: 4
+    excluded:
+      - 192.168.5.1 192.168.5.11
+      - 192.168.5.101 192.168.5.111
+
+# Lantai 3
+  - name: WIFI_A_LT3A
+    ipv4_network: 192.190.33.0 
+    ipv4_subnet: 255.255.255.0
+    ipv4_prefix: 24
+    default_router: 192.168.33.1
+    lease_days: 0
+    lease_hours: 2
+    domain-name: telkomuniversity.ac.id
+    dns-server: 192.252.252.4 192.252.252.5
+    excluded:
+      - 192.190.33.1 192.190.33.19
+  - name: WIFI_B_LT3A
+    ipv4_network:  192.190.8.0
+    ipv4_subnet: 255.255.255.0
+    ipv4_prefix: 24
+    default_router: 192.168.8.1
+    lease_days: 0
+    lease_hours: 2
+    domain-name: telkomuniversity.ac.id
+    dns-server: 192.252.252.4 192.252.252.5
+    excluded:
+      - 192.168.38.1 192.168.38.19  
+  - name: WIFI_C_LT3B
+    ipv4_network: 192.190.30.0 
+    ipv4_subnet: 255.255.255.0
+    ipv4_prefix: 24
+    default_router: 192.168.30.1
+    lease_days: 0
+    lease_hours: 2
+    domain-name: telkomuniversity.ac.id
+    dns-server: 192.252.252.4 192.252.252.5
+    excluded:
+      - 192.190.30.1 192.190.30.19
+  - name: WIFI_D_LT3B
+    ipv4_network: 192.168.34.0
+    ipv4_subnet: 255.255.255.0
+    ipv4_prefix: 24
+    default_router: 192.168.34.1
+    lease_days: 0
+    lease_hours: 2
+    domain-name: telkomuniversity.ac.id
+    dns-server: 192.252.252.4 192.252.252.5
+    excluded:
+      - 192.168.34.1 192.168.34.19
+
+# Lantai 4
+  - name: WIFI_A_LT4A
+    ipv4_network: 192.190.43.0 
+    ipv4_subnet: 255.255.255.0
+    ipv4_prefix: 24
+    default_router: 192.168.43.1
+    lease_days: 0
+    lease_hours: 2
+    domain-name: telkomuniversity.ac.id
+    dns-server: 192.252.252.4 192.252.252.5
+    excluded:
+      - 192.190.43.1 192.190.43.19
+  - name: WIFI_B_LT4A
+    ipv4_network:  192.190.48.0
+    ipv4_subnet: 255.255.255.0
+    ipv4_prefix: 24
+    default_router: 192.168.48.1
+    lease_days: 0
+    lease_hours: 2
+    domain-name: telkomuniversity.ac.id
+    dns-server: 192.252.252.4 192.252.252.5
+    excluded:
+      - 192.168.48.1 192.168.48.19  
+  - name: WIFI_C_LT4B
+    ipv4_network: 192.190.40.0 
+    ipv4_subnet: 255.255.255.0
+    ipv4_prefix: 24
+    default_router: 192.168.40.1
+    lease_days: 0
+    lease_hours: 2
+    domain-name: telkomuniversity.ac.id
+    dns-server: 192.252.252.4 192.252.252.5
+    excluded:
+      - 192.190.40.1 192.190.40.19
+  - name: WIFI_D_LT4B
+    ipv4_network: 192.168.44.0
+    ipv4_subnet: 255.255.255.0
+    ipv4_prefix: 24
+    default_router: 192.168.44.1
+    lease_days: 0
+    lease_hours: 2
+    domain-name: telkomuniversity.ac.id
+    dns-server: 192.252.252.4 192.252.252.5
+    excluded:
+      - 192.168.44.1 192.168.44.19

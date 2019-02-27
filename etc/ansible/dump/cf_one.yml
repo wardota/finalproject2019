@@ -1,0 +1,9 @@
+vars:
+  neighbor:
+    id: "{{ item.id }}"
+
+keys:
+  neighbors:
+    type: list
+    value: "{{ neighbor }}"
+    items: "^(?P<id>\\d+\\.\\d+\\.\\d+\\.\\d+)"

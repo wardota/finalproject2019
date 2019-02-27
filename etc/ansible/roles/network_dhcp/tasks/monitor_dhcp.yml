@@ -1,0 +1,65 @@
+## | sh dhcp binding
+  - name: get show vlan output a
+    ios_command:
+      commands:
+        - "show ip dhcp binding"
+      timeout: "{{ set_timeout }}"
+    register: vlan_output
+  - debug: 
+      var: vlan_output
+      verbosity: "{{ set_verbosity }}"
+## | parse      
+  - set_fact: 
+      ios_vlans: "{{ vlan_output.stdout[0] | parse_cli('ios_show_dhcp_binding_parser.yml')  }}"
+  - debug:   
+      var: ios_dhcp_binding 
+      verbosity: "{{ set_verbosity }}"
+## | sh dhcp conflict
+  - name: get show vlan output a
+    ios_command:
+      commands:
+        - "show ip dhcp conflict"
+      timeout: "{{ set_timeout }}"
+    register: vlan_output
+  - debug: 
+      var: vlan_output
+      verbosity: "{{ set_verbosity }}"
+## | parse      
+  - set_fact: 
+      ios_vlans: "{{ vlan_output.stdout[0] | parse_cli('ios_show_dhcp_conflict_parser.yml')  }}"
+  - debug:   
+      var: ios_dhcp_conflict
+      verbosity: "{{ set_verbosity }}"
+## | sh dhcp pool
+  - name: get show vlan output a
+    ios_command:
+      commands:
+        - "show ip dhcp pool"
+      timeout: "{{ set_timeout }}"
+    register: vlan_output
+  - debug: 
+      var: vlan_output
+      verbosity: "{{ set_verbosity }}"
+## | parse      
+  - set_fact: 
+      ios_vlans: "{{ vlan_output.stdout[0] | parse_cli('ios_show_dhcp_pool_parser.yml')  }}"
+  - debug:   
+      var: ios_dhcp_pool
+      verbosity: "{{ set_verbosity }}"
+
+## | sh dhcp server statistics
+  - name: get show vlan output a
+    ios_command:
+      commands:
+        - "show ip dhcp server statistics"
+      timeout: "{{ set_timeout }}"
+    register: vlan_output
+  - debug: 
+      var: vlan_output
+      verbosity: "{{ set_verbosity }}"
+## | parse      
+  - set_fact: 
+      ios_vlans: "{{ vlan_output.stdout[0] | parse_cli('ios_show_dhcp_server_statistics_parser.yml')  }}"
+  - debug:   
+      var: ios_dhcp_server_statistics
+      verbosity: "{{ set_verbosity }}"

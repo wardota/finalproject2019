@@ -1,0 +1,17 @@
+#    - name: enable services on list
+#      ios_config:
+#        lines:  "{{ services_on }}"
+    - name: enable services
+      ios_config:
+        lines:
+          - "{{ item }}"  
+        timeout: "{{ set_timeout }}"
+      loop: "{{ services_on }}"
+
+    - name: enable services {{hostname}}
+      ios_config:
+        lines:
+          - "{{ item }}"  
+        timeout: "{{ set_timeout }}"
+      loop: "{{ host_db[hostname].services_on }}"
+

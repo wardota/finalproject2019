@@ -1,0 +1,10 @@
+
+- name: Deploy VLAN 
+  include_tasks: setup_vlan_v2.yml
+  when: ansible_network_os == "ios" and ansible_case == "deploy" 
+- name: Usage / Monitor VLAN
+  include_tasks: nxos.yml
+  when: ansible_network_os == "ios" and ansible_case == "usage" 
+- name: Maintenance VLAN
+  include_tasks: nxos.yml
+  when: ansible_network_os == "ios" and ansible_case == "maintenance" 

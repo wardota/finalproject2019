@@ -1,0 +1,341 @@
+  - name: include  variable from file vlan_db.yml
+    include_vars: vlan_db.yml
+  - name: include  variable from file interface_db.yml 
+    include_vars: roles/network_interface/vars/interface_db.yml                                 
+  - name: set fact variable vlan_output from get show vlan  
+    ios_command:
+      commands:
+        - "show vlan-switch"
+      timeout: "{{ set_timeout }}"
+    register: vlan_output
+  - name: debug    variable value of vlan_output
+    debug: 
+      var: vlan_output
+      verbosity: "{{ set_verbosity }}"
+  - name: set fact variable ios_vlans 
+    set_fact: 
+      ios_vlans: "{{ vlan_output.stdout[0] | parse_cli('ios_show_vlan_parser.yml') | json_query('vlans[*].{vlan_id:id,name:name}') }}"
+        #   ios_vlans: '{{ ((vlan_output.stdout[0] | parse_cli("ios_show_vlan_parser.yml") | json_query("vlans[*].id")) | join(" ")).split(" ") }}'
+        # vlan_output.stdout[0] from register |
+        # ios_show_vlan_parser.yml from a file
+        # vlans[*].id from structure  inside vlan_output.stdout[0] from register 
+  - name: debug    variable ios_vlans
+    debug: 
+      var: ios_vlans 
+      verbosity: "{{ set_verbosity }}"     
+  - name: set fact variable vlan_db_pair
+    set_fact: 
+      vlan_db_pair: "{{ vlan_db | json_query('[*].{vlan_id:vlan_id, name:name}')}}"   #  "{{ vlan_db | items2dict(key_name='vlan_id', value_name='name') }}"
+  - name: debug    variable vlan_db_pair
+    debug:    ## | 
+      var: vlan_db_pair 
+      verbosity: "{{ set_verbosity }}"
+  - name: debug    variable vlan.by_name
+    debug:   
+      var: vlan.by_name 
+      verbosity: "{{ set_verbosity }}"                                                    
+  - name: set      variable vlan_db_diff_host_db
+    debug:
+      var: item.name
+    loop: "{{ vlan_db_pair }}"
+    when: item.name in  vlan.by_name
+    register: vlan_db_diff_host_db
+      # - debug:
+      #     var: vlan_db_pair | json_query('[*].name[]')
+  - name: set      variable host_db_diff_vlan_db
+    debug:
+      var: "{{ item }}"
+      verbosity: "{{ set_verbosity }}"
+    loop: "{{  vlan.by_name}}"
+    when: item in (vlan_db_pair | json_query('[*].name'))
+    register: host_db_diff_vlan_db  
+  - name: debug    variable host_db_diff_vlan_db
+    debug:
+      var: host_db_diff_vlan_db
+      verbosity: "{{ set_verbosity }}"
+  - name: set fact variable match_vlan_db_host_db
+    set_fact: 
+      match_vlan_db_host_db: "{{vlan_db_diff_host_db.results | json_query('[?!skipped].item')}}"
+  - name: set fact variable vlan_db_not_match_to_host_db
+    set_fact: 
+      vlan_db_not_match_to_host_db: "{{vlan_db_diff_host_db.results | json_query('[?skipped].item')}}"
+  - name: set fact variable match2_vlan_db_host_db
+    set_fact: 
+      match2_vlan_db_host_db: "{{host_db_diff_vlan_db.results | json_query('[?!skipped].item')}}"
+  - name: set fact variable host_db_not_match_to_vlan_db
+    set_fact: 
+      host_db_not_match_to_vlan_db: "{{host_db_diff_vlan_db.results | json_query('[?skipped].item')}}"
+  - name: debug    variable vlan_db_not_match_to_host_db 
+    debug: 
+      var: vlan_db_not_match_to_host_db 
+      verbosity: "{{ set_verbosity }}"
+  - name: debug    variable match_vlan_db_host_db 
+    debug:
+      var: match_vlan_db_host_db 
+      verbosity: "{{ set_verbosity }}" 
+  - name: debug    variable match2_vlan_db_host_db 
+    debug:
+      var: match2_vlan_db_host_db 
+      verbosity: "{{ set_verbosity }}"
+  - name: debug    variable host_db_not_match_to_vlan_db 
+    debug: 
+      var: host_db_not_match_to_vlan_db 
+      verbosity: "{{ set_verbosity }}"
+        # ? shpuld we add them but we dont know the id
+
+  - name: ios vlan variable match_vlan_db_host_db [present] and set variable set_vlan
+    ios_vlan:
+      vlan_id: "{{item.vlan_id |string}}"
+      name: "{{item.name  |string}}"
+      state: present
+      provider:
+        timeout: "{{ set_timeout }}"
+    loop: "{{ match_vlan_db_host_db }}"
+    loop_control:
+       label: "{{ item.name }} {{ item.vlan_id }}"
+      # ignore_errors: yes
+    register: set_vlan
+    delay: 60
+      # - debug:
+      #     var:  set_vlan
+      #     verbosity: "{{ set_verbosity }}"
+
+    ## | setup vlan just the based on interface_db acces_vlan and native_vlan  
+  - name: ios vlan variable interface_db if exist in vlan_db [present] and set variable create_vlan
+    ios_vlan:
+      vlan_id: "{{ item.vlan_id }}"
+      name: "{{ item.name}}"
+      state: present
+      timeout: "{{ set_timeout }}"
+    loop: "{{ vlan_db }}"  
+    loop_control:
+       label: "{{ item.name }} {{ item.vlan_id }} "
+    when: item.vlan_id in interface| json_query("[*].[access_vlan,native_vlan][]") | unique 
+      # ketika: vlan_db.vlan_id ada di (di access_vlan,native_vlan,trunk_allowed_vlan,trunk_allowed_vlan_add dari interface_db)
+    register: create_vlan    
+    delay: 30
+    retries: 3  
+        #   - debug:
+        #       var: item.vlan_id 
+        #     loop: "{{vlan_db }}"
+        #     when: item.vlan_id in interface_db[hostname_a2] | json_query("[*].[access_vlan,native_vlan][]") | unique
+        # until: reset_vlan.changed == true  # [problem] first deploy value == true , but when maintenance value == false, while if any update or changes then value == true
+        # retries: 3
+        #   - debug: 
+        #       var: interface_db[hostname_a2] | json_query("[*].[access_vlan,native_vlan][]") | unique
+        #       verbosity: 2
+        ## | Create vlan for interface_db of hostname based on vlan_db
+  - name: debug    variable set_vlan
+    debug:
+      var: set_vlan
+      verbosity: "{{ set_verbosity }}"
+  - name: debug    variable create_vlan
+    debug:
+      var: create_vlan
+      verbosity: "{{ set_verbosity }}"
+        # with_nested: 
+        #   # - "{{list1}}"
+        #   # - "{{list2}}"
+        #   - '{{ ((interface_db[hostname_a2] | selectattr("access_vlan", "defined")| map(attribute="access_vlan") | list ) +( interface_db[hostname_a2] | selectattr("native_vlan", "defined") | map(attribute="native_vlan") | list )) | unique}}'    
+        #   - "{{range(0, (vlan_db | length), 1)| list}}"
+        # when:     item.0 == vlan_db[item.1].vlan_id or (item.0 == vlan_d
+    
+  - name: set fact variable is_ios_vlans_in in match_vlan_db_host_db or vlan_db_not_match_to_host_db
+    debug:
+      var: "{{ item }}"
+      verbosity: "{{ set_verbosity }}"
+    loop: "{{ (ios_vlans | json_query('[*].[vlan_id][]') | join (' ')).split(' ')  }}"
+    when: (item in (match_vlan_db_host_db | json_query('[*].[vlan_id][]') | join (' ')).split(' ')) or (item in (vlan_db_not_match_to_host_db | json_query('[*].[vlan_id][]') | join (' ')).split(' '))
+    register: is_ios_vlans_in
+        # - debug:
+        #     var: match_vlan_db_host_db | json_query('[*].[vlan_id][]')      
+        # - debug:
+        #     var: (ios_vlans | json_query('[*].[vlan_id][]') | join(' ')).split(' ')   
+        # - debug:
+        #       var: "{{ item }}"
+        #     loop: "{{ (ios_vlans | json_query('[*].[vlan_id][]') | join (' ')).split(' ')  }}"
+        #     when: item in (match_vlan_db_host_db | json_query('[*].[vlan_id][]') | join (' ')).split(' ')
+  - name: debug    variable is_ios_vlans_in
+    debug: 
+      var: is_ios_vlans_in
+      verbosity: "{{ set_verbosity }}"
+  - name: set fact variable ios_vlans_not_match
+    set_fact: 
+      ios_vlans_not_match: "{{is_ios_vlans_in.results | json_query('[?skipped].item')}}"
+  - name: set fact variable ios_vlans_match
+    set_fact:
+      ios_vlans_match: "{{is_ios_vlans_in.results | json_query('[?!skipped].item')}}" 
+  - name: debug    variable ios_vlans_match
+    debug:
+      var: ios_vlans_match
+      verbosity: "{{ set_verbosity }}"
+
+  - name: debug    variable ios_vlans_not_match as deleted vlan
+    debug:  
+      var: ios_vlans_not_match
+      verbosity:  "{{ set_verbosity }}"
+  - name: ios vlan variable ios_vlans_not_match [absent]
+    ios_vlan:
+      vlan_id: "{{ item }}"
+      state: absent
+      timeout: "{{ set_timeout }}"
+    loop: "{{ios_vlans_not_match }}"
+    register: delete_vlan
+    retries: 3
+  - name: debug    variable delete_vlan
+    debug:  
+      var: delete_vlan
+      verbosity: "{{ set_verbosity }}"
+
+    #   - name: Add interfaces to VLAN as mode access
+    #     ios_vlan:
+    #       vlan_id: 201
+    #       interfaces:
+    #         - FastEthernet1/1
+    #         - FastEthernet1/2
+    #       timeout: "{{ set_timeout }}"
+    #     # loop: subelement / nested
+    #     # when: interface is set as vlan access is defined
+
+    #   - name: Check if interfaces is assigned to VLAN 
+    #     ios_vlan:
+    #       vlan_id: 202
+    #       associated_interfaces:
+    #         - FastEthernet1/1
+    #         - FastEthernet1/2
+    #       timeout: "{{ set_timeout }}"
+    #     ignore_errors: yes
+    #     register: check_assign_vlan_in_interface
+    #   - name:
+    #     debug: 
+    #       var: check_assign_vlan_in_interface
+    #       verbosity: "{{ set_verbosity }}"
+    #   - name:
+    #     set_fact:
+    #       interface_as_access_fail: "{{check_assign_vlan_in_interface.results | json_query('[?failed].item')}}" 
+
+
+    ## | experimental                                                          
+        # #   - debug:
+        # #       var: "{{vlan_db_pair[item]}}"
+        # #       verbosity: 0 #4 [USED - DEBUG]
+        # #     loop: "{{ vlan_db_pair.keys()}}"
+        # #     when: vlan_db_pair[item] in {{hostname}}.vlan.by_name
+        # #     register: vlan_on_hostname
+        # #   - debug:
+        # #       msg: "the id {{item}} with name {{vlan_db_pair[item] | default('blank', true)}} is not listed in vlan.by_name of the hostname"
+        # #       verbosity: 0 #2 [NOTIFICATIONAL]
+        # #     loop: "{{ vlan_db_pair.keys()}}"
+        # #     when: vlan_db_pair[item] not in {{hostname}}.vlan.by_name
+        # #     register: vlan_not_on_hostname
+        #   - debug: 
+        #       var: vlan_on_hostname.results.items()
+        #   - debug: 
+        #       var: "{{item}}"
+        #     loop: "{{ ios_vlans }}"
+        #     when: item in vlan_on_hostname.results[::].keys()
+        # #   - ios_vlan:
+        # #       vlan_id: "{{ item }}"
+        # #       name: "{{pair_name_id[item]}}"
+        # #       state: present
+        #   - debug:
+        #       var: "{{ item }}  - {{pair_name_id[item]}}"
+        #     loop: "{{ pair_name_id.keys()}}"
+        #     when: (item in ios_vlans) in {{hostname}}.vlan.by_name
+
+
+        # [][Translate value hostname.vlan.by_name to list_vlan_id based on vlan_db ]
+        #   - set_fact:                                                      #sifatnya override meski di loop
+        #       list_vlan_id: "{{vlan_db | json_query('[*].[vlan_id,name]')  }}"
+        #   - debug:
+        #       var: item.0
+        #     loop: "{{list_vlan_id }}"
+        #     when: item.1 in {{hostname}}.vlan.by_name 
+        #   - debug:
+        #       var: ios_vlans.vlans | json_query("[*].[id][]") 
+        #   - debug: 
+        #       msg: "{{ item }}"
+        #     loop:  '{{ios_vlans.vlans | json_query("[*].[id][]") }}'
+        # when:  item in (vlan_db.name in {{}}.vlan.by_name
+
+
+    ###############################################
+    # EXMAPLE DUMP                                                             
+
+      # - name: Add interfaces to VLAN
+      #   ios_vlan:
+      #     vlan_id: 100
+      #     interfaces:
+      #       - GigabitEthernet0/0
+      #       - GigabitEthernet0/1
+      # - name: Check if interfaces is assigned to VLAN
+      #   ios_vlan:
+      #     vlan_id: 100
+      #     associated_interfaces:
+      #       - GigabitEthernet0/0
+      #       - GigabitEthernet0/1
+      # - name: Delete vlan
+      #   ios_vlan:
+      #     vlan_id: 100
+      #     state: absent
+      # # ios_l2_interface - access - trunk - native 
+      # - name: Ensure GigabitEthernet0/5 is in its default l2 interface state
+      #   ios_l2_interface:
+      #     name: GigabitEthernet0/5
+      #     state: unconfigured
+      # - name: Ensure GigabitEthernet0/5 is configured for access vlan 20
+      #   ios_l2_interface:
+      #     name: GigabitEthernet0/5
+      #     mode: access
+      #     access_vlan: 20
+      # - name: Ensure GigabitEthernet0/5 only has vlans 5-10 as trunk vlans
+      #   ios_l2_interface:
+      #     name: GigabitEthernet0/5
+      #     mode: trunk
+      #     native_vlan: 10
+      #     trunk_vlans: 5-10
+      # - name: Ensure GigabitEthernet0/5 is a trunk port and ensure 2-50 are being tagged (doesn't mean others aren't also being tagged)
+      #   ios_l2_interface:
+      #     name: GigabitEthernet0/5
+      #     mode: trunk
+      #     native_vlan: 10
+      #     trunk_vlans: 2-50
+      # - name: Ensure these VLANs are not being tagged on the trunk
+      #   ios_l2_interface:
+      #     name: GigabitEthernet0/5
+      #     mode: trunk
+      #     trunk_vlans: 51-4094
+      #     state: absent
+
+      # - name: creating vlans
+      #   ios_vlan:
+      #     vlan_id: 104
+      #     name: vlannumber104
+      #     state: present
+      #   register: creating_vlan
+      # - debug:
+      #     var: creating_vlan
+      #     verbosity: 1
+      # - name: Ensure FastEthernet 1/13 is configured for access vlan 104
+      #   ios_l2_interface:
+      #     name: FastEthernet 1/13
+      #     mode: access
+      #     access_vlan: 104
+      #   register: set_fa_access
+      # - debug:
+      #     var: set_fa_access
+      #     verbosity: 1
+      # - name: Show interface FastEthernet 1/3 switchport result
+      #   ios_command:
+      #     commands: "show interfaces FastEthernet 1/3 switchport"
+      #   register: show_interfaces_switchport_fa
+      # - name: setvlan through ios_config
+      #   ios_config:
+      #     lines: name vlannumber101
+      #     parents: vlan 101
+      # - name: set access to interface
+      #   ios_config:
+      #     lines: 
+      #       - switchport mode access
+      #       - switchport access vlan 102
+      #     parents: interface FastEthernet 1/14

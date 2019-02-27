@@ -1,0 +1,277 @@
+###############################################
+# vlan_db
+  vlan_db: 
+  # lantai 1 dan 2
+    - vlan_id: "901"  #RFID-LT1A             
+      name: RFID-LT1A
+      description:
+      used_count:
+    - vlan_id: "902"  #CAMERA-LT1A           
+      name: CAMERA-LT1A
+      description:
+    - vlan_id: "903"  #LAN-PPDU-BAA          
+      name: LAN-PPDU-BAA
+      description:
+    - vlan_id: "904"  #WIFI-A-LT1A           
+      name: WIFI-A-LT1A
+      description:
+    - vlan_id: "908"  #WIFI-B-LT1A           
+      name: WIFI-B-LT1A
+      description:
+    - vlan_id: "910"  #WIFI-C-LT1B           
+      name: WIFI-C-LT1B 
+      description:
+    - vlan_id: "914"  #WIFI-D-LT1B           
+      name: WIFI-D-LT1B 
+      description:
+    - vlan_id: "916"  #RFID-LT1B             
+      name: RFID-LT1B
+      description:
+
+  # lantai 3
+    - vlan_id: "921"  #RFID-LT3A             
+      name: RFID-LT3A
+      description:
+      used_count:
+    - vlan_id: "922"  #CAMERA-LT3A           
+      name: CAMERA-LT3A
+      description:
+    - vlan_id: "923"  #WIFI-A-LT3A           
+      name: WIFI-A-LT3A
+      description:
+    - vlan_id: "928"  #WIFI-B-LT3A           
+      name: WIFI-B-LT3A
+      description:
+    - vlan_id: "920"  #WIFI-C-LT3B           
+      name: WIFI-C-LT3B 
+      description:
+    - vlan_id: "924"  #WIFI-D-LT3B           
+      name: WIFI-D-LT3B 
+      description:
+    - vlan_id: "926"  #RFID-LT3B             
+      name: RFID-LT3B
+      description:
+
+  # lantai 4
+    - vlan_id: "931"  #RFID-LT4A             
+      name: RFID-LT4A
+      description:
+      used_count:
+    - vlan_id: "932"  #CAMERA-LT4A           
+      name: CAMERA-LT4A
+      description:
+    - vlan_id: "933"  #WIFI-A-LT4A           
+      name: WIFI-A-LT4A
+      description:
+    - vlan_id: "938"  #WIFI-B-LT4A           
+      name: WIFI-B-LT4A
+      description:
+    - vlan_id: "930"  #WIFI-C-LT4B           
+      name: WIFI-C-LT4B 
+      description:
+    - vlan_id: "934"  #WIFI-D-LT4B           
+      name: WIFI-D-LT4B 
+      description:
+    - vlan_id: "936"  #RFID-LT4B             
+      name: RFID-LT4B
+      description:
+
+  # lantai 5
+    - vlan_id: "941"  #RFID-LT5A             
+      name: RFID-LT5A
+      description:
+      used_count:
+    - vlan_id: "942"  #CAMERA-LT5A           
+      name: CAMERA-LT5A
+      description:
+    - vlan_id: "943"  #WIFI-A-LT5A           
+      name: WIFI-A-LT5A
+      description:
+    - vlan_id: "948"  #WIFI-B-LT5A           
+      name: WIFI-B-LT5A
+      description:
+    - vlan_id: "940"  #WIFI-C-LT5B           
+      name: WIFI-C-LT5B 
+      description:
+    - vlan_id: "944"  #WIFI-D-LT5B           
+      name: WIFI-D-LT5B 
+      description:
+    - vlan_id: "946"  #RFID-LT5B             
+      name: RFID-LT5B
+      description:
+
+  # lantai 6
+    - vlan_id: "951"  #RFID-LT6A             
+      name: RFID-LT6A
+      description:
+      used_count:
+    - vlan_id: "952"  #CAMERA-LT6A           
+      name: CAMERA-LT6A
+      description:
+    - vlan_id: "953"  #WIFI-A-LT6A           
+      name: WIFI-A-LT6A
+      description:
+    - vlan_id: "958"  #WIFI-B-LT6A           
+      name: WIFI-B-LT6A
+      description:
+    - vlan_id: "950"  #WIFI-C-LT6B           
+      name: WIFI-C-LT6B 
+      description:
+    - vlan_id: "954"  #WIFI-D-LT6B           
+      name: WIFI-D-LT6B 
+      description:
+    - vlan_id: "956"  #RFID-LT6B             
+      name: RFID-LT6B
+      description:
+
+  # lantai 7
+    - vlan_id: "961"  #RFID-LT7A             
+      name: RFID-LT7A
+      description:
+      used_count:
+    - vlan_id: "962"  #CAMERA-LT7A           
+      name: CAMERA-LT7A
+      description:
+    - vlan_id: "963"  #WIFI-A-LT7A           
+      name: WIFI-A-LT7A
+      description:
+    - vlan_id: "968"  #WIFI-B-LT7A           
+      name: WIFI-B-LT7A
+      description:
+    - vlan_id: "960"  #WIFI-C-LT7B           
+      name: WIFI-C-LT7B 
+      description:
+    - vlan_id: "964"  #WIFI-D-LT7B           
+      name: WIFI-D-LT7B 
+      description:
+    - vlan_id: "966"  #RFID-LT7B             
+      name: RFID-LT7B
+      description:
+
+  # lantai 8
+    - vlan_id: "971"  #RFID-LT8A             
+      name: RFID-LT8A
+      description:
+      used_count:
+    - vlan_id: "972"  #CAMERA-LT8A           
+      name: CAMERA-LT8A
+      description:
+    - vlan_id: "973"  #WIFI-A-LT8A           
+      name: WIFI-A-LT8A
+      description:
+    - vlan_id: "978"  #WIFI-B-LT8A           
+      name: WIFI-B-LT8A
+      description:
+    - vlan_id: "970"  #WIFI-C-LT8B           
+      name: WIFI-C-LT8B 
+      description:
+    - vlan_id: "974"  #WIFI-D-LT8B           
+      name: WIFI-D-LT8B 
+      description:
+    - vlan_id: "976"  #RFID-LT8B             
+      name: RFID-LT8B
+      description:
+
+  # lantai 9
+    - vlan_id: "981"  #RFID-LT9A             
+      name: RFID-LT9A
+      description:
+      used_count:
+    - vlan_id: "982"  #CAMERA-LT9A           
+      name: CAMERA-LT9A
+      description:
+    - vlan_id: "983"  #WIFI-A-LT9A           
+      name: WIFI-A-LT9A
+      description:
+    - vlan_id: "988"  #WIFI-B-LT9A           
+      name: WIFI-B-LT9A
+      description:
+    - vlan_id: "980"  #WIFI-C-LT9B           
+      name: WIFI-C-LT9B 
+      description:
+    - vlan_id: "984"  #WIFI-D-LT9B           
+      name: WIFI-D-LT9B 
+      description:
+    - vlan_id: "986"  #RFID-LT9B             
+      name: RFID-LT9B
+      description:
+
+  # lantai 10  
+    - vlan_id: "991"  #RFID-LT10A             
+      name: RFID-LT10A
+      description:
+      used_count:
+    - vlan_id: "992"  #CAMERA-LT10A           
+      name: CAMERA-LT10A
+      description:
+    - vlan_id: "993"  #WIFI-A-LT10A           
+      name: WIFI-A-LT10A
+      description:
+    - vlan_id: "998"  #WIFI-B-LT10A           
+      name: WIFI-B-LT10A
+      description:
+
+  # mgm
+    - vlan_id: "1097" #vlan-mgmn-dev         
+      name: vlan-mgmn-dev
+      description:
+    - vlan_id: "1098" #vlan-mgmn-ap          
+      name: vlan-mgmn-ap
+      description:
+    - vlan_id: "1099" #scn-superVlan-Wirele  
+      name: scn-superVlan-Wirele
+      description:
+    - vlan_id: "3154" #network-chrome        
+      name: network-chrome
+      description:
+
+  # mgm no-name
+    - vlan_id: "1095"                        
+      name: 
+      description: 
+    - vlan_id: "1957"                        
+      name: 
+      description: 
+    - vlan_id: "3101"                        
+      name: 
+      description: 
+    - vlan_id: "3102"                        
+      name: 
+      description: 
+    - vlan_id: "3104"                        
+      name: VLANNAME3104
+      description: 
+    - vlan_id: "3151"                        
+      name: 
+      description: 
+    - vlan_id: "3152"                        
+      name: 
+      description: 
+    - vlan_id: "3153"                        
+      name: 
+      description: 
+
+  # default 1,1002,1003,1004,1005 
+    - vlan_id: "1002"                       
+      name: fddi-defaul
+      description:
+    - vlan_id: "1003"                       
+      name: token-ring-default
+      description:
+    - vlan_id: "1004"                       
+      name: fddinet-default
+      description:
+    - vlan_id: "1005"                       
+      name: trnet-default
+      description:
+
+  # others
+    - vlan_id: "1095,1097-1098,3101-3102,3104,3153"
+      name: 
+      description: 
+      allocation: SW.KU3.02.ZONA-B
+    - vlan_id: "1095,1957,3101-3102,3104,3151-3152"
+      name: 
+      description:
+      allocation: SW.KU3.02.ZONA-A
+

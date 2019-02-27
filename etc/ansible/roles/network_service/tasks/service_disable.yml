@@ -1,0 +1,8 @@
+# suggestion pakai aggregate dan manfaatkan debug register dan set_fact
+    - name: disable services
+      ios_config:
+        lines:
+          -  no {{ item }}
+        timeout: "{{ set_timeout }}"
+      loop: "{{ services_off }}"
+

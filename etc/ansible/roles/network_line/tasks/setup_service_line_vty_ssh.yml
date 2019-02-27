@@ -1,0 +1,69 @@
+
+# FAILIED ALL NEED TO BE TESTED AGAIN
+    - name: enable services line vty 
+      ios_config:    
+        lines:
+          - "login {{ line.vty[item].login}}"
+          - "transport {{ line.vty[item].option }} {{ line.vty[item].protocol }}"
+        parents:
+          - "line vty {{ line.vty[item].start}}  {{line.vty[item].end}}"
+        timeout: "{{ set_timeout }}"         
+      loop: "{{vty}}"
+      when: item in line.vty.keys()
+    # - name: debug raw config line 
+    #   debug:
+    #     var: line.vty[item].raw_config_line
+    #     verbosity: 2 #"{{ set_verbosity }}"
+    
+    # - name: enable services line vty using raw config line
+    #   ios_config:    
+    #     lines: "{{line.vty[item].raw_config_line}}"
+    #     parents:
+    #       - "line vty {{ line.vty[item].start}}  {{line.vty[item].end}}" 
+    #     timeout: "{{ set_timeout }}"         
+    #   loop: "{{vty}}"
+    #   when: (item in line.vty.keys()) and  (line.vty[item].raw_config_line is defined)
+      
+
+
+
+ #####################
+ # bagaimana cara: non list line  menjadi  list line
+   # - debug:
+        # msg: "{{line.vty[item].raw_config_line}}"       
+      # loop: "{{ vty}}"
+      # when: (item in line.vty.keys()) and     (line.vty[item].raw_config_line is defined)
+      
+    # - debug:
+        # msg: "{{line.vty[item].raw | line2list}}"       
+      # loop: "{{host_db[hostname].vty}}"
+      # when: (item in line.vty.keys()) and     (line.vty[item].raw_config_line is defined)
+      
+      
+      
+    # - name: enable services line vty on {{hostname}} using raw config line
+      # ios_config:    
+        # lines: 
+          # - "{{line.vty[item].raw | list}}"
+        # parents:
+          # - "line vty {{ line.vty[item].start}}  {{line.vty[item].end}}"         
+      # loop: "{{host_db[hostname].vty}}"
+      # when: (item in line.vty.keys()) and     (line.vty[item].raw_config_line is defined)
+      
+    # - debug:    
+        # var: item  +" is not found"  
+      # loop: "{{host_db[hostname].vty}}"
+      # when: (item in line.vty.keys())    
+      # when: (line.vty[item].raw_config_line is defined) and not(item in line.vty.keys())
+      # handler:     
+
+
+      
+    # - name: enable services line vty on {{hostname}}
+      # ios_config:    
+        # lines: "{{line[item.connection][item].login}}"
+          # - "login {{ line.vty[item].login}}"
+          # - "transport {{ line.vty[item].option }} {{ line.vty[item].protocol }}"
+        # parents:
+          # - "line vty {{ line.vty[item].start}}  {{line.vty[item].end}}"         
+      # loop: "{{host_db[hostname].vty}}"

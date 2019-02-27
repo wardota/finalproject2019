@@ -1,0 +1,61 @@
+# struktur variable masih kurang efisen , when statement kurang benar
+# ide ! : gunakan setfact untuk user purge
+    - name: setup user without privilege if privilege is not defined
+      ios_user:
+        name: "{{item}}"
+        state: present
+        timeout: "{{ set_timeout }}"
+      loop: "{{ user.whitelist}}"
+      when: userdb[item].privilege is not defined               
+      retries: 3 
+
+    - name: setup user with privilege if privilege is defined
+      ios_user:
+        name: "{{item}}"
+        privilege: "{{userdb[item].privilege }}"
+        state: present
+        timeout: "{{ set_timeout }}"
+      loop: "{{ user.whitelist}}"
+      when: userdb[item].privilege is defined                  
+      retries: 3 
+
+    - name: setup user view if view is defined
+      ios_user:
+        name: "{{item}}"
+        view: "{{userdb[item].view }}"
+        state: present
+        timeout: "{{ set_timeout }}"
+      loop: "{{ user.whitelist}}"
+      when: userdb[item].view is defined                  
+      retries: 3 
+
+    - name: set nopassword to user if secret is not defined
+      ios_user:
+        name: "{{item}}"
+        nopassword: True
+        state: present
+        timeout: "{{ set_timeout }}"
+      loop: "{{ user.whitelist}}"
+      when: userdb[item].secret is not defined               
+      retries: 3 
+
+    - name: set and update secret of user ,if secret is defined
+      ios_user:
+        name: "{{item}}"
+        configured_password: "{{userdb[item].secret }}"
+        update_password: always
+        state: present
+        timeout: "{{ set_timeout }}"
+      loop: "{{ user.whitelist}}"
+      when: userdb[item].secret is defined                  
+      retries: 3 
+
+    - name: Delete blocked users 
+      ios_user:
+        name: "{{item}}"
+        state: absent
+        timeout: "{{ set_timeout }}"
+      loop: "{{ user.blocked}}"                     
+      retries: 3 
+  
+       

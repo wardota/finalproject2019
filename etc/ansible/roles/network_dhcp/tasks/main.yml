@@ -1,0 +1,27 @@
+# tasks file for network_switch_dhcp
+- debug:
+    var: ansible_host
+- debug:
+    var: hostname
+- debug:
+    var: ansible_network_os
+- debug:
+    var: ansible_case
+- name: Deploy DHCP Pool 
+  include_tasks: setup_dhcp_v1.yml
+  loop: "{{ dhcp_pool }}"
+  when: ansible_network_os == "ios" and ansible_case == "deploy" 
+  loop_control:
+    loop_var: outer_item  
+- name: Deploy DHCP Pool v2
+  include_tasks: setup_dhcp_v2.yml
+  when: ansible_network_os == "ios" and ansible_case == "deploy" 
+- name: Deploy DHCP Pool v3
+  include_tasks: setup_dhcp_v3.yml
+  when: ansible_network_os == "ios" and ansible_case == "deploy" 
+- name: Usage / Monitor DHCP Pool
+  include_tasks: monitor_dhcp.yml
+  when: ansible_network_os == "ios" and ansible_case == "usage" 
+- name: Maintenance DHCP Pool
+  include_tasks: maintenance_dhcp.yml
+  when: ansible_network_os == "ios" and ansible_case == "maintenance" 

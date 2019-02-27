@@ -1,0 +1,74 @@
+ #when dan loop statement kurang efisien
+
+    - name: setup user without privilege if privilege is not defined
+      ios_user:
+        name: "{{userdb2[item].username}}"
+        state: present
+        timeout: "{{ set_timeout }}"
+      loop: "{{range(0, (userdb2 | length), 1)| list}}" # we just know the item , BAD OUTPUT FORMAT
+      loop_control:
+        label: "{{ userdb2[item].username }}"
+      when: (userdb2[item].username not in   user.blocked) and ((userdb2[item].username in  user.master) or (userdb2[item].username in  user.whitelist)) 
+      register: setup_user
+      # until: setup_user.failed is not defined 
+      retries: 3
+   
+    - name: setup user with privilege if privilege is defined
+      ios_user:
+        name: "{{userdb2[item].username}}"
+        privilege: "{{userdb2[item].privilege }}"
+        state: present
+        timeout: "{{ set_timeout }}"
+      loop:  "{{range(0, (userdb2 | length), 1)| list}}"  # we just know the item , BAD OUTPUT FORMAT
+      loop_control:
+        label: "{{ userdb2[item].username }}"
+      when: ((not userdb2[item].privilege is none) and  (userdb2[item].privilege is number)) and ((userdb2[item].privilege <= 15)  or  (userdb2[item].privilege >= 0))  and ((userdb2[item].username not in   user.blocked) and ((userdb2[item].username in  user.master) or (userdb2[item].username in  user.whitelist)))               
+      retries: 3      
+                                                                          
+    - name: set nopassword to user if secret is not defined
+      ios_user:
+        name: "{{userdb2[item].username}}"
+        nopassword: True
+        state: present
+        timeout: "{{ set_timeout }}"
+      loop: "{{range(0, (userdb2 | length), 1)| list}}"  # we just know the item , BAD OUTPUT FORMAT
+      loop_control:
+        label: "{{ userdb2[item].username }}" 
+      when: ((userdb2[item].secert is none) or  (userdb2[item].secret is not defined))                 
+      retries: 3  
+
+    - name: set and update secret of user ,if secret is defined
+      ios_user:
+        name: "{{userdb2[item].username}}"
+        configured_password: "{{userdb2[item].secret }}"
+        update_password: always
+        state: present
+        timeout: "{{ set_timeout }}"
+      loop: "{{range(0, (userdb2 | length), 1)| list}}"  # we just know the item , BAD OUTPUT FORMAT
+      loop_control:
+        label: "{{ userdb2[item].username }}"
+      when: (userdb2[item].secret is defined) and ((userdb2[item].username in  user.master) or (userdb2[item].username in  user.whitelist))                
+      retries: 3 
+
+    - name: Delete blocked users with privilege if privilege is defined
+      ios_user:
+        name: "{{userdb2[item].username}}"
+        state: absent
+        timeout: "{{ set_timeout }}"
+      loop: "{{range(0, (userdb2 | length), 1)| list}}"  # we just know the item , BAD OUTPUT FORMAT
+      loop_control:
+        label: "{{ userdb2[item].username }}"
+      when: not ((userdb2[item].username not in   user.blocked) and ((userdb2[item].username in  user.master) or (userdb2[item].username in  user.whitelist)))                
+      retries: 3 
+
+    - name: setup user view if view is defined
+      ios_user:
+        name: "{{userdb2[item].username}"
+        view: "{{userdb2[item].view }}"
+        state: present
+        timeout: "{{ set_timeout }}"
+      loop:  "{{range(0, (userdb2 | length), 1)| list}}"  # we just know the item , BAD OUTPUT FORMAT
+      loop_control:
+        label: "{{ userdb2[item].username }}"
+      when: ((userdb2[item].view is not none) and (userdb2[item].view is defined)) and ((userdb2[item].username in  user.master) or (userdb2[item].username in  user.whitelist))                 
+      retries: 3 

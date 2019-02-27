@@ -1,0 +1,41 @@
+---
+- name: Automation Project
+  hosts: ku3_b2
+  gather_facts: no
+  gather_timeout: 60
+  connection: local
+  ignore_errors: no
+  pre_tasks:
+    - name: test PING to host
+      ping:
+          data: pong 
+    - name: get show 
+      ios_command:
+        commands:
+          - "show run"
+        provider:
+          timeout: "{{ set_timeout }}"
+      register: ifaces_output
+    - set_fact:
+        sh_run_config: "{{ ifaces_output.stdout[0] |  parse_cli('ios_show_running_config_parser.yml') }}" 
+     
+    # - set_fact:
+    #     sh_run_config_user: "{{ ifaces_output.stdout[0] |  parse_cli('ios_show_running_config_username_parser.yml') |  json_query('config_users[].{username:username,privilege:privilege, secret_value:secret_value,fingerprint:fingerprint}')  }}"
+    # - set_fact:
+    #     sh_run_config_dhcp: "{{ ifaces_output.stdout[0] |  parse_cli('ios_show_running_config_dhcp_parser.yml') }}"
+    # - set_fact:
+    #     sh_run_config_dhcp_ex: "{{ ifaces_output.stdout[0] |  parse_cli('ios_show_running_config_dhcp_excluded_parser.yml') | json_query('ip_dhcp_excluded[].[range]')|flatten}}"
+    # - set_fact:
+    #     crypto_pki_trustpoint: "{{ ifaces_output.stdout[0] |  parse_cli('ios_show_running_config_crypto_pki_trustpoint_parser.yml') }}" 
+    # - set_fact:
+    #     crypto_pki_cert: "{{ ifaces_output.stdout[0] |  parse_cli('ios_show_running_config_crypto_pki_certificate_parser.yml') }}" 
+    # - set_fact:
+    #     sh_run_config_vlan: "{{ ifaces_output.stdout[0] |  parse_cli('ios_show_running_config_vlan_parser.yml') }}" 
+    # - set_fact:
+    #     sh_run_config_interface: "{{ ifaces_output.stdout[0] |  parse_cli('ios_show_running_config_interface_parser.yml') }}" 
+    # - set_fact:
+    #     sh_run_config_line: "{{ ifaces_output.stdout[0] |  parse_cli('ios_show_running_config_line_parser.yml') }}" 
+
+    - copy: 
+        content: "{{ sh_run_config | to_nice_json }}"
+        dest: /etc/ansible/ios_show_running_config_{{hostname}}.json

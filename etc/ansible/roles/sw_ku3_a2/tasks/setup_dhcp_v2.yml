@@ -1,0 +1,23 @@
+
+    - name: "setup dhcp excluded-address based on pool for {{hostname}}"
+      ios_config:  
+        lines:
+          - ip dhcp excluded-address {{item.1}}
+        timeout: "{{ set_timeout }}" 
+      loop: "{{ pooldb2 | subelements('excluded') }}"  # OUTPUT FORMAT IS WORST
+      when: item.0.name in host_db[hostname].dhcp_pool
+    - name: "setup dhcp pool for {{hostname}}"
+      ios_config:
+        lines:
+          - network {{ pooldb2[item].ipv4_network | ipv4}} {{ pooldb2[item].ipv4_subnet | ipv4}}
+          - dns-server {{ dns1 | default ("10.252.252.4")}} {{ dns2 | default ("10.252.252.5") }}
+          - default-router {{ pooldb2[item].default_router }}
+          - domain-name {{ mydomain }}
+          - lease {{ pooldb2[item].lease_days | default (2)}} {{ pooldb2[item].lease_hours | default (2) }}
+        parents:
+          - ip dhcp pool {{ pooldb2[item].name }}
+        timeout: "{{ set_timeout }}" 
+      loop:  "{{range(0, (pooldb2 | length), 1)| list}}" # OUTPUT FORMAT IS  BAD
+      when: pooldb2[item].name in host_db[hostname].dhcp_pool
+
+    

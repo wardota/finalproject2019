@@ -1,0 +1,15 @@
+vars:  
+  crypto:
+    var1: "{{item[0].cpcc_name}}"
+    var2: "{{item[1].cert_name}}"
+    var3: "{{item[1].value}}"
+    var4: "{{item[3].cert_hex}}"
+keys: 
+  crypto_trustpoint:
+    value: "{{ crypto }}"
+    start_block: "^crypto pki trustpoint.*" 
+    end_block: ".+rsakeypair.*$" #BAD
+    items:    
+      - "crypto pki certificate chain (?P<cpcc_name>.*)"
+      - "certificate (?P<cert_name>[a-zA-Z-]*) (?P<value>\\d*)"
+      - "(?P<cert_hex>( [0-9A-F]{8}).*)"

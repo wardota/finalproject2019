@@ -1,0 +1,294 @@
+ansible_host: 10.240.192.2
+hostname: sisfo
+hierarchy_layer: access
+alias:
+  - access: &a access
+  - trunk: &t trunk
+dhcp_pool:
+  - WIFI_A_LT3A
+  - WIFI_B_LT3A
+vty:
+  - vty04
+  - vty515
+user:
+  master: cisco2     
+  # master hanya berjumlah satu, apa perlu backup user?
+  whitelist:
+    - sisfo
+    - widi
+    - diazzaid
+    - cuman
+    - sakti
+  # level privilege user bebas sesuai di userdba
+  blocked:
+    - baba
+    - abu
+    - caca
+vlan:
+  by_name:  # Vlan can not be added. Maximum number of 32 vlan(s) in the database.
+  # mgm 
+    - vlan-mgmn-dev            #1097
+    - vlan-mgmn-ap             #1098
+    - scn-superVlan-Wirele     #1099
+    - network-chrome           #3154
+interface:
+  - name: FastEthernet0/0    #reserved
+  - name: FastEthernet0/1    #reserved
+    duplex: full
+    speed: 100
+    mtu: 1500
+    description: 
+  # - name: FastEthernet1/0    #mode trunk
+  #   mode:  *t 
+  #   duplex: full
+  #   speed: 100
+  #   mtu: 1500
+  #   description:
+  #   allowed: 1,901,1095,1097,1098,1957,3101,3102,3104,3151
+  #   add: 3152,3154
+  - name: FastEthernet1/1    #reserved
+  - name: FastEthernet1/2    #reserved
+  - name: FastEthernet1/3    #reserved
+  - name: FastEthernet1/4    #reserved
+  - name: FastEthernet1/5    #reserved
+  - name: FastEthernet1/6    #reserved
+  - name: FastEthernet1/7    #reserved
+  - name: FastEthernet1/8    #reserved
+  - name: FastEthernet1/9    #reserved
+  - name: FastEthernet1/10   #reserved
+  - name: FastEthernet1/11   #reserved
+  - name: FastEthernet1/12   #mode trunk
+    mode:  *t 
+    duplex: full
+    speed: 100
+    mtu: 1500
+    description:
+    allowed: 1,901,1095,1097,1098,1957,3101,3102,3104,3151
+    add: 3152,3154
+  - name: FastEthernet1/13   #mode trunk
+    mode:  *t 
+    duplex: full
+    speed: 100
+    mtu: 1500
+    description:
+    allowed: 1,901,1095,1097,1098,1957,3101,3102,3104,3151
+  - name: FastEthernet1/14   #mode trunk
+    mode:  *t 
+    duplex: full
+    speed: 100
+    mtu: 1500
+    description:
+    allowed: 1,901,1095,1097,1098,1957,3101,3102,3104,3151
+    add: 3152,3154
+  - name: FastEthernet1/15   #mode trunk
+    mode:  *t 
+    duplex: full
+    speed: 100
+    mtu: 1500
+    description:
+    allowed: 1,901,1095,1097,1098,1957,3101,3102,3104,3151
+    add: 3152,3154
+  - name: vlan 1             #no-ip
+    ip: no
+  - name: vlan 1097          #ip
+    ip: 10.240.192.2
+    subnet: 255.255.0.0
+    prefix: 16
+
+services_on:
+  - no service pad
+  - service timestamps debug datetime msec localtime
+  - service timestamps log datetime localtime
+  - no service password-encryption
+  - hostname SW.SISFO
+  - boot-start-marker
+  - boot-end-marker
+  - no aaa new-model
+  - clock timezone UTC 7 0
+  - vtp mode transparent
+  - no spanning-tree vlan 901
+  - errdisable detect cause bpduguard 
+  - errdisable recovery cause bpduguard
+  - ip default-gateway 192.240.0.1
+  - no ip http server
+  - no ip http secure-server
+  - logging trap debugging
+  - logging facility syslog
+  - logging host 192.168.101.3 
+  - snmp-server community oraora RO
+  - snmp-server location GKU-LTD
+  - snmp-server contact NOC_Tel-U
+  - ntp server 192.252.252.121
+services_off:
+crypto:
+
+
+
+    # sisfo:
+    #   vty:
+    #     - vty04
+    #     - vty515
+    #   dhcp_pool:
+    #     - WIFI_A_LT3A
+    #     - WIFI_B_LT3A
+    #   user:
+    #     master: cisco2     
+    #     # master hanya berjumlah satu, apa perlu backup user?
+    #     whitelist:
+    #       - sisfo
+    #       - widi
+    #       - diazzaid
+    #       - cuman
+    #       - sakti
+    #     # level privilege user bebas sesuai di userdba
+    #     blocked:
+    #       - baba
+    #       - abu
+    #       - caca
+    #   vlan:
+    #     by_name:
+    #     # lantai 1 dan 2
+    #       - RFID-LT1A                #901
+    #       - CAMERA-LT1A              #902
+    #       - LAN-PPDU-BAA             #903
+    #       - WIFI-A-LT1A              #904
+    #       - WIFI-B-LT1A              #908
+    #       - WIFI-C-LT1B              #910
+    #       - WIFI-D-LT1B              #914      
+    #       - RFID-LT1B                #916
+
+    #     # lantai 3
+    #       - RFID-LT3A                #921
+    #       - CAMERA-LT3A              #922
+    #       - WIFI-A-LT3A              #923
+    #       - WIFI-B-LT3A              #928
+    #       - WIFI-C-LT3B              #920
+    #       - WIFI-D-LT3B              #924  
+    #       - RFID-LT3B                #926
+                
+    #     # lantai 4
+    #       - RFID-LT4A                #931
+    #       - CAMERA-LT4A              #932
+    #       - WIFI-A-LT4A              #933
+    #       - WIFI-B-LT4A              #938
+    #       - WIFI-C-LT4B              #930
+    #       - WIFI-D-LT4B              #934  
+    #       - RFID-LT4B                #936
+
+    #     # lantai 5
+    #       - RFID-LT5A                #941
+    #       - CAMERA-LT5A              #942
+    #       - WIFI-A-LT5A              #943
+    #       - WIFI-B-LT5A              #948
+    #       - WIFI-C-LT5B              #940
+    #       - WIFI-D-LT5B              #944  
+    #       - RFID-LT5B                #946
+
+    #     # lantai 6
+    #       - RFID-LT6A                #951
+    #       - CAMERA-LT6A              #952
+    #       - WIFI-A-LT6A              #953
+    #       - WIFI-B-LT6A              #958
+    #       - WIFI-C-LT6B              #950
+    #       - WIFI-D-LT6B              #954  
+    #       - RFID-LT6B                #956
+
+    #     # lantai 7
+    #       - RFID-LT7A                #961
+    #       - CAMERA-LT7A              #962
+    #       - WIFI-A-LT7A              #963
+    #       - WIFI-B-LT7A              #968
+    #       - WIFI-C-LT7B              #960
+    #       - WIFI-D-LT7B              #964  
+    #       - RFID-LT7B                #966
+
+    #     # lantai 8
+    #       - RFID-LT8A                #971
+    #       - CAMERA-LT8A              #972
+    #       - WIFI-A-LT8A              #973
+    #       - WIFI-B-LT8A              #978
+    #       - WIFI-C-LT8B              #970
+    #       - WIFI-D-LT8B              #974  
+    #       - RFID-LT8B                #976
+
+    #     # lantai 9
+    #       - RFID-LT9A                #981
+    #       - CAMERA-LT9A              #982
+    #       - WIFI-A-LT9A              #983
+    #       - WIFI-B-LT9A              #988
+    #       - WIFI-C-LT9B              #980
+    #       - WIFI-D-LT9B              #984  
+    #       - RFID-LT9B                #986
+
+    #     # lantai 10
+    #       - RFID-LT10A               #991
+    #       - CAMERA-LT10A             #992
+    #       - WIFI-A-LT10A             #993
+    #       - WIFI-B-LT10A             #998
+
+    #     # mgm 
+    #       - vlan-mgmn-dev            #1097
+    #       - vlan-mgmn-ap             #1098
+    #       - scn-superVlan-Wirele     #1099
+    #       - network-chrome           #3154
+        
+    #     by_id:
+    #       - 1095,1957,3101-3102,3104,3151-3152
+    #       - 1095,1097-1098,3101-3102,3104,3153 # zona b 
+    #       - 1095
+    #       - 1097
+    #       - 1098
+    #       - 1099
+    #       - 3101
+    #       - 3102
+    #       - 3104
+    #       - 3151
+    #       - 3152
+    #       - 3153  #zona b
+    #       - 916   #zona b
+    #   interface:
+    #     - name: fa0/0
+    #     - name: fa0/1
+    #     - name: fa1/0-15  #14 ke SISFO #15 ke LC
+    #       mode: trunk
+    #       allow: all vlan
+    #       add: 3152,3154 # all vlan mgm , lantai 1 - lantai 10
+    #     - name: vlan1
+    #       ip: no
+    #     - name: vlan1097
+    #       ip: 10.168.192.2
+    #       subnet: 255.255.0.0
+    #       prefix: 16
+    #   services_on:
+    #     - no service pad
+    #     - service timestamps debug datetime msec localtime
+    #     - service timestamps log datetime localtime
+    #     - no service password-encryption
+    #     - hostname SW.KU3.LTD
+    #     - boot-start-marker
+    #     - boot-end-marker
+    #     - no aaa new-model
+    #     - clock timezone UTC 7 0
+    #     - switch 1 provision ws-c2960xr-24ps-i
+    #     - system mtu routing 1500
+    #     - ip dhcp snooping vlan 3101,3104
+    #     - ip dhcp snooping
+    #     - vtp mode transparent
+    #     - spanning-tree mode pvst
+    #     - spanning-tree extend system-id
+    #     # - no spanning-tree vlan 1,901
+    #     - errdisable detect cause bpduguard shutdown vlan
+    #     - errdisable recovery cause bpduguard
+    #     - vlan internal allocation policy ascending
+    #     - ip default-gateway 192.240.0.1
+    #     - no ip http server
+    #     - no ip http secure-server
+    #     - logging trap debugging
+    #     - logging facility syslog
+    #     - logging host 192.168.101.3 #10.13.10.30
+    #     - snmp-server community oraora RO
+    #     - snmp-server location GKU-LTD
+    #     - snmp-server contact NOC_Tel-U
+    #     - ntp server 192.252.252.121
+    #   services_off:
+    #   crypto:

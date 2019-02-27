@@ -1,0 +1,16 @@
+{
+    "ansible.fileCopyConfig": [
+        {
+            "server": "server.wardota.com",
+            "sourcePath": "c:\\Users\\dimas bayu\\AppData\\Roaming\\Notepad++\\plugins\\config\\NppFTP\\Cache\\root@192.168.56.101\\etc\\ansible",
+            "targetPath": "/etc/ansible",
+            "copyOnSave": true
+        },
+        {
+            "server": "server.wardota.com",
+            "sourcePath": "c:\\Users\\dimas bayu\\AppData\\Roaming\\Notepad++\\plugins\\config\\NppFTP\\Cache\\root@192.168.56.101/",
+            "targetPath": "root@192.168.56.101/",
+            "copyOnSave": true
+        }
+    ]
+}

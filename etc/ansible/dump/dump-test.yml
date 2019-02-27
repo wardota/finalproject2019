@@ -1,0 +1,564 @@
+
+- name: coba
+  hosts: ciscos
+  gather_facts: no
+  connection: local
+#  ignore_errors: yes
+  vars:
+#    ignore_errors: yes
+    timeout: 60
+    ansible_ssh_user: cisco2
+    ansible_ssh_pass: cisco
+#    ansible_net_ssh_key: /etc/ansible/key/sw1.pem
+    shows:
+      - 'show running-config'
+      - 'show crypto key mypubkey rsa'
+      - 'show ip interface brief'
+      - 'show verison'
+    domain_definition:
+      domain:
+        cluster:
+            - name: "cluster1"
+            - name: "cluster2"
+        server:
+            - name: "server11"
+              cluster: "cluster1"
+              port: "8080"
+            - name: "server12"
+              cluster: "cluster1"
+              port: "8090"
+            - name: "server21"
+              cluster: "cluster2"
+              port: "9080"
+            - name: "server22"
+              cluster: "cluster2"
+              port: "9090"
+        library:
+            - name: "lib1"
+              target: "cluster1"
+            - name: "lib2"
+              target: "cluster2"
+    p: |
+      Neighbor ID     Pri   State
+      192.168.0.4       0   FULL/
+      192.168.0.1       0   FULL/
+  tasks:
+  - debug: msg={{ p | parse_cli('cf_one.yml') }}
+  - debug: msg={{ p | parse_cli('cf_many.yml') }}
+  
+  
+#   - name: check verion and interface
+#     ios_command:
+#       commands: "{{ shows }}"
+#     register: foo_result
+#   - name: log temp.log
+#     local_action: copy content={{ foo_result.stdout_lines[2] | to_json }} dest=/etc/ansible/temp.log
+#   - name: log temp1.log
+#     local_action: copy content={{ foo_result.stdout_lines.2 | to_json }} dest=/etc/ansible/temp1.log
+#   - name: log temp2.log
+#     local_action: copy content={{ foo_result.stdout_lines.2 | to_json }} dest=/etc/ansible/temp2.log delimiter=,
+#   - name: log temp3.log
+#     local_action: copy content={{ foo_result.stdout_lines.2 | to_json }} dest=/etc/ansible/temp3.log regexp=,
+#   - name: log temp4.log
+#     local_action: copy content={{ foo_result.stdout_lines.2 | to_json }} dest=/etc/ansible/temp4.log delimiter=, regexp=,
+
+#   - name: gather_subset all
+#     ios_facts:
+#       gather_subset: all
+#     register: iosfacts_out
+#   - name: save subset all
+#     copy: content="{{ iosfacts_out | to_nice_json }}" dest="/etc/ansible/{{inventory_hostname}}_iosfacts.json"
+#   - name: save subset all yml
+#     copy: content="{{ iosfacts_out | to_nice_yaml }}" dest="/etc/ansible/{{inventory_hostname}}_iosfacts.yml"
+
+#   - name: gather_subset all
+#     ios_facts:
+#       gather_subset: all
+#     register: iosfacts_out
+#   - name: save subset all
+#     copy: content="{{ iosfacts_out.ansible_facts.ansible_net_config | from_json  }}" dest="/etc/ansible/{{inventory_hostname}}_iosfacts.json"
+#     register: test111
+#   - name: save subset all yml
+#     copy: content="{{ iosfacts_out.ansible_facts.ansible_net_config | from_json | to_nice_yaml }}" dest="/etc/ansible/{{inventory_hostname}}_iosfacts.yml"
+
+#   - debug:
+#       var: test111
+# iosfacts_out.ansible_facts.ansible_net_config
+#       verbosity: 1 
+
+#   - name: gather_subset default
+#     ios_facts:
+#       gather_subset: default
+#     register: iosfacts_out1
+#   - name: save subset default
+#     copy: content="{{ iosfacts_out1 | to_nice_json }}" dest="/etc/ansible/{{inventory_hostname}}_iosfacts_default.json"
+#   - name: save subset default
+#     copy: content="{{ iosfacts_out1 | to_nice_yaml }}" dest="/etc/ansible/{{inventory_hostname}}_iosfacts_default.yml"
+#   - name: gather_subset hardware
+#     ios_facts:
+#       gather_subset: hardware
+#     register: iosfacts_out2
+#   - name: save subset hardware
+#     copy: content="{{ iosfacts_out2 | to_nice_json }}" dest="/etc/ansible/{{inventory_hostname}}_iosfacts_hardware.json"
+#   - name: save subset hardware
+#     copy: content="{{ iosfacts_out2 | to_nice_yaml }}" dest="/etc/ansible/{{inventory_hostname}}_iosfacts_hardware.yml"
+#   - name: gather_subset interfaces
+#     ios_facts:
+#       gather_subset: interfaces
+#     register: iosfacts_out3
+#   - name: save subset interfaces
+#     copy: content="{{ iosfacts_out3 | to_nice_json }}" dest="/etc/ansible/{{inventory_hostname}}_iosfacts_interfaces.json"
+#   - name: save subset interfaces
+#     copy: content="{{ iosfacts_out3 | to_nice_yaml }}" dest="/etc/ansible/{{inventory_hostname}}_iosfacts_interfaces.yml"
+
+#    - name: gather_subset config
+#      ios_facts:
+#        gather_subset: config
+#      register: iosfacts_out4
+#    - name: save subset config
+#      copy: content="{{ iosfacts_out4 | to_nice_json }}" dest="/etc/ansible/{{inventory_hostname}}_iosfacts_config.json"
+#    - name: save subset config
+#      copy: content="{{ iosfacts_out4 | to_nice_yaml }}" dest="/etc/ansible/{{inventory_hostname}}_iosfacts_config.yml"
+
+##   - name: gather_subset network
+##     ios_facts:
+##       gather_subset: network
+##    register: iosfacts_out5
+##   - name: save subset network
+##     copy: content="{{ iosfacts_out5 | to_nice_json }}" dest="/etc/ansible/{{inventory_hostname}}_iosfacts_network.json"
+##   - name: save subset network
+##     copy: content="{{ iosfacts_out5 | to_nice_yaml }}" dest="/etc/ansible/{{inventory_hostname}}_iosfacts_network.yml"
+
+##   - name: gather_subset virtual
+##     ios_facts:
+##       gather_subset: virtual
+##     register: iosfacts_out6
+##   - name: save subset virtual
+##     copy: content="{{ iosfacts_out6 | to_nice_json }}" dest="/etc/ansible/{{inventory_hostname}}_iosfacts_virtual.json"
+##   - name: save subset virtual
+##     copy: content="{{ iosfacts_out6 | to_nice_yaml }}" dest="/etc/ansible/{{inventory_hostname}}_iosfacts_virtual.yml"
+
+##   - name: gather_subset ohai
+##     ios_facts:
+##       gather_subset: ohai
+##     register: iosfacts_out7
+##   - name: save subset ohai
+##     copy: content="{{ iosfacts_out7 | to_nice_json }}" dest="/etc/ansible/{{inventory_hostname}}_iosfacts_ohai.json"
+##   - name: save subset ohai
+##     copy: content="{{ iosfacts_out7 | to_nice_yaml }}" dest="/etc/ansible/{{inventory_hostname}}_iosfacts_ohai.yml"
+
+##   - name: gather_subset facter
+##     ios_facts:
+##       gather_subset: facter
+##     register: iosfacts_out8
+##   - name: save subset facter
+##     copy: content="{{ iosfacts_out8 | to_nice_json }}" dest="/etc/ansible/{{inventory_hostname}}_iosfacts_facter.json"
+##   - name: save subset facter
+##     copy: content="{{ iosfacts_out8 | to_nice_yaml }}" dest="/etc/ansible/{{inventory_hostname}}_iosfacts_facter.yml"
+
+
+#    - copy: content="{{ iosfacts_out | to_nice_json }}" dest="out/{{inventory_hostname}}_iosfacts.json"
+#     local_action: copy
+#      content: {{ foo_result.stdout_lines.2 | to_json }} 
+#       dest: /etc/ansible/temp3.log
+
+
+#    - debug:
+#        msg: "System {{ inventory_hostname }} has uuid {{ ansible_product_uuid }}"
+#
+#    - debug:
+#        msg: "System {{ inventory_hostname }} has gateway {{ ansible_default_ipv4.gateway }}"
+#      when: ansible_default_ipv4.gateway is defined
+#
+#    - shell: /usr/bin/uptime
+#      register: result_1
+# 
+#    - debug:
+#        var: result_1
+#        verbosity: 1 
+#
+#    - name: Display all variables/facts known for a host
+#      debug:
+#        var: hostvars[inventory_hostname]
+#        verbosity: 4
+#    - wait_for: timeout=15
+#      
+#    - debug:
+#        msg: "System {{ inventory_hostname }} has uuid {{ ansible_product_uuid }}"
+
+
+#    - name: "Display all cluster names"
+#      debug:
+#        var: item
+#      loop: "{{ domain_definition | json_query('domain.cluster[*].name') }}"
+#    - name: "Display all server names"
+#      debug:
+#        var: item
+#      loop: "{{ domain_definition | json_query('domain.server[*].name') }}"
+#    - name: "Display all server names"
+#      debug:
+#        var: item
+#      loop: "{{ domain_definition | json_query('domain.server[*].port') }}"
+#    - name: "Display all ports from cluster1"
+#      debug:
+#        var: item
+#      loop: "{{ domain_definition | json_query(server_name_cluster1_query) }}"
+#      vars:
+#        server_name_cluster1_query: "domain.server[?cluster=='cluster1'].port"
+
+
+
+##- name: Saving "{{ objects }}" into local YAML file
+##  local_action: >
+##        copy content={{ data.content | from_json | to_nice_yaml }}
+##             dest={{ dest_file }}
+##             mode=0660
+##  when: (data.content is defined) and (format == 'yml')
+##
+##- name: Saving "{{ objects }}" into local JSON file
+##  local_action: >
+##        copy content={{ data.content | from_json | to_nice_json }}
+##             dest={{ dest_file }}
+##             mode=0660
+##  when: (data.content is defined) and (format == 'json')
+
+
+
+### interfaces management
+##- name: configure interface
+##  ios_interface:
+##      name: GigabitEthernet0/2
+##      description: test-interface
+##      speed: 100
+##      duplex: half
+##      mtu: 512
+##
+##- name: remove interface
+##  ios_interface:
+##    name: Loopback9
+##    state: absent
+##
+##- name: make interface up
+##  ios_interface:
+##    name: GigabitEthernet0/2
+##    enabled: True
+##
+##- name: make interface down
+##  ios_interface:
+##    name: GigabitEthernet0/2
+##    enabled: False
+##
+##- name: Check intent arguments
+##  ios_interface:
+##    name: GigabitEthernet0/2
+##    state: up
+##    tx_rate: ge(0)
+##    rx_rate: le(0)
+##
+##- name: Check neighbors intent arguments
+##  ios_interface:
+##    name: Gi0/0
+##    neighbors:
+##    - port: eth0
+##      host: netdev
+##
+##- name: Config + intent
+##  ios_interface:
+##    name: GigabitEthernet0/2
+##    enabled: False
+##    state: down
+##
+##- name: Add interface using aggregate
+##  ios_interface:
+##    aggregate:
+##    - { name: GigabitEthernet0/1, mtu: 256, description: test-interface-1 }
+##    - { name: GigabitEthernet0/2, mtu: 516, description: test-interface-2 }
+##    duplex: full
+##    speed: 100
+##    state: present
+##
+##- name: Delete interface using aggregate
+##  ios_interface:
+##    aggregate:
+##    - name: Loopback9
+##    - name: Loopback10
+##    state: absent
+
+
+
+### set hostname , DNS , lookup
+##- name: configure hostname and domain name
+##  ios_system:
+##    hostname: ios01
+##    domain_name: test.example.com
+##    domain_search:
+##      - ansible.com
+##      - redhat.com
+##      - cisco.com
+##
+##- name: remove configuration
+##  ios_system:
+##    state: absent
+##
+##- name: configure DNS lookup sources
+##  ios_system:
+##    lookup_source: MgmtEth0/0/CPU0/0
+##    lookup_enabled: yes
+##
+##- name: configure name servers
+##  ios_system:
+##    name_servers:
+##      - 8.8.8.8
+##      - 8.8.4.4
+
+
+#
+###static route
+##- name: configure static route
+##  ios_static_route:
+##    prefix: 192.168.2.0
+##    mask: 255.255.255.0
+##    next_hop: 10.0.0.1
+##
+##- name: remove configuration
+##  ios_static_route:
+##    prefix: 192.168.2.0
+##    mask: 255.255.255.0
+##    next_hop: 10.0.0.1
+##    state: absent
+##
+##- name: Add static route aggregates
+##  ios_static_route:
+##    aggregate:
+##      - { prefix: 172.16.32.0, mask: 255.255.255.0, next_hop: 10.0.0.8 }
+##      - { prefix: 172.16.33.0, mask: 255.255.255.0, next_hop: 10.0.0.8 }
+##
+##- name: Add static route aggregates
+##  ios_static_route:
+##    aggregate:
+##      - { prefix: 172.16.32.0, mask: 255.255.255.0, next_hop: 10.0.0.8 }
+##      - { prefix: 172.16.33.0, mask: 255.255.255.0, next_hop: 10.0.0.8 }
+##    state: absent
+
+
+
+
+###user management
+##- name: create a new user
+##  ios_user:
+##    name: ansible
+##    nopassword: True
+##    sshkey: "{{ lookup('file', '~/.ssh/id_rsa.pub') }}"
+##    state: present
+##
+##- name: remove all users except admin
+##  ios_user:
+##    purge: yes
+##
+##- name: remove all users except admin and these listed users
+##  ios_user:
+##    aggregate:
+##      - name: testuser1
+##      - name: testuser2
+##      - name: testuser3
+##    purge: yes
+##
+##- name: set multiple users to privilege level 15
+##  ios_user:
+##    aggregate:
+##      - name: netop
+##      - name: netend
+##    privilege: 15
+##    state: present
+##
+##- name: set user view/role
+##  ios_user:
+##    name: netop
+##    view: network-operator
+##    state: present
+##
+##- name: Change Password for User netop
+##  ios_user:
+##    name: netop
+##    configured_password: "{{ new_password }}"
+##    update_password: always
+##    state: present
+##
+##- name: Aggregate of users
+##  ios_user:
+##    aggregate:
+##      - name: ansibletest2
+##      - name: ansibletest3
+##    view: network-admin
+##
+##- name: Delete users with aggregate
+##  ios_user:
+##    aggregate:
+##      - name: ansibletest1
+##      - name: ansibletest2
+##      - name: ansibletest3
+##    state: absent
+
+#vlan management
+- name: Create vlan
+  ios_vlan:
+    vlan_id: 100
+    name: test-vlan
+    state: present
+- name: Add interfaces to VLAN
+  ios_vlan:
+    vlan_id: 100
+    interfaces:
+      - GigabitEthernet0/0
+      - GigabitEthernet0/1
+- name: Check if interfaces is assigned to VLAN
+  ios_vlan:
+    vlan_id: 100
+    associated_interfaces:
+      - GigabitEthernet0/0
+      - GigabitEthernet0/1
+- name: Delete vlan
+  ios_vlan:
+    vlan_id: 100
+    state: absent
+  # ios_l2_interface - access - trunk - native 
+- name: Ensure GigabitEthernet0/5 is in its default l2 interface state
+  ios_l2_interface:
+    name: GigabitEthernet0/5
+    state: unconfigured
+- name: Ensure GigabitEthernet0/5 is configured for access vlan 20
+  ios_l2_interface:
+    name: GigabitEthernet0/5
+    mode: access
+    access_vlan: 20
+- name: Ensure GigabitEthernet0/5 only has vlans 5-10 as trunk vlans
+  ios_l2_interface:
+    name: GigabitEthernet0/5
+    mode: trunk
+    native_vlan: 10
+    trunk_vlans: 5-10
+- name: Ensure GigabitEthernet0/5 is a trunk port and ensure 2-50 are being tagged (doesn't mean others aren't also being tagged)
+  ios_l2_interface:
+    name: GigabitEthernet0/5
+    mode: trunk
+    native_vlan: 10
+    trunk_vlans: 2-50
+- name: Ensure these VLANs are not being tagged on the trunk
+  ios_l2_interface:
+    name: GigabitEthernet0/5
+    mode: trunk
+    trunk_vlans: 51-4094
+    state: absent
+
+- name: creating vlans
+  ios_vlan:
+    vlan_id: 104
+    name: vlannumber104
+    state: present
+  register: creating_vlan
+- debug:
+    var: creating_vlan
+    verbosity: 1
+- name: Ensure FastEthernet 1/13 is configured for access vlan 104
+  ios_l2_interface:
+    name: FastEthernet 1/13
+    mode: access
+    access_vlan: 104
+  register: set_fa_access
+- debug:
+    var: set_fa_access
+    verbosity: 1
+- name: Show interface FastEthernet 1/3 switchport result
+  ios_command:
+    commands: "show interfaces FastEthernet 1/3 switchport"
+  register: show_interfaces_switchport_fa
+- name: setvlan through ios_config
+  ios_config:
+    lines: name vlannumber101
+    parents: vlan 101
+- name: set access to interface
+  ios_config:
+    lines: 
+      - switchport mode access
+      - switchport access vlan 102
+    parents: interface FastEthernet 1/14
+#   - name: Saving interface FastEthernet 1/3 switchport result
+#     copy: content="{{ show_interfaces_switchport_fa.stdout_lines | to_nice_json }}" dest="/etc/ansible/{{inventory_hostname}}_show_interface.json"
+#   - shell: cat /etc/ansible/{{inventory_hostname}}_show_interface.json | sed '1d' | sed '$d' | sed 's/\]/}/' | sed -e 's/\[/{/' | sed -e 's/:/":"/' &> /etc/ansible/{{inventory_hostname}}_show_interface.json
+
+#   - debug:
+#       var: show_interfaces_switchport_fa.stdout_lines
+#       verbosity: 1
+#     register: test
+
+
+
+
+
+#   - name: configure the login banner
+#     ios_banner:
+#       banner: login
+#       text: |
+#         this is my login banner
+#         that contains a multiline
+#         string
+#       state: present
+#   - name: Configure banner from file
+#     ios_banner:
+#       banner:  motd
+#       text: "{{ lookup('file', 'raw_banner.cfg') }}"
+#       state: present
+#
+#   - name: configure the login banner
+#     ios_banner:
+#       banner: "{{ item }}"
+#       text: |
+#         this is my login banner {{ item }}
+#         that contains a multiline
+#         string
+#       state: present
+#     loop:
+#       - login
+#       - motd
+#       - exec
+#       - incoming
+#       - slip-ppp
+
+
+##   - name: configure top level configuration
+##     ios_config:
+##       lines: no service pad
+##   - name: configure top level configuration
+##     ios_config:
+##       lines: hostname {{ inventory_hostname }}
+##- name: save running-config
+##  ios_command:
+##    commands: copy running-config startup-config
+##  vars:
+##    ansible_command_timeout: 30
+##- name: save running-config
+##  ios_command:
+##    commands: copy running-config startup-config
+##    provider: "{{ cli }}"
+##    timeout: 30
+##  - name: run show version and check to see if output contains IOS
+##    ios_command:
+##      commands: show version
+##      wait_for: result[0] contains IOS
+##
+##  - name: run multiple commands on remote nodes
+##    ios_command:
+##      commands:
+##        - show version
+##        - show interfaces
+##
+##  - name: run multiple commands and evaluate the output
+##    ios_command:
+##      commands:
+##        - show version
+##        - show interfaces
+##      wait_for:
+##        - result[0] contains IOS
+##        - result[1] contains Loopback0
+
+

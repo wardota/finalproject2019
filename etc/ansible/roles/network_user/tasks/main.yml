@@ -1,0 +1,13 @@
+# tasks file for network_user
+- name: Deploy setup user v1
+  include_tasks: setup_user_v1.yml
+  when: ansible_network_os == "ios" and ansible_case == "deploy" 
+- name: Deploy setup user v2
+  include_tasks: setup_user_v2.yml
+  when: ansible_network_os == "ios" and ansible_case == "deploy" 
+- name: Usage / Monitor setup user
+  include_tasks: monitor.yml
+  when: ansible_network_os == "ios" and ansible_case == "usage" 
+- name: Maintenance setup user
+  include_tasks: maintenance.yml
+  when: ansible_network_os == "ios" and ansible_case == "maintenance" 

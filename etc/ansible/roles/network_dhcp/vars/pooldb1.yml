@@ -1,0 +1,200 @@
+# poolstyle
+#pooldb:               |pooldb2:              |pooldb3:
+#WIFI_A_LT1A:          |- name: WIFI_A_LT1A   |- name: WIFI_A_LT1A
+#  ipv4:               |    ipv4_network: x   |  ipv4:
+#    network: x        |    ipv4_subnet: x    |    network:        x
+#    subnet: x         |    ipv4_prefix: 24   |    subnet:         x
+#    default_router: x |    default_router: x |    prefix:         24
+#    prefix: 24        |    lease_days: 1     |    default_router: x
+#  lease:              |    lease_hours: 1    |  lease:
+#    days: 11          |    excluded:         |    days:  1
+#    hours: 11         |      - x         x   |    hours: 1
+#  excluded:           |      - x         x   |  excluded:
+#    - x        x      |                      |    - x         x
+pooldb:
+  WIFI_A_LT1A:
+    ipv4:
+      network: 1.1.1.1
+      subnet: 2.2.2.1
+      default_router: 3.3.3.1
+      prefix: 24
+    lease:
+      days: 1
+      hours: 11
+    excluded:
+      - 10.190.4.1 10.190.4.19
+      - 10.190.8.1 10.190.8.19
+  WIFI_B_LT1A:
+    ipv4:
+      network: 1.1.1.2
+      subnet: 2.2.2.2
+      default_router: 3.3.3.2
+      prefix: 24
+    lease:
+      days: 2
+      hours: 12
+    excluded:
+      - 10.190.5.1 10.190.5.29
+      - 10.190.6.1 10.190.6.29
+      - 10.190.7.1 10.190.7.29
+      - 10.190.9.1 10.190.9.29
+  WIFI_C_LT1B:
+    ipv4:
+      network: 1.1.1.1
+      subnet: 2.2.2.1
+      default_router: 3.3.3.1
+      prefix: 24
+    lease:
+      days: 1
+      hours: 11
+    excluded:
+      - 10.190.4.1 10.190.4.19
+      - 10.190.8.1 10.190.8.19
+  WIFI_D_LT1B:
+    ipv4:
+      network: 1.1.1.2
+      subnet: 2.2.2.2
+      default_router: 3.3.3.2
+      prefix: 24
+    lease:
+      days: 2
+      hours: 12
+    excluded:
+      - 10.190.4.1 10.190.4.29
+      - 10.190.8.1 10.190.8.29
+  WIFI_PPDU_BAA:
+    ipv4:
+      network: 1.1.1.3
+      subnet: 2.2.2.3
+      default_router: 1.1.1.3
+      prefix: 24
+    lease:
+      days: 3
+      hours: 13
+    excluded:
+      - 10.190.14.1 10.190.14.39
+      - 10.190.18.1 10.190.18.39
+      
+
+  WIFI_A_LT0A:
+    ipv4:
+      network: 1.1.1.1
+      subnet: 2.2.2.1
+      default_router: 3.3.3.1
+      prefix: 24
+    lease:
+      days: 1
+      hours: 11
+    excluded:
+      - 10.190.4.1 10.190.4.19
+      - 10.190.8.1 10.190.8.19
+  WIFI_B_LT0A:
+    ipv4:
+      network: 1.1.1.2
+      subnet: 2.2.2.2
+      default_router: 3.3.3.2
+      prefix: 24
+    lease:
+      days: 2
+      hours: 12
+    excluded:
+      - 10.190.5.1 10.190.5.29
+      - 10.190.6.1 10.190.6.29
+      - 10.190.7.1 10.190.7.29
+      - 10.190.9.1 10.190.9.29
+  WIFI_A_LT3A:
+    ipv4:
+      network: 1.1.1.1
+      subnet: 2.2.2.1
+      default_router: 3.3.3.1
+      prefix: 24
+    lease:
+      days: 1
+      hours: 11
+    excluded:
+      - 10.190.4.1 10.190.4.19
+      - 10.190.8.1 10.190.8.19
+  WIFI_B_LT3A:
+    ipv4:
+      network: 1.1.1.2
+      subnet: 2.2.2.2
+      default_router: 3.3.3.2
+      prefix: 24
+    lease:
+      days: 2
+      hours: 12
+    excluded:
+      - 10.190.4.1 10.190.4.29
+      - 10.190.8.1 10.190.8.29
+  WIFI_C_LT3B:
+    ipv4:
+      network: 1.1.1.1
+      subnet: 2.2.2.1
+      default_router: 3.3.3.1
+      prefix: 24
+    lease:
+      days: 1
+      hours: 11
+    excluded:
+      - 10.190.4.1 10.190.4.19
+      - 10.190.8.1 10.190.8.19
+  WIFI_D_LT3B:
+    ipv4:
+      network: 1.1.1.2
+      subnet: 2.2.2.2
+      default_router: 3.3.3.2
+      prefix: 24
+    lease:
+      days: 2
+      hours: 12
+    excluded:
+      - 10.190.4.1 10.190.4.29
+      - 10.190.8.1 10.190.8.29
+  WIFI_A_LT4A:
+    ipv4:
+      network: 1.1.1.1
+      subnet: 2.2.2.1
+      default_router: 3.3.3.1
+      prefix: 24
+    lease:
+      days: 1
+      hours: 11
+    excluded:
+      - 10.190.4.1 10.190.4.19
+      - 10.190.8.1 10.190.8.19
+  WIFI_B_LT4A:
+    ipv4:
+      network: 1.1.1.2
+      subnet: 2.2.2.2
+      default_router: 3.3.3.2
+      prefix: 24
+    lease:
+      days: 2
+      hours: 12
+    excluded:
+      - 10.190.4.1 10.190.4.29
+      - 10.190.8.1 10.190.8.29
+  WIFI_C_LT4B:
+    ipv4:
+      network: 1.1.1.1
+      subnet: 2.2.2.1
+      default_router: 3.3.3.1
+      prefix: 24
+    lease:
+      days: 1
+      hours: 11
+    excluded:
+      - 10.190.4.1 10.190.4.19
+      - 10.190.8.1 10.190.8.19
+  WIFI_D_LT4B:
+    ipv4:
+      network: 1.1.1.2
+      subnet: 2.2.2.2
+      default_router: 3.3.3.2
+      prefix: 24
+    lease:
+      days: 2
+      hours: 12
+    excluded:
+      - 10.190.4.1 10.190.4.29
+      - 10.190.8.1 10.190.8.29

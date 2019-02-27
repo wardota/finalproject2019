@@ -1,0 +1,7 @@
+    - name: disable services
+      ios_config:
+        lines:
+          -  no {{ item }}
+        timeout: "{{ set_timeout }}"
+      loop: "{{ services_off }}"
+

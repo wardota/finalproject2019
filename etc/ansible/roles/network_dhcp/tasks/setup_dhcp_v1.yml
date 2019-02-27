@@ -1,0 +1,104 @@
+---
+  - name: Include var
+    include_vars: pooldb1.yml
+  - name: debb
+    debug :  
+      var: item
+      verbosity: "{{ set_verbosity }}"
+    loop: "{{ pooldb[outer_item].excluded }}"  
+    # loop_control:
+    #   label: "{{ item.0.name}}"
+  - name: set ip dhcp excluded {{ outer_item }}
+    ios_config:
+      lines:
+        - ip dhcp excluded-address {{ item }}
+      provider:
+        timeout: "{{ timeout }}"
+    loop: "{{ pooldb[outer_item].excluded }}" #BAD LOOP # UNEFFIECENT PART
+    delay: "{{ delay }}"
+    retries: "{{ retries }}"
+    ignore_errors: yes
+    register: result_excluded
+    until: result_excluded.changed == false  
+  - debug:
+      var: result_excluded #variable , ugh i should get status for reporting not from my variable
+      verbosity: "{{ set_verbosity }}"
+
+
+
+  - name: creating dhcp pool name 
+    ios_config:
+      lines:
+        - network {{ pooldb[item].ipv4.network}} {{ pooldb[item].ipv4.subnet}}
+        - dns-server {{ dns1 | default ("10.252.252.4")}} {{ dns2 | default ("10.252.252.5")}}
+        - default-router {{ pooldb[item].ipv4.default_router }}
+        - domain-name {{ mydomain }}
+        - lease {{ pooldb[item].lease.days | default (2)}} {{ pooldb[item].lease.hours | default (2) }}
+      parents:
+        - ip dhcp pool {{ item }}
+      provider:
+        timeout: "{{ timeout }}"
+    loop: "{{dhcp_pool}}"       
+    when: pooldb[item] is defined  
+    delay: "{{ delay }}"
+    retries: "{{ retries }}"
+    ignore_errors: yes
+    register: result_dhcp
+    until: result_dhcp.changed == true 
+  - debug:
+      var: result_dhcp #variable , ugh i should get status for reporting not from my variable
+      verbosity: "{{ set_verbosity }}"
+
+#######################################################
+#USING poolname variable one by one
+# - name: creating dhcp pool name {{ poolname | default("WRONG POOLNAME")}} with network {{ pooldb[poolname].ipv4.network | default ("WRONG NETWORK")}}
+      # ios_config:
+        # lines:
+          # - network {{ pooldb[poolname].ipv4.network}} {{ pooldb[poolname].ipv4.subnet}}
+          # - dns-server {{ dns1 | default ("10.252.252.4")}} {{ dns2 | default ("10.252.252.5")}}
+          # - default-router {{ pooldb[poolname].ipv4.default_router }}
+          # - domain-name {{ mydomain }}
+          # - lease {{ pooldb[poolname].lease.days | default (2)}} {{ pooldb[poolname].lease.hours | default (2) }}
+        # parents:
+          # - ip dhcp pool {{ poolname }}
+    # - name: set ip dhcp excluded {{ item | default("NOT DECLARED")}}
+      # ios_config:
+        # lines:
+          # - ip dhcp excluded-address {{ item }}
+      # loop: "{{ pooldb[poolname].excluded }}"
+      # when: pooldb.{{poolname}}.excluded is defined
+
+
+#######################################################
+#USING hostname but  still error , more check needed
+    # - name: set ip dhcp excluded  {{ pooldb[item].excluded[0] | default("NOT DECLARED")}}
+      # ios_config:
+        # lines:
+          # - ip dhcp excluded-address {{ pooldb[item].excluded[0] | default (ipexcluded)}} 
+      # loop: "{{host_db[hostname].dhcp_pool}}"
+      # when: pooldb[item].excluded is defined
+      
+    # - name: creating dhcp pool name {{ item | default("WRONG POOLNAME")}} with network {{ pooldb[poolname].ipv4.network | default ("WRONG NETWORK")}}
+      # ios_config:
+        # lines:
+          # - network {{ pooldb[item].ipv4.network}} {{ pooldb[item].ipv4.subnet}}
+          # - dns-server {{ dns1 | default ("10.252.252.4")}} {{ dns2 | default ("10.252.252.5")}}
+          # - default-router {{ pooldb[item].ipv4.default_router }}
+          # - domain-name {{ mydomain }}
+          # - lease {{ pooldb[item].lease.days | default (2)}} {{ pooldb[item].lease.hours | default (2) }}
+        # parents:
+          # - ip dhcp pool {{ item }}
+      # loop: "{{host_db[hostname].dhcp_pool}}"
+      # when: pooldb[item] is defined   
+
+
+
+
+
+
+
+
+
+
+
+

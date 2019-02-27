@@ -1,0 +1,163 @@
+# struktur variable masih kurang efisen , when statement kurang benar
+# ide ! : gunakan setfact untuk user purge
+    - name: setup user :{{host_db[hostname].user.whitelist |  join(", ")}} without privilege if privilege is not defined
+      ios_user:
+        name: "{{item}}"
+        state: present
+        timeout: "{{ set_timeout }}"
+      loop: "{{host_db[hostname].user.whitelist}}"
+      when: userdb[item].privilege is not defined               
+      retries: 3 
+
+
+    - name: setup user :{{host_db[hostname].user.whitelist |  join(", ")}} with privilege if privilege is defined
+      ios_user:
+        name: "{{item}}"
+        privilege: "{{userdb[item].privilege }}"
+        state: present
+        timeout: "{{ set_timeout }}"
+      loop: "{{host_db[hostname].user.whitelist}}"
+      when: userdb[item].privilege is defined                  
+      retries: 3 
+
+    - name: setup user view :{{host_db[hostname].user.whitelist |  join(", ")}} if view is defined
+      ios_user:
+        name: "{{item}}"
+        view: "{{userdb[item].view }}"
+        state: present
+        timeout: "{{ set_timeout }}"
+      loop: "{{host_db[hostname].user.whitelist}}"
+      when: userdb[item].view is defined                  
+      retries: 3 
+
+    - name: set nopassword to user if secret is not defined
+      ios_user:
+        name: "{{item}}"
+        nopassword: True
+        state: present
+        timeout: "{{ set_timeout }}"
+      loop: "{{host_db[hostname].user.whitelist}}"
+      when: userdb[item].secret is not defined               
+      retries: 3 
+
+    - name: set and update secret of user ,if secret is defined
+      ios_user:
+        name: "{{item}}"
+        configured_password: "{{userdb[item].secret }}"
+        update_password: always
+        state: present
+        timeout: "{{ set_timeout }}"
+      loop: "{{host_db[hostname].user.whitelist}}"
+      when: userdb[item].secret is defined                  
+      retries: 3 
+
+    - name: Delete blocked users 
+      ios_user:
+        name: "{{item}}"
+        state: absent
+        timeout: "{{ set_timeout }}"
+      loop: "{{host_db[hostname].user.blocked}}"                     
+      retries: 3 
+      
+ ##############################
+## put it on a very conditional
+    # - name: remove all users except admin before update user
+      # ios_user:     
+        # aggregate:
+         # "{{item}}"
+        # purge: yes
+      # loop: 
+        # - name: "{{host_db[hostname].master}}"
+      # when: "host_db[hostname].master is defined"
+      
+
+          
+      
+      
+      
+      
+      
+      
+      
+      
+      
+
+
+    # - name: remove user on whitelist
+      # ios_user:
+        # name: "{{item}}"
+        # purge: yes
+      # loop: "{{host_db[hostname].user.whitelist}}"
+      # when: host_db[hostname].user.whitelist == host_db[hostname].user.whitelist or host_db[hostname].master == host_db[hostname].user.whitelist
+
+      
+      
+    # - name: remove all users except admin and these whitelisted users
+      # ios_user:     
+        # aggregate:
+          # - name: "{{item.key}}"
+        # purge: yes
+      # loop: "{{lookup ('dict',userdb)}}"
+      # when: "(item.key in host_db[hostname].user.whitelist) or (item.key in host_db[hostname].master)"
+      
+      
+      
+      
+      
+#################################################
+## version:  one file in playbook 
+   # - name: set user "{{item}}" to privilege level  userdb[item].privilege
+      # ios_user:
+        # name: "{{item}}"
+        # privilege: "{{userdb[item].privilege }}"
+        # state: present
+      # loop: "{{host_db[hostname].user.whitelist}}"
+      # when: userdb[item].privilege is defined   
+    # - name: set user {{userdb[item].name}} to privilege level  userdb[item].privilege {{userdb[item].privilege }}
+      # ios_user:
+        # name: "{{item}}"
+        # state: present
+      # loop: "{{host_db[hostname].user.whitelist}}"
+      # when: userdb[item].privilege is not defined
+    # - name: set user "{{item}}" to view as  userdb[item].view
+      # ios_user:
+        # name: "{{item}}"
+        # view: "{{userdb[item].view }}"
+        # state: present
+      # loop: "{{host_db[hostname].user.whitelist}}"
+      # when: userdb[item].view is defined   
+    # # - name: set user {{userdb[item].name}} to view as  userdb[item].view {{userdb[item].view }}
+      # # ios_user:
+        # # name: "{{item}}"
+        # # state: present
+      # # loop: "{{host_db[hostname].user.whitelist}}"
+      # # when: userdb[item].view is not defined
+    # - name: set password to user "{{item}}" 
+      # ios_user:
+        # name: "{{item}}"
+        # configured_password: "{{userdb[item].password }}"
+        # update_password: always
+        # state: present
+      # loop: "{{host_db[hostname].user.whitelist}}"
+      # when: userdb[item].password is defined   
+    # - name: set no password to user {{userdb[item].name}}
+      # ios_user:
+        # name: "{{item}}"
+        # nopassword: True
+        # state: present
+      # loop: "{{host_db[hostname].user.whitelist}}"
+      # when: userdb[item].password is not defined
+
+    # # - name: Change Password for User netop
+      # # ios_user:
+        # # name: netop
+        # # configured_password: "{{panjang}}"
+        # # update_password: always
+        # # state: present
+    # # - name: Delete users with aggregate
+      # # ios_user:
+        # # name: netop
+        # # state: absent
+       
+
+       

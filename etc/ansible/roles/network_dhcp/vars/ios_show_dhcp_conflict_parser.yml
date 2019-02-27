@@ -1,0 +1,70 @@
+# sw_ku3_b3#sh ip dhcp conflict
+# IP address        Detection method   Detection time          VRF
+#
+
+vars:
+  vlan:
+    id: "{{ item.id }}"
+    name: "{{ item.name }}"
+    status: "{{ item.status }}"
+    ports: "{{ (item.ports|replace('Gi', 'GigabitEthernet') | replace('Po','PortChannel')).split(', ') }}"
+
+keys:
+  vlans:
+    value: "{{ vlan }}"
+    items: "^(?P<id>\\d+)\\s+(?P<name>\\S+)\\s+(?P<status>[a-z]{4,})\\s*(?P<ports>([A-Za-z]+).+)?"
+   
+   ^(?P<id>\\d+)\\s+(?P<name>\\S+)\\s+(?P<status>[a-z/]{4,})\\s*(?P<ports>\\w{1,}\\d[/].+)?  
+
+source= 'VLAN Name                             Status    Ports
+---- -------------------------------- --------- -------------------------------
+1    default                          active    Fa1/0, Fa1/1, Fa1/2, Fa1/3, Fa1/4, Fa1/5, Fa1/6, Fa1/7, Fa1/8, Fa1/9, Fa1/10, Fa1/11, Fa1/12, Fa1/13, Fa1/14
+10   vlan10-test                      active    
+20   vlan20-test                      active    
+101  VLAN0101                         active    
+102  VLAN0102                         active    
+901  RFID-LT1A                        active    
+902  CAMERA-LT1A                      active    
+908  WIFI-B-LT1A                      active    
+1002 fddi-default                     act/unsup 
+1003 token-ring-default               act/unsup 
+1004 fddinet-default                  act/unsup 
+1005 trnet-default                    act/unsup 
+1097 vlan-mgmn-dev                    active    
+
+VLAN Type  SAID       MTU   Parent RingNo BridgeNo Stp  BrdgMode Trans1 Trans2
+---- ----- ---------- ----- ------ ------ -------- ---- -------- ------ ------
+1    enet  100001     1500  -      -      -        -    -        1002   1003
+10   enet  100010     1500  -      -      -        -    -        0      0   
+20   enet  100020     1500  -      -      -        -    -        0      0   
+101  enet  100101     1500  -      -      -        -    -        0      0   
+102  enet  100102     1500  -      -      -        -    -        0      0   
+901  enet  100901     1500  -      -      -        -    -        0      0   
+902  enet  100902     1500  -      -      -        -    -        0      0   
+908  enet  100908     1500  -      -      -        -    -        0      0   
+1002 fddi  101002     1500  -      -      -        -    -        1      1003
+1003 tr    101003     1500  1005   0      -        -    srb      1      1002
+1004 fdnet 101004     1500  -      -      1        ibm  -        0      0   
+1005 trnet 101005     1500  -      -      1        ibm  -        0      0   
+1097 enet  101097     1500  -      -      -        -    -        0      0'
+
+
+^(?P<id>\\d+)\\s+(?P<name>\\S+)\\s+(?P<status>[a-z/]{4,})\\s*(?P<ports>\\w{1,}\\d[/].+)?
+
+
+regex= re.compile('^(?P<id>\\d+)\\s+(?P<name>\\S+)\\s+(?P<status>[a-z]{4,})\\s*(?P<ports>([A-Za-z]+).+)?')
+
+    objects = list()
+    for match in re.findall(regex.pattern, source, re.M):
+        obj = {}
+        if regex.groupindex:
+            for name, index in iteritems(regex.groupindex):
+                if len(regex.groupindex) == 1:
+                    obj[name] = match
+                else:
+                    obj[name] = match[index - 1]
+            objects.append(obj)
+
+            
+
+    obj

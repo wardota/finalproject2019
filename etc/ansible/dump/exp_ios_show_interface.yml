@@ -1,0 +1,1195 @@
+---
+
+# SW.KU3.LTD#sh vlan-switch
+
+# VLAN Name                             Status    Ports
+# ---- -------------------------------- --------- -------------------------------
+# 1    default                          active    Fa1/0, Fa1/1, Fa1/2, Fa1/3, Fa1/4, Fa1/5, Fa1/6, Fa1/7, Fa1/8, Fa1/9, Fa1/15
+# 1002 fddi-default                     act/unsup
+# 1003 token-ring-default               act/unsup
+# 1004 fddinet-default                  act/unsup
+# 1005 trnet-default                    act/unsup
+# 1097 vlan-mgmn-dev                    active
+
+# VLAN Type  SAID       MTU   Parent RingNo BridgeNo Stp  BrdgMode Trans1 Trans2
+# ---- ----- ---------- ----- ------ ------ -------- ---- -------- ------ ------
+# 1    enet  100001     1500  -      -      -        -    -        1002   1003
+# 1002 fddi  101002     1500  -      -      -        -    -        1      1003
+# 1003 tr    101003     1500  1005   0      -        -    srb      1      1002
+# 1004 fdnet 101004     1500  -      -      1        ibm  -        0      0
+# 1005 trnet 101005     1500  -      -      1        ibm  -        0      0
+# 1097 enet  101097     1500  -      -      -        -    -        0      0
+# SW.KU3.LTD# sh interface
+# FastEthernet0/0 is administratively down, line protocol is down
+#   Hardware is Gt96k FE, address is c204.1f30.0000 (bia c204.1f30.0000)
+#   Description: *** Unused for Layer2 EtherSwitch ***
+#   MTU 1500 bytes, BW 10000 Kbit/sec, DLY 1000 usec,
+#      reliability 255/255, txload 1/255, rxload 1/255
+#   Encapsulation ARPA, loopback not set
+#   Keepalive set (10 sec)
+#   Half-duplex, 10Mb/s, 100BaseTX/FX
+#   ARP type: ARPA, ARP Timeout 04:00:00
+#   Last input never, output never, output hang never
+#   Last clearing of "show interface" counters never
+#   Input queue: 0/75/0/0 (size/max/drops/flushes); Total output drops: 0
+#   Queueing strategy: fifo
+#   Output queue: 0/40 (size/max)
+#   5 minute input rate 0 bits/sec, 0 packets/sec
+#   5 minute output rate 0 bits/sec, 0 packets/sec
+#      0 packets input, 0 bytes
+#      Received 0 broadcasts, 0 runts, 0 giants, 0 throttles
+#      0 input errors, 0 CRC, 0 frame, 0 overrun, 0 ignored
+#      0 watchdog
+#      0 input packets with dribble condition detected
+#      0 packets output, 0 bytes, 0 underruns
+#      0 output errors, 0 collisions, 0 interface resets
+#      0 babbles, 0 late collision, 0 deferred
+#      0 lost carrier, 0 no carrier
+#      0 output buffer failures, 0 output buffers swapped out
+# Serial0/0 is administratively down, line protocol is down
+#   Hardware is GT96K Serial
+#   MTU 1500 bytes, BW 1544 Kbit/sec, DLY 20000 usec,
+#      reliability 255/255, txload 1/255, rxload 1/255
+#   Encapsulation HDLC, loopback not set
+#   Keepalive set (10 sec)
+#   CRC checking enabled
+#   Last input never, output never, output hang never
+#   Last clearing of "show interface" counters never
+#   Input queue: 0/75/0/0 (size/max/drops/flushes); Total output drops: 0
+#   Queueing strategy: weighted fair
+#   Output queue: 0/1000/64/0 (size/max total/threshold/drops)
+#      Conversations  0/0/256 (active/max active/max total)
+#      Reserved Conversations 0/0 (allocated/max allocated)
+#      Available Bandwidth 1158 kilobits/sec
+#   5 minute input rate 0 bits/sec, 0 packets/sec
+#   5 minute output rate 0 bits/sec, 0 packets/sec
+#      0 packets input, 0 bytes, 0 no buffer
+#      Received 0 broadcasts, 0 runts, 0 giants, 0 throttles
+#      0 input errors, 0 CRC, 0 frame, 0 overrun, 0 ignored, 0 abort
+#      0 packets output, 0 bytes, 0 underruns
+#      0 output errors, 0 collisions, 7 interface resets
+#      0 output buffer failures, 0 output buffers swapped out
+#      0 carrier transitions
+#      DCD=up  DSR=up  DTR=up  RTS=up  CTS=up
+
+# FastEthernet0/1 is administratively down, line protocol is down
+#   Hardware is Gt96k FE, address is c204.1f30.0001 (bia c204.1f30.0001)
+#   Description: *** Unused for Layer2 EtherSwitch ***
+#   MTU 1500 bytes, BW 10000 Kbit/sec, DLY 1000 usec,
+#      reliability 255/255, txload 1/255, rxload 1/255
+#   Encapsulation ARPA, loopback not set
+#   Keepalive set (10 sec)
+#   Half-duplex, 10Mb/s, 100BaseTX/FX
+#   ARP type: ARPA, ARP Timeout 04:00:00
+#   Last input never, output never, output hang never
+#   Last clearing of "show interface" counters never
+#   Input queue: 0/75/0/0 (size/max/drops/flushes); Total output drops: 0
+#   Queueing strategy: fifo
+#   Output queue: 0/40 (size/max)
+#   5 minute input rate 0 bits/sec, 0 packets/sec
+#   5 minute output rate 0 bits/sec, 0 packets/sec
+#      0 packets input, 0 bytes
+#      Received 0 broadcasts, 0 runts, 0 giants, 0 throttles
+#      0 input errors, 0 CRC, 0 frame, 0 overrun, 0 ignored
+#      0 watchdog
+#      0 input packets with dribble condition detected
+#      0 packets output, 0 bytes, 0 underruns
+#      0 output errors, 0 collisions, 0 interface resets
+#      0 babbles, 0 late collision, 0 deferred
+#      0 lost carrier, 0 no carrier
+#      0 output buffer failures, 0 output buffers swapped out
+# Serial0/1 is administratively down, line protocol is down
+#   Hardware is GT96K Serial
+#   MTU 1500 bytes, BW 1544 Kbit/sec, DLY 20000 usec,
+#      reliability 255/255, txload 1/255, rxload 1/255
+#   Encapsulation HDLC, loopback not set
+#   Keepalive set (10 sec)
+#   CRC checking enabled
+#   Last input never, output never, output hang never
+#   Last clearing of "show interface" counters never
+#   Input queue: 0/75/0/0 (size/max/drops/flushes); Total output drops: 0
+#   Queueing strategy: weighted fair
+#   Output queue: 0/1000/64/0 (size/max total/threshold/drops)
+#      Conversations  0/0/256 (active/max active/max total)
+#      Reserved Conversations 0/0 (allocated/max allocated)
+#      Available Bandwidth 1158 kilobits/sec
+#   5 minute input rate 0 bits/sec, 0 packets/sec
+#   5 minute output rate 0 bits/sec, 0 packets/sec
+#      0 packets input, 0 bytes, 0 no buffer
+#      Received 0 broadcasts, 0 runts, 0 giants, 0 throttles
+#      0 input errors, 0 CRC, 0 frame, 0 overrun, 0 ignored, 0 abort
+#      0 packets output, 0 bytes, 0 underruns
+#      0 output errors, 0 collisions, 7 interface resets
+#      0 output buffer failures, 0 output buffers swapped out
+#      0 carrier transitions
+#      DCD=up  DSR=up  DTR=up  RTS=up  CTS=up
+
+# Serial0/2 is administratively down, line protocol is down
+#   Hardware is GT96K Serial
+#   MTU 1500 bytes, BW 1544 Kbit/sec, DLY 20000 usec,
+#      reliability 255/255, txload 1/255, rxload 1/255
+#   Encapsulation HDLC, loopback not set
+#   Keepalive set (10 sec)
+#   CRC checking enabled
+#   Last input never, output never, output hang never
+#   Last clearing of "show interface" counters never
+#   Input queue: 0/75/0/0 (size/max/drops/flushes); Total output drops: 0
+#   Queueing strategy: weighted fair
+#   Output queue: 0/1000/64/0 (size/max total/threshold/drops)
+#      Conversations  0/0/256 (active/max active/max total)
+#      Reserved Conversations 0/0 (allocated/max allocated)
+#      Available Bandwidth 1158 kilobits/sec
+#   5 minute input rate 0 bits/sec, 0 packets/sec
+#   5 minute output rate 0 bits/sec, 0 packets/sec
+#      0 packets input, 0 bytes, 0 no buffer
+#      Received 0 broadcasts, 0 runts, 0 giants, 0 throttles
+#      0 input errors, 0 CRC, 0 frame, 0 overrun, 0 ignored, 0 abort
+#      0 packets output, 0 bytes, 0 underruns
+#      0 output errors, 0 collisions, 7 interface resets
+#      0 output buffer failures, 0 output buffers swapped out
+#      0 carrier transitions
+#      DCD=up  DSR=up  DTR=up  RTS=up  CTS=up
+
+# Serial0/3 is administratively down, line protocol is down
+#   Hardware is GT96K Serial
+#   MTU 1500 bytes, BW 1544 Kbit/sec, DLY 20000 usec,
+#      reliability 255/255, txload 1/255, rxload 1/255
+#   Encapsulation HDLC, loopback not set
+#   Keepalive set (10 sec)
+#   CRC checking enabled
+#   Last input never, output never, output hang never
+#   Last clearing of "show interface" counters never
+#   Input queue: 0/75/0/0 (size/max/drops/flushes); Total output drops: 0
+#   Queueing strategy: weighted fair
+#   Output queue: 0/1000/64/0 (size/max total/threshold/drops)
+#      Conversations  0/0/256 (active/max active/max total)
+#      Reserved Conversations 0/0 (allocated/max allocated)
+#      Available Bandwidth 1158 kilobits/sec
+#   5 minute input rate 0 bits/sec, 0 packets/sec
+#   5 minute output rate 0 bits/sec, 0 packets/sec
+#      0 packets input, 0 bytes, 0 no buffer
+#      Received 0 broadcasts, 0 runts, 0 giants, 0 throttles
+#      0 input errors, 0 CRC, 0 frame, 0 overrun, 0 ignored, 0 abort
+#      0 packets output, 0 bytes, 0 underruns
+#      0 output errors, 0 collisions, 7 interface resets
+#      0 output buffer failures, 0 output buffers swapped out
+#      0 carrier transitions
+#      DCD=up  DSR=up  DTR=up  RTS=up  CTS=up
+
+# FastEthernet1/0 is up, line protocol is down
+#   Hardware is Fast Ethernet, address is c204.299c.f100 (bia c204.299c.f100)
+#   MTU 1500 bytes, BW 100000 Kbit/sec, DLY 100 usec,
+#      reliability 255/255, txload 1/255, rxload 1/255
+#   Encapsulation ARPA, loopback not set
+#   Keepalive set (10 sec)
+#   Auto-duplex, Auto-speed
+#   ARP type: ARPA, ARP Timeout 04:00:00
+#   Last input never, output never, output hang never
+#   Last clearing of "show interface" counters never
+#   Input queue: 0/75/0/0 (size/max/drops/flushes); Total output drops: 0
+#   Queueing strategy: fifo
+#   Output queue: 0/40 (size/max)
+#   5 minute input rate 0 bits/sec, 0 packets/sec
+#   5 minute output rate 0 bits/sec, 0 packets/sec
+#      0 packets input, 0 bytes, 0 no buffer
+#      Received 0 broadcasts, 0 runts, 0 giants, 0 throttles
+#      0 input errors, 0 CRC, 0 frame, 0 overrun, 0 ignored
+#      0 input packets with dribble condition detected
+#      0 packets output, 0 bytes, 0 underruns
+#      0 output errors, 0 collisions, 2 interface resets
+#      0 babbles, 0 late collision, 0 deferred
+#      0 lost carrier, 0 no carrier
+#      0 output buffer failures, 0 output buffers swapped out
+# FastEthernet1/1 is up, line protocol is down
+#   Hardware is Fast Ethernet, address is c204.299c.f101 (bia c204.299c.f101)
+#   MTU 1500 bytes, BW 100000 Kbit/sec, DLY 100 usec,
+#      reliability 255/255, txload 1/255, rxload 1/255
+#   Encapsulation ARPA, loopback not set
+#   Keepalive set (10 sec)
+#   Auto-duplex, Auto-speed
+#   ARP type: ARPA, ARP Timeout 04:00:00
+#   Last input never, output never, output hang never
+#   Last clearing of "show interface" counters never
+#   Input queue: 0/75/0/0 (size/max/drops/flushes); Total output drops: 0
+#   Queueing strategy: fifo
+#   Output queue: 0/40 (size/max)
+#   5 minute input rate 0 bits/sec, 0 packets/sec
+#   5 minute output rate 0 bits/sec, 0 packets/sec
+#      0 packets input, 0 bytes, 0 no buffer
+#      Received 0 broadcasts, 0 runts, 0 giants, 0 throttles
+#      0 input errors, 0 CRC, 0 frame, 0 overrun, 0 ignored
+#      0 input packets with dribble condition detected
+#      0 packets output, 0 bytes, 0 underruns
+#      0 output errors, 0 collisions, 2 interface resets
+#      0 babbles, 0 late collision, 0 deferred
+#      0 lost carrier, 0 no carrier
+#      0 output buffer failures, 0 output buffers swapped out
+# FastEthernet1/2 is up, line protocol is up
+#   Hardware is Fast Ethernet, address is c204.299c.f102 (bia c204.299c.f102)
+#   MTU 1500 bytes, BW 100000 Kbit/sec, DLY 100 usec,
+#      reliability 255/255, txload 1/255, rxload 1/255
+#   Encapsulation ARPA, loopback not set
+#   Keepalive set (10 sec)
+#   Full-duplex, 100Mb/s
+#   ARP type: ARPA, ARP Timeout 04:00:00
+#   Last input never, output never, output hang never
+#   Last clearing of "show interface" counters never
+#   Input queue: 0/75/0/0 (size/max/drops/flushes); Total output drops: 0
+#   Queueing strategy: fifo
+#   Output queue: 0/40 (size/max)
+#   5 minute input rate 0 bits/sec, 0 packets/sec
+#   5 minute output rate 0 bits/sec, 0 packets/sec
+#      0 packets input, 0 bytes, 0 no buffer
+#      Received 0 broadcasts, 0 runts, 0 giants, 0 throttles
+#      0 input errors, 0 CRC, 0 frame, 0 overrun, 0 ignored
+#      0 input packets with dribble condition detected
+#      0 packets output, 0 bytes, 0 underruns
+#      0 output errors, 0 collisions, 2 interface resets
+#      0 babbles, 0 late collision, 0 deferred
+#      0 lost carrier, 0 no carrier
+#      0 output buffer failures, 0 output buffers swapped out
+# FastEthernet1/3 is up, line protocol is up
+#   Hardware is Fast Ethernet, address is c204.299c.f103 (bia c204.299c.f103)
+#   MTU 1500 bytes, BW 100000 Kbit/sec, DLY 100 usec,
+#      reliability 255/255, txload 1/255, rxload 1/255
+#   Encapsulation ARPA, loopback not set
+#   Keepalive set (10 sec)
+#   Full-duplex, 100Mb/s
+#   ARP type: ARPA, ARP Timeout 04:00:00
+#   Last input never, output never, output hang never
+#   Last clearing of "show interface" counters never
+#   Input queue: 0/75/0/0 (size/max/drops/flushes); Total output drops: 0
+#   Queueing strategy: fifo
+#   Output queue: 0/40 (size/max)
+#   5 minute input rate 0 bits/sec, 0 packets/sec
+#   5 minute output rate 0 bits/sec, 0 packets/sec
+#      0 packets input, 0 bytes, 0 no buffer
+#      Received 0 broadcasts, 0 runts, 0 giants, 0 throttles
+#      0 input errors, 0 CRC, 0 frame, 0 overrun, 0 ignored
+#      0 input packets with dribble condition detected
+#      0 packets output, 0 bytes, 0 underruns
+#      0 output errors, 0 collisions, 2 interface resets
+#      0 babbles, 0 late collision, 0 deferred
+#      0 lost carrier, 0 no carrier
+#      0 output buffer failures, 0 output buffers swapped out
+# FastEthernet1/4 is up, line protocol is up
+#   Hardware is Fast Ethernet, address is c204.299c.f104 (bia c204.299c.f104)
+#   MTU 1500 bytes, BW 100000 Kbit/sec, DLY 100 usec,
+#      reliability 255/255, txload 1/255, rxload 1/255
+#   Encapsulation ARPA, loopback not set
+#   Keepalive set (10 sec)
+#   Full-duplex, 100Mb/s
+#   ARP type: ARPA, ARP Timeout 04:00:00
+#   Last input never, output never, output hang never
+#   Last clearing of "show interface" counters never
+#   Input queue: 0/75/0/0 (size/max/drops/flushes); Total output drops: 0
+#   Queueing strategy: fifo
+#   Output queue: 0/40 (size/max)
+#   5 minute input rate 0 bits/sec, 0 packets/sec
+#   5 minute output rate 0 bits/sec, 0 packets/sec
+#      0 packets input, 0 bytes, 0 no buffer
+#      Received 0 broadcasts, 0 runts, 0 giants, 0 throttles
+#      0 input errors, 0 CRC, 0 frame, 0 overrun, 0 ignored
+#      0 input packets with dribble condition detected
+#      0 packets output, 0 bytes, 0 underruns
+#      0 output errors, 0 collisions, 2 interface resets
+#      0 babbles, 0 late collision, 0 deferred
+#      0 lost carrier, 0 no carrier
+#      0 output buffer failures, 0 output buffers swapped out
+# FastEthernet1/5 is up, line protocol is up
+#   Hardware is Fast Ethernet, address is c204.299c.f105 (bia c204.299c.f105)
+#   MTU 1500 bytes, BW 100000 Kbit/sec, DLY 100 usec,
+#      reliability 255/255, txload 1/255, rxload 1/255
+#   Encapsulation ARPA, loopback not set
+#   Keepalive set (10 sec)
+#   Full-duplex, 100Mb/s
+#   ARP type: ARPA, ARP Timeout 04:00:00
+#   Last input never, output never, output hang never
+#   Last clearing of "show interface" counters never
+#   Input queue: 0/75/0/0 (size/max/drops/flushes); Total output drops: 0
+#   Queueing strategy: fifo
+#   Output queue: 0/40 (size/max)
+#   5 minute input rate 0 bits/sec, 0 packets/sec
+#   5 minute output rate 0 bits/sec, 0 packets/sec
+#      0 packets input, 0 bytes, 0 no buffer
+#      Received 0 broadcasts, 0 runts, 0 giants, 0 throttles
+#      0 input errors, 0 CRC, 0 frame, 0 overrun, 0 ignored
+#      0 input packets with dribble condition detected
+#      0 packets output, 0 bytes, 0 underruns
+#      0 output errors, 0 collisions, 2 interface resets
+#      0 babbles, 0 late collision, 0 deferred
+#      0 lost carrier, 0 no carrier
+#      0 output buffer failures, 0 output buffers swapped out
+# FastEthernet1/6 is up, line protocol is up
+#   Hardware is Fast Ethernet, address is c204.299c.f106 (bia c204.299c.f106)
+#   MTU 1500 bytes, BW 100000 Kbit/sec, DLY 100 usec,
+#      reliability 255/255, txload 1/255, rxload 1/255
+#   Encapsulation ARPA, loopback not set
+#   Keepalive set (10 sec)
+#   Full-duplex, 100Mb/s
+#   ARP type: ARPA, ARP Timeout 04:00:00
+#   Last input never, output never, output hang never
+#   Last clearing of "show interface" counters never
+#   Input queue: 0/75/0/0 (size/max/drops/flushes); Total output drops: 0
+#   Queueing strategy: fifo
+#   Output queue: 0/40 (size/max)
+#   5 minute input rate 0 bits/sec, 0 packets/sec
+#   5 minute output rate 0 bits/sec, 0 packets/sec
+#      0 packets input, 0 bytes, 0 no buffer
+#      Received 0 broadcasts, 0 runts, 0 giants, 0 throttles
+#      0 input errors, 0 CRC, 0 frame, 0 overrun, 0 ignored
+#      0 input packets with dribble condition detected
+#      0 packets output, 0 bytes, 0 underruns
+#      0 output errors, 0 collisions, 2 interface resets
+#      0 babbles, 0 late collision, 0 deferred
+#      0 lost carrier, 0 no carrier
+#      0 output buffer failures, 0 output buffers swapped out
+# FastEthernet1/7 is up, line protocol is up
+#   Hardware is Fast Ethernet, address is c204.299c.f107 (bia c204.299c.f107)
+#   MTU 1500 bytes, BW 100000 Kbit/sec, DLY 100 usec,
+#      reliability 255/255, txload 1/255, rxload 1/255
+#   Encapsulation ARPA, loopback not set
+#   Keepalive set (10 sec)
+#   Full-duplex, 100Mb/s
+#   ARP type: ARPA, ARP Timeout 04:00:00
+#   Last input never, output never, output hang never
+#   Last clearing of "show interface" counters never
+#   Input queue: 0/75/0/0 (size/max/drops/flushes); Total output drops: 0
+#   Queueing strategy: fifo
+#   Output queue: 0/40 (size/max)
+#   5 minute input rate 0 bits/sec, 0 packets/sec
+#   5 minute output rate 0 bits/sec, 0 packets/sec
+#      0 packets input, 0 bytes, 0 no buffer
+#      Received 0 broadcasts, 0 runts, 0 giants, 0 throttles
+#      0 input errors, 0 CRC, 0 frame, 0 overrun, 0 ignored
+#      0 input packets with dribble condition detected
+#      0 packets output, 0 bytes, 0 underruns
+#      0 output errors, 0 collisions, 2 interface resets
+#      0 babbles, 0 late collision, 0 deferred
+#      0 lost carrier, 0 no carrier
+#      0 output buffer failures, 0 output buffers swapped out
+# FastEthernet1/8 is up, line protocol is up
+#   Hardware is Fast Ethernet, address is c204.299c.f108 (bia c204.299c.f108)
+#   MTU 1500 bytes, BW 100000 Kbit/sec, DLY 100 usec,
+#      reliability 255/255, txload 1/255, rxload 1/255
+#   Encapsulation ARPA, loopback not set
+#   Keepalive set (10 sec)
+#   Full-duplex, 100Mb/s
+#   ARP type: ARPA, ARP Timeout 04:00:00
+#   Last input never, output never, output hang never
+#   Last clearing of "show interface" counters never
+#   Input queue: 0/75/0/0 (size/max/drops/flushes); Total output drops: 0
+#   Queueing strategy: fifo
+#   Output queue: 0/40 (size/max)
+#   5 minute input rate 0 bits/sec, 0 packets/sec
+#   5 minute output rate 0 bits/sec, 0 packets/sec
+#      0 packets input, 0 bytes, 0 no buffer
+#      Received 0 broadcasts, 0 runts, 0 giants, 0 throttles
+#      0 input errors, 0 CRC, 0 frame, 0 overrun, 0 ignored
+#      0 input packets with dribble condition detected
+#      0 packets output, 0 bytes, 0 underruns
+#      0 output errors, 0 collisions, 2 interface resets
+#      0 babbles, 0 late collision, 0 deferred
+#      0 lost carrier, 0 no carrier
+#      0 output buffer failures, 0 output buffers swapped out
+# FastEthernet1/9 is up, line protocol is up
+#   Hardware is Fast Ethernet, address is c204.299c.f109 (bia c204.299c.f109)
+#   MTU 1500 bytes, BW 100000 Kbit/sec, DLY 100 usec,
+#      reliability 255/255, txload 1/255, rxload 1/255
+#   Encapsulation ARPA, loopback not set
+#   Keepalive set (10 sec)
+#   Full-duplex, 100Mb/s
+#   ARP type: ARPA, ARP Timeout 04:00:00
+#   Last input never, output never, output hang never
+#   Last clearing of "show interface" counters never
+#   Input queue: 0/75/0/0 (size/max/drops/flushes); Total output drops: 0
+#   Queueing strategy: fifo
+#   Output queue: 0/40 (size/max)
+#   5 minute input rate 0 bits/sec, 0 packets/sec
+#   5 minute output rate 0 bits/sec, 0 packets/sec
+#      0 packets input, 0 bytes, 0 no buffer
+#      Received 0 broadcasts, 0 runts, 0 giants, 0 throttles
+#      0 input errors, 0 CRC, 0 frame, 0 overrun, 0 ignored
+#      0 input packets with dribble condition detected
+#      0 packets output, 0 bytes, 0 underruns
+#      0 output errors, 0 collisions, 2 interface resets
+#      0 babbles, 0 late collision, 0 deferred
+#      0 lost carrier, 0 no carrier
+#      0 output buffer failures, 0 output buffers swapped out
+# FastEthernet1/10 is up, line protocol is up
+#   Hardware is Fast Ethernet, address is c204.299c.f10a (bia c204.299c.f10a)
+#   MTU 1500 bytes, BW 100000 Kbit/sec, DLY 100 usec,
+#      reliability 255/255, txload 1/255, rxload 1/255
+#   Encapsulation ARPA, loopback not set
+#   Keepalive set (10 sec)
+#   Full-duplex, 100Mb/s
+#   ARP type: ARPA, ARP Timeout 04:00:00
+#   Last input 00:00:48, output never, output hang never
+#   Last clearing of "show interface" counters never
+#   Input queue: 0/75/0/0 (size/max/drops/flushes); Total output drops: 0
+#   Queueing strategy: fifo
+#   Output queue: 0/40 (size/max)
+#   5 minute input rate 0 bits/sec, 0 packets/sec
+#   5 minute output rate 0 bits/sec, 0 packets/sec
+#      0 packets input, 0 bytes, 0 no buffer
+#      Received 0 broadcasts, 0 runts, 0 giants, 0 throttles
+#      0 input errors, 0 CRC, 0 frame, 0 overrun, 0 ignored
+#      0 input packets with dribble condition detected
+#      0 packets output, 0 bytes, 0 underruns
+#      0 output errors, 0 collisions, 2 interface resets
+#      0 babbles, 0 late collision, 0 deferred
+#      0 lost carrier, 0 no carrier
+#      0 output buffer failures, 0 output buffers swapped out
+# FastEthernet1/11 is up, line protocol is up
+#   Hardware is Fast Ethernet, address is c204.299c.f10b (bia c204.299c.f10b)
+#   MTU 1500 bytes, BW 100000 Kbit/sec, DLY 100 usec,
+#      reliability 255/255, txload 1/255, rxload 1/255
+#   Encapsulation ARPA, loopback not set
+#   Keepalive set (10 sec)
+#   Full-duplex, 100Mb/s
+#   ARP type: ARPA, ARP Timeout 04:00:00
+#   Last input 00:00:55, output never, output hang never
+#   Last clearing of "show interface" counters never
+#   Input queue: 0/75/0/0 (size/max/drops/flushes); Total output drops: 0
+#   Queueing strategy: fifo
+#   Output queue: 0/40 (size/max)
+#   5 minute input rate 0 bits/sec, 0 packets/sec
+#   5 minute output rate 0 bits/sec, 0 packets/sec
+#      0 packets input, 0 bytes, 0 no buffer
+#      Received 0 broadcasts, 0 runts, 0 giants, 0 throttles
+#      0 input errors, 0 CRC, 0 frame, 0 overrun, 0 ignored
+#      0 input packets with dribble condition detected
+#      0 packets output, 0 bytes, 0 underruns
+#      0 output errors, 0 collisions, 2 interface resets
+#      0 babbles, 0 late collision, 0 deferred
+#      0 lost carrier, 0 no carrier
+#      0 output buffer failures, 0 output buffers swapped out
+# FastEthernet1/12 is up, line protocol is up
+#   Hardware is Fast Ethernet, address is c204.299c.f10c (bia c204.299c.f10c)
+#   MTU 1500 bytes, BW 100000 Kbit/sec, DLY 100 usec,
+#      reliability 255/255, txload 1/255, rxload 1/255
+#   Encapsulation ARPA, loopback not set
+#   Keepalive set (10 sec)
+#   Full-duplex, 100Mb/s
+#   ARP type: ARPA, ARP Timeout 04:00:00
+#   Last input 00:01:14, output never, output hang never
+#   Last clearing of "show interface" counters never
+#   Input queue: 0/75/0/0 (size/max/drops/flushes); Total output drops: 0
+#   Queueing strategy: fifo
+#   Output queue: 0/40 (size/max)
+#   5 minute input rate 0 bits/sec, 0 packets/sec
+#   5 minute output rate 0 bits/sec, 0 packets/sec
+#      0 packets input, 0 bytes, 0 no buffer
+#      Received 0 broadcasts, 0 runts, 0 giants, 0 throttles
+#      0 input errors, 0 CRC, 0 frame, 0 overrun, 0 ignored
+#      0 input packets with dribble condition detected
+#      0 packets output, 0 bytes, 0 underruns
+#      0 output errors, 0 collisions, 2 interface resets
+#      0 babbles, 0 late collision, 0 deferred
+#      0 lost carrier, 0 no carrier
+#      0 output buffer failures, 0 output buffers swapped out
+# FastEthernet1/13 is up, line protocol is up
+#   Hardware is Fast Ethernet, address is c204.299c.f10d (bia c204.299c.f10d)
+#   MTU 1500 bytes, BW 100000 Kbit/sec, DLY 100 usec,
+#      reliability 255/255, txload 1/255, rxload 1/255
+#   Encapsulation ARPA, loopback not set
+#   Keepalive set (10 sec)
+#   Full-duplex, 100Mb/s
+#   ARP type: ARPA, ARP Timeout 04:00:00
+#   Last input 00:01:07, output never, output hang never
+#   Last clearing of "show interface" counters never
+#   Input queue: 0/75/0/0 (size/max/drops/flushes); Total output drops: 0
+#   Queueing strategy: fifo
+#   Output queue: 0/40 (size/max)
+#   5 minute input rate 0 bits/sec, 0 packets/sec
+#   5 minute output rate 0 bits/sec, 0 packets/sec
+#      0 packets input, 0 bytes, 0 no buffer
+#      Received 0 broadcasts, 0 runts, 0 giants, 0 throttles
+#      0 input errors, 0 CRC, 0 frame, 0 overrun, 0 ignored
+#      0 input packets with dribble condition detected
+#      0 packets output, 0 bytes, 0 underruns
+#      0 output errors, 0 collisions, 2 interface resets
+#      0 babbles, 0 late collision, 0 deferred
+#      0 lost carrier, 0 no carrier
+#      0 output buffer failures, 0 output buffers swapped out
+# FastEthernet1/14 is up, line protocol is up
+#   Hardware is Fast Ethernet, address is c204.299c.f10e (bia c204.299c.f10e)
+#   MTU 1500 bytes, BW 100000 Kbit/sec, DLY 100 usec,
+#      reliability 255/255, txload 1/255, rxload 1/255
+#   Encapsulation ARPA, loopback not set
+#   Keepalive set (10 sec)
+#   Full-duplex, 100Mb/s
+#   ARP type: ARPA, ARP Timeout 04:00:00
+#   Last input 00:00:01, output never, output hang never
+#   Last clearing of "show interface" counters never
+#   Input queue: 0/75/0/0 (size/max/drops/flushes); Total output drops: 0
+#   Queueing strategy: fifo
+#   Output queue: 0/40 (size/max)
+#   5 minute input rate 0 bits/sec, 0 packets/sec
+#   5 minute output rate 0 bits/sec, 0 packets/sec
+#      0 packets input, 0 bytes, 0 no buffer
+#      Received 0 broadcasts, 0 runts, 0 giants, 0 throttles
+#      0 input errors, 0 CRC, 0 frame, 0 overrun, 0 ignored
+#      0 input packets with dribble condition detected
+#      0 packets output, 0 bytes, 0 underruns
+#      0 output errors, 0 collisions, 2 interface resets
+#      0 babbles, 0 late collision, 0 deferred
+#      0 lost carrier, 0 no carrier
+#      0 output buffer failures, 0 output buffers swapped out
+# FastEthernet1/15 is up, line protocol is up
+#   Hardware is Fast Ethernet, address is c204.299c.f10f (bia c204.299c.f10f)
+#   MTU 1500 bytes, BW 100000 Kbit/sec, DLY 100 usec,
+#      reliability 255/255, txload 1/255, rxload 1/255
+#   Encapsulation ARPA, loopback not set
+#   Keepalive set (10 sec)
+#   Full-duplex, 100Mb/s
+#   ARP type: ARPA, ARP Timeout 04:00:00
+#   Last input 00:00:01, output never, output hang never
+#   Last clearing of "show interface" counters never
+#   Input queue: 0/75/0/0 (size/max/drops/flushes); Total output drops: 0
+#   Queueing strategy: fifo
+#   Output queue: 0/40 (size/max)
+#   5 minute input rate 0 bits/sec, 0 packets/sec
+#   5 minute output rate 0 bits/sec, 0 packets/sec
+#      0 packets input, 0 bytes, 0 no buffer
+#      Received 0 broadcasts, 0 runts, 0 giants, 0 throttles
+#      0 input errors, 0 CRC, 0 frame, 0 overrun, 0 ignored
+#      0 input packets with dribble condition detected
+#      0 packets output, 0 bytes, 0 underruns
+#      0 output errors, 0 collisions, 2 interface resets
+#      0 babbles, 0 late collision, 0 deferred
+#      0 lost carrier, 0 no carrier
+#      0 output buffer failures, 0 output buffers swapped out
+# Vlan1 is administratively down, line protocol is down
+#   Hardware is EtherSVI, address is c204.1f30.0000 (bia c204.1f30.0000)
+#   MTU 1500 bytes, BW 100000 Kbit/sec, DLY 100 usec,
+#      reliability 255/255, txload 1/255, rxload 1/255
+#   Encapsulation ARPA, loopback not set
+#   ARP type: ARPA, ARP Timeout 04:00:00
+#   Last input never, output never, output hang never
+#   Last clearing of "show interface" counters never
+#   Input queue: 0/75/0/0 (size/max/drops/flushes); Total output drops: 0
+#   Queueing strategy: fifo
+#   Output queue: 0/40 (size/max)
+#   5 minute input rate 0 bits/sec, 0 packets/sec
+#   5 minute output rate 0 bits/sec, 0 packets/sec
+#      0 packets input, 0 bytes, 0 no buffer
+#      Received 0 broadcasts, 0 runts, 0 giants, 0 throttles
+#      0 input errors, 0 CRC, 0 frame, 0 overrun, 0 ignored
+#      0 packets output, 0 bytes, 0 underruns
+#      0 output errors, 2 interface resets
+#      0 output buffer failures, 0 output buffers swapped out
+# Vlan1097 is up, line protocol is up
+#   Hardware is EtherSVI, address is c204.1f30.0000 (bia c204.1f30.0000)
+#   Internet address is 10.240.192.4/16
+#   MTU 1500 bytes, BW 100000 Kbit/sec, DLY 100 usec,
+#      reliability 255/255, txload 1/255, rxload 1/255
+#   Encapsulation ARPA, loopback not set
+#   ARP type: ARPA, ARP Timeout 04:00:00
+#   Last input 00:00:00, output never, output hang never
+#   Last clearing of "show interface" counters never
+#   Input queue: 0/75/0/0 (size/max/drops/flushes); Total output drops: 0
+#   Queueing strategy: fifo
+#   Output queue: 0/40 (size/max)
+#   5 minute input rate 3000 bits/sec, 5 packets/sec
+#   5 minute output rate 3000 bits/sec, 3 packets/sec
+#      16788 packets input, 1075288 bytes, 0 no buffer
+#      Received 2585 broadcasts, 0 runts, 0 giants, 0 throttles
+#      0 input errors, 0 CRC, 0 frame, 0 overrun, 0 ignored
+#      14029 packets output, 2262107 bytes, 0 underruns
+#      0 output errors, 1 interface resets
+#      0 output buffer failures, 0 output buffers swapped out
+# SW.KU3.LTD#  sh interface stats
+# Interface FastEthernet0/0 is disabled
+
+# Interface Serial0/0 is disabled
+
+# Interface FastEthernet0/1 is disabled
+
+# Interface Serial0/1 is disabled
+
+# Interface Serial0/2 is disabled
+
+# Interface Serial0/3 is disabled
+
+# FastEthernet1/0
+#           Switching path    Pkts In   Chars In   Pkts Out  Chars Out
+#                Processor          0          0         38       2926
+#              Route cache          0          0          0          0
+#                    Total          0          0         38       2926
+# FastEthernet1/1
+#           Switching path    Pkts In   Chars In   Pkts Out  Chars Out
+#                Processor          0          0         38       2926
+#              Route cache          0          0          0          0
+#                    Total          0          0         38       2926
+# FastEthernet1/2
+#           Switching path    Pkts In   Chars In   Pkts Out  Chars Out
+#                Processor          0          0      10108     731547
+#              Route cache          0          0          0          0
+#                    Total          0          0      10108     731547
+# FastEthernet1/3
+#           Switching path    Pkts In   Chars In   Pkts Out  Chars Out
+#                Processor          0          0        671     165327
+#              Route cache          0          0       9437     566220
+#                    Total          0          0      10108     731547
+# FastEthernet1/4
+#           Switching path    Pkts In   Chars In   Pkts Out  Chars Out
+#                Processor          0          0        671     165327
+#              Route cache          0          0       9437     566220
+#                    Total          0          0      10108     731547
+# FastEthernet1/5
+#           Switching path    Pkts In   Chars In   Pkts Out  Chars Out
+#                Processor          0          0        671     165327
+#              Route cache          0          0       9437     566220
+#                    Total          0          0      10108     731547
+# FastEthernet1/6
+#           Switching path    Pkts In   Chars In   Pkts Out  Chars Out
+#                Processor          0          0        671     165327
+#              Route cache          0          0       9437     566220
+#                    Total          0          0      10108     731547
+# FastEthernet1/7
+#           Switching path    Pkts In   Chars In   Pkts Out  Chars Out
+#                Processor          0          0        671     165327
+#              Route cache          0          0       9437     566220
+#                    Total          0          0      10108     731547
+# FastEthernet1/8
+#           Switching path    Pkts In   Chars In   Pkts Out  Chars Out
+#                Processor          0          0        672     165387
+#              Route cache          0          0       9437     566220
+#                    Total          0          0      10109     731607
+# FastEthernet1/9
+#           Switching path    Pkts In   Chars In   Pkts Out  Chars Out
+#                Processor          0          0        672     165387
+#              Route cache          0          0       9437     566220
+#                    Total          0          0      10109     731607
+# FastEthernet1/10
+#           Switching path    Pkts In   Chars In   Pkts Out  Chars Out
+#                Processor        553     144576      20057    1406369
+#              Route cache          0          0       9433     565980
+#                    Total        553     144576      29490    1972349
+# FastEthernet1/11
+#           Switching path    Pkts In   Chars In   Pkts Out  Chars Out
+#                Processor        400     134917       1195     199205
+#              Route cache          0          0      28287    1772640
+#                    Total        400     134917      29482    1971845
+# FastEthernet1/12
+#           Switching path    Pkts In   Chars In   Pkts Out  Chars Out
+#                Processor        333     115214       1174     197885
+#              Route cache          0          0      28301    1773524
+#                    Total        333     115214      29475    1971409
+# FastEthernet1/13
+#           Switching path    Pkts In   Chars In   Pkts Out  Chars Out
+#                Processor        497     141767       1178     198133
+#              Route cache          0          0      28300    1773464
+#                    Total        497     141767      29478    1971597
+# FastEthernet1/14
+#           Switching path    Pkts In   Chars In   Pkts Out  Chars Out
+#                Processor      30455    1942869        470     153653
+#              Route cache          0          0         47       2944
+#                    Total      30455    1942869        517     156597
+# FastEthernet1/15
+#           Switching path    Pkts In   Chars In   Pkts Out  Chars Out
+#                Processor      30006    1912038        424     150893
+#              Route cache          0          0         20       1200
+#                    Total      30006    1912038        444     152093
+# Interface Vlan1 is disabled
+
+# Vlan1097
+#           Switching path    Pkts In   Chars In   Pkts Out  Chars Out
+#                Processor      16847    1079654      14067    2270735
+#              Route cache          0          0          0          0
+#                    Total      16847    1079654      14067    2270735
+# SW.KU3.LTD#  sh interface status
+
+# Port    Name               Status       Vlan       Duplex Speed Type
+# Fa1/0                      notconnect   1            auto    auto 10/100BaseTX
+# Fa1/1                      notconnect   1            auto    auto 10/100BaseTX
+# Fa1/2                      connected    1            full     100 10/100BaseTX
+# Fa1/3                      connected    1            full     100 10/100BaseTX
+# Fa1/4                      connected    1            full     100 10/100BaseTX
+# Fa1/5                      connected    1            full     100 10/100BaseTX
+# Fa1/6                      connected    1            full     100 10/100BaseTX
+# Fa1/7                      connected    1            full     100 10/100BaseTX
+# Fa1/8                      connected    1            full     100 10/100BaseTX
+# Fa1/9                      connected    1            full     100 10/100BaseTX
+# Fa1/10                     connected    trunk        full     100 10/100BaseTX
+# Fa1/11                     connected    trunk        full     100 10/100BaseTX
+# Fa1/12                     connected    trunk        full     100 10/100BaseTX
+# Fa1/13                     connected    trunk        full     100 10/100BaseTX
+# Fa1/14                     connected    trunk        full     100 10/100BaseTX
+# Fa1/15                     connected    1            full     100 10/100BaseTX
+# SW.KU3.LTD# sh run
+# Building configuration...
+
+# Current configuration : 5156 bytes
+# !
+# version 12.4
+# no service pad
+# service timestamps debug datetime msec localtime
+# service timestamps log datetime localtime
+# no service password-encryption
+# no service dhcp
+# !
+# hostname SW.KU3.LTD
+# !
+# boot-start-marker
+# boot-end-marker
+# !
+# !
+# no aaa new-model
+# memory-size iomem 5
+# clock timezone UTC 7
+# errdisable recovery cause bpduguard
+# no ip routing
+# no ip icmp rate-limit unreachable
+# no ip cef
+# !
+# !
+# no ip dhcp use vrf connected
+# ip dhcp excluded-address 10.190.4.1 10.190.4.19
+# ip dhcp excluded-address 10.190.8.1 10.190.8.19
+# ip dhcp excluded-address 10.190.4.1 10.190.4.29
+# ip dhcp excluded-address 10.190.8.1 10.190.8.29
+# ip dhcp excluded-address 192.190.43.1 192.190.43.19
+# ip dhcp excluded-address 192.190.40.1 192.190.40.19
+# ip dhcp excluded-address 192.168.44.1 192.168.44.19
+# !
+# ip dhcp pool WIFI_A_LT4A
+#    network 192.190.43.0 255.255.255.0
+#    dns-server 8.8.8.8 4.4.4.4
+#    default-router 192.168.43.1
+#    domain-name wardota.com
+#    lease 0 2
+# !
+# ip dhcp pool WIFI_C_LT4B
+#    network 192.190.40.0 255.255.255.0
+#    dns-server 8.8.8.8 4.4.4.4
+#    default-router 192.168.40.1
+#    domain-name wardota.com
+#    lease 0 2
+# !
+# ip dhcp pool WIFI_D_LT4B
+#    network 192.168.44.0 255.255.255.0
+#    dns-server 8.8.8.8 4.4.4.4
+#    default-router 192.168.44.1
+#    domain-name wardota.com
+#    lease 0 2
+# !
+# !
+# no ip domain lookup
+# ip domain name wardota.com
+# !
+# multilink bundle-name authenticated
+# !
+# !
+# !
+# !
+# !
+# !
+# !
+# !
+# !
+# !
+# !
+# !
+# !
+# !
+# !
+# !
+# !
+# !
+# !
+# !
+# macro name add_vlan
+# end
+# vlan database
+# vlan $v
+# exit
+# @
+# macro name del_vlan
+# end
+# vlan database
+# no vlan $v
+# exit
+# @
+# !
+# !
+# no spanning-tree vlan 901
+# vtp file nvram:vlan.dat
+# vtp mode transparent
+# username cisco2 privilege 15 secret 5 $1$f1Fi$r.bERLFnDR4iPiV/9G0hh/
+# username widi privilege 12 secret 5 $1$K6Bt$4M6g5rQ/NlulHJ066fcx/.
+# username diazzaid privilege 5 secret 5 $1$BbIg$gqYQ3zvYe8wbv9EwnsgFs1
+# username cuman privilege 5 secret 5 $1$pUHt$4bToNbgUUQMuozF4JJypx0
+# username sakti secret 5 $1$wRkI$UKSLDUN9s3.mZFAqQ1KXg0
+# username sisfo secret 5 $1$YmGt$2sb6hSpLHCEgAQIHg5Qt2.
+# archive
+#  log config
+#   hidekeys
+# !
+# !
+# !
+# !
+# vlan 1097
+#  name vlan-mgmn-dev
+# !
+# ip tcp synwait-time 5
+# ip ssh version 2
+# !
+# !
+# !
+# !
+# interface FastEthernet0/0
+#  description *** Unused for Layer2 EtherSwitch ***
+#  no ip address
+#  no ip route-cache
+#  shutdown
+#  duplex auto
+#  speed auto
+# !
+# interface Serial0/0
+#  no ip address
+#  no ip route-cache
+#  shutdown
+#  clock rate 2000000
+# !
+# interface FastEthernet0/1
+#  description *** Unused for Layer2 EtherSwitch ***
+#  no ip address
+#  no ip route-cache
+#  shutdown
+#  duplex auto
+#  speed auto
+# !
+# interface Serial0/1
+#  no ip address
+#  no ip route-cache
+#  shutdown
+#  clock rate 2000000
+# !
+# interface Serial0/2
+#  no ip address
+#  no ip route-cache
+#  shutdown
+#  clock rate 2000000
+# !
+# interface Serial0/3
+#  no ip address
+#  no ip route-cache
+#  shutdown
+#  clock rate 2000000
+# !
+# interface FastEthernet1/0
+#  duplex full
+#  speed 100
+# !
+# interface FastEthernet1/1
+#  duplex full
+#  speed 100
+# !
+# interface FastEthernet1/2
+#  duplex full
+#  speed 100
+# !
+# interface FastEthernet1/3
+#  duplex full
+#  speed 100
+# !
+# interface FastEthernet1/4
+#  duplex full
+#  speed 100
+# !
+# interface FastEthernet1/5
+#  duplex full
+#  speed 100
+# !
+# interface FastEthernet1/6
+#  duplex full
+#  speed 100
+# !
+# interface FastEthernet1/7
+#  duplex full
+#  speed 100
+# !
+# interface FastEthernet1/8
+#  duplex full
+#  speed 100
+# !
+# interface FastEthernet1/9
+#  duplex full
+#  speed 100
+# !
+# interface FastEthernet1/10
+#  switchport mode trunk
+#  duplex full
+#  speed 100
+# !
+# interface FastEthernet1/11
+#  switchport mode trunk
+#  duplex full
+#  speed 100
+# !
+# interface FastEthernet1/12
+#  switchport mode trunk
+#  duplex full
+#  speed 100
+# !
+# interface FastEthernet1/13
+#  switchport mode trunk
+#  duplex full
+#  speed 100
+# !
+# interface FastEthernet1/14
+#  switchport mode trunk
+#  duplex full
+#  speed 100
+# !
+# interface FastEthernet1/15
+#  duplex full
+#  speed 100
+# !
+# interface Vlan1
+#  no ip address
+#  no ip route-cache
+#  shutdown
+# !
+# interface Vlan1097
+#  ip address 10.240.192.4 255.255.0.0
+# !
+# ip default-gateway 192.240.0.1
+# ip forward-protocol nd
+# !
+# !
+# no ip http server
+# no ip http secure-server
+# !
+# logging trap debugging
+# logging facility syslog
+# logging 192.168.101.3
+# snmp-server community oraora RO
+# snmp-server location GKU-LTD
+# snmp-server contact NOC_Tel-U
+# no cdp log mismatch duplex
+# !
+# !
+# !
+# !
+# !
+# !
+# control-plane
+# !
+# !
+# !
+# !
+# !
+# !
+# !
+# !
+# !
+# banner exec ^C
+
+# ***************************************************************
+# This is a normal Router with a Switch module inside (NM-16ESW)
+# It has been pre-configured with hard-coded speed and duplex
+
+# To create vlans use the command "vlan database" in exec mode
+# After creating all desired vlans use "exit" to apply the config
+
+# To view existing vlans use the command "show vlan-switch brief"
+
+# Alias(exec)     : vl   - "show vlan-switch brief" command
+# Alias(configure): va X - macro to add vlan X
+# Alias(configure): vd X - macro to delete vlan X
+# ***************************************************************
+
+# ^C
+# alias configure va macro global trace add_vlan $v
+# alias configure vd macro global trace del_vlan $v
+# alias exec vl show vlan-switch brief
+# !
+# line con 0
+#  exec-timeout 0 0
+#  privilege level 15
+#  logging synchronous
+# line aux 0
+#  exec-timeout 0 0
+#  privilege level 15
+#  logging synchronous
+# line vty 0 4
+#  login local
+#  transport input ssh
+# line vty 5 15
+#  login local
+#  transport input ssh
+# !
+# ntp server 192.252.252.121
+# !
+# end
+
+
+
+
+
+
+# NXOS Show Interface Parser
+#
+# Command:
+#   - show interface [iface_name] (Single Interface listing)
+#   - show interface ( Multiple interface listing)
+#
+# Example Command Output:
+# ----------------------
+# User Access Verification
+# Ethernet2/2 is up
+# admin state is up, Dedicated Interface
+#  Hardware:  Ethernet, address: 0000.0000.002f (bia 000f.819a.c502)
+#  Internet Address is 10.1.1.0/31
+#  MTU 1500 bytes, BW 1000000 Kbit, DLY 10 usec
+#  reliability 255/255, txload 1/255, rxload 1/255
+#  Encapsulation ARPA, medium is broadcast
+#  Port mode is routed
+#  full-duplex, 1000 Mb/s
+#  Beacon is turned off
+#  Auto-Negotiation is turned off
+#  Input flow-control is off, output flow-control is off
+#  Auto-mdix is turned off
+#  Switchport monitor is off
+#  EtherType is 0x8100
+#  EEE (efficient-ethernet) : n/a
+#  Last link flapped 02:06:29
+#  Last clearing of "show interface" counters never
+#  1 interface resets
+#  Load-Interval #1: 0 seconds
+#    0 seconds input rate 0 bits/sec, 0 packets/sec
+#    0 seconds output rate 0 bits/sec, 0 packets/sec
+#    input rate 0 bps, 0 pps; output rate 0 bps, 0 pps
+#  Load-Interval #2: 0 seconds
+#    0 seconds input rate 0 bits/sec, 0 packets/sec
+#    0 seconds output rate 0 bits/sec, 0 packets/sec
+#    input rate 0 bps, 0 pps; output rate 0 bps, 0 pps
+#  RX
+#    0 unicast packets  0 multicast packets  0 broadcast packets
+#    0 input packets  0 bytes
+#    0 jumbo packets  0 storm suppression packets
+#    0 runts  0 giants  0 CRC/FCS  0 no buffer
+#    0 input error  0 short frame  0 overrun   0 underrun  0 ignored
+#    0 watchdog  0 bad etype drop  0 bad proto drop  0 if down drop
+#    0 input with dribble  0 input discard
+#    0 Rx pause
+#  TX
+#    0 unicast packets  0 multicast packets  0 broadcast packets
+#    0 output packets  0 bytes
+#    0 jumbo packets
+#    0 output error  0 collision  0 deferred  0 late collision
+#    0 lost carrier  0 no carrier  0 babble  0 output discard
+#    0 Tx pause
+#
+# Example Playbook
+# -----------------
+# -hosts: localhost
+#  connection: local
+#  vars:
+#    iface_parse_path: /path/to/parsers/nxos_show_interface_parser.yml
+#  tasks:
+#     - name: Get Interface information
+#       nxos_command:
+#         commands: show interface Ethernet2/2
+#       register: iface_output
+#
+#     - name: Parse Interface Output
+#       set_fact:
+#         nxos_interface: "{{ iface_output[0] | parse_cli(iface_parser_path)}}"
+
+# Schema Output
+# -------------
+#
+#[cisco01] => {
+#    "ansible_facts": {
+#        "nxos_interface": [
+#            {
+#                "admin_state": "up",
+#                "description": "port description is",
+#                "duplex": "full-duplex",
+#                "ipv4": "10.1.1.0/31",
+#                "link_protocol_state": "up",
+#                "mtu": 1500,
+#                "name": "Ethernet2/2",
+#                "port_mode": "routed"
+#            }
+#        ]
+#    },
+#
+# vars:
+#   interface:
+#     name: "{{ item[0].name }}"
+#     link_protocol_state: "{{ item[0].oper }}"
+#     admin_state: "{{ item[5].admin }}"
+#     ipv4: "{{ item[1].match[0] }}"
+#     mtu: "{{ item[2].match[0] }}"
+#     port_mode: "{{ item[3].match[0] }}"
+#     duplex: "{{ item[4].match[0] }}"
+#     description: "{{ item[6].match[0] }}"
+
+# keys:
+#   interfaces:
+#     value: "{{ interface }}"
+#     start_block: "^Ethernet.+$"
+#     end_block: ".+interface reset"
+#     items:
+#       - "^(?P<name>Ethernet.+) is (?P<oper>\\w+)"  #(?P<name>\w{3,20}?\d[/]\d+) is(?P<aa>\s?administratively\s?|\s?)(?P<oper>\w{2,4})
+#       - "\\s+Internet Address is (.+)"  #address is (?P<ip>\d.*)/(?P<prefix>\d.)  # address is (?P<ip>(\w{4}).(\w{4}).(\w{4}))   #MAC address
+#       - "\\s+ MTU (\\d+)"   # \s+ MTU (?P<mtu>\d+)
+#       - "\\s+Port mode is (\\w+)" #
+#       - "\\s+(\\w+-duplex)"
+#       - "admin state is (?P<admin>\\w+)"
+#       - "Description: (.+)"
+
+
+vars:
+  interface:
+    name: "{{ item[0].name }}"
+    link_protocol_state: "{{ item[0].oper }}"
+    admin_state: "{{ item[5].admin }}"
+    ipv4: "{{ item[1].match[0] }}"
+    mtu: "{{ item[2].match[0] }}"
+    port_mode: "{{ item[3].match[0] }}"
+    duplex: "{{ item[4].match[0] }}"
+    description: "{{ item[6].match[0] }}"
+    mac:  "{{ item[7].match[0] }}"
+    speed: "{{ item[4].match[1] }}"
+    input_rate_bits: "{{ item[8].match[0] }}"
+    output_rate_bits:  "{{ item[9].match[0] }}"
+    input_rate_packets: "{{ item[8].match[1] }}"
+    output_rate_packets:  "{{ item[9].match[1] }}"
+
+
+
+
+
+keys:
+  interfaces:
+    value: "{{ interface }}"
+    start_block: "\\w{0,20}?(Serial|Ethernet)\\d[/]\\d+" # for Serial or X-Ethernet
+                # "(\w{0,20}?(Serial|Ethernet)\d[/]\d+|Vlan)" # all
+                #  "^\w+Ethernet.+$"    #for X-Ethernet only
+                #  "^FastEthernet.+$"   #for fastethernet only
+                #  "^Ethernet.+$"   #for ethernet only
+                #  "^Serial.+$"   #for serial only
+    end_block: ".+interface reset"
+                #"(\\w? buffers swapped out|\\w? CTS=\\w*)"  # for Serial or X-Ethernet
+                #  ".+interface reset" #all 
+                # "(\w? buffers swapped out|\w? CTS=\w*)\v(\w+Ethernet\w+/|Vlan1 |Serial0/0)"  #for X-Ethernet only
+                # "(\w? buffers swapped out|\w? CTS=\w*)\v(Ethernet\w+/|Vlan1 |Serial0/0)"  #for Ethernet only
+                # "(\w? buffers swapped out|\w? CTS=\w*)\v(FastEthernet\w+/|Vlan1 |Serial0/0)"  #for fastethernet only
+                # "\w? CTS=\w*"  #for serial only
+    items:
+      - "(?P<name>\\w+/\\d+|Vlan\\w+) is(?P<aa>\\s?administratively\\s?|\\s?)(?P<oper>\\w{2,4})"
+      - "\\s+Internet Address is (.+)"
+      - "\\s+ MTU (\\d+)"
+      - "\\s+Port mode is (\\w+)"
+      - "\\s+(\\w+-duplex), (\\w+)"
+      - "admin state is (?P<admin>\\w+)"
+      - "Description: (.+)"
+      - "is (\\w+\\.\\w+\\.\\w+)"
+      - "input rate (\\d+) bits/sec, (\\d+) packets/sec"
+      - "output rate (\\d+) bits/sec, (\\d+) packets/sec"

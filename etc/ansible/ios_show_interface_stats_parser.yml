@@ -1,0 +1,129 @@
+
+# ESW3# sh int stat
+# Interface FastEthernet0/0 is disabled
+
+# Interface Serial0/0 is disabled
+
+# Interface FastEthernet0/1 is disabled
+
+# Interface Serial0/1 is disabled
+
+# Interface Serial0/2 is disabled
+
+# Interface Serial0/3 is disabled
+
+# FastEthernet1/0
+#           Switching path    Pkts In   Chars In   Pkts Out  Chars Out
+#                Processor          0          0         15       1155
+#              Route cache          0          0          0          0
+#                    Total          0          0         15       1155
+# FastEthernet1/1
+#           Switching path    Pkts In   Chars In   Pkts Out  Chars Out
+#                Processor          0          0         15       1155
+#              Route cache          0          0          0          0
+#                    Total          0          0         15       1155
+# FastEthernet1/2
+#           Switching path    Pkts In   Chars In   Pkts Out  Chars Out
+#                Processor          0          0       4330     310268
+#              Route cache          0          0          0          0
+#                    Total          0          0       4330     310268
+# FastEthernet1/3
+#           Switching path    Pkts In   Chars In   Pkts Out  Chars Out
+#                Processor          0          0        181      61328
+#              Route cache          0          0       4149     248940
+#                    Total          0          0       4330     310268
+# FastEthernet1/4
+#           Switching path    Pkts In   Chars In   Pkts Out  Chars Out
+#                Processor          0          0        181      61328
+#              Route cache          0          0       4149     248940
+#                    Total          0          0       4330     310268
+# FastEthernet1/5
+#           Switching path    Pkts In   Chars In   Pkts Out  Chars Out
+#                Processor          0          0        181      61328
+#              Route cache          0          0       4149     248940
+#                    Total          0          0       4330     310268
+# FastEthernet1/6
+#           Switching path    Pkts In   Chars In   Pkts Out  Chars Out
+#                Processor          0          0        181      61328
+#              Route cache          0          0       4149     248940
+#                    Total          0          0       4330     310268
+# FastEthernet1/7
+#           Switching path    Pkts In   Chars In   Pkts Out  Chars Out
+#                Processor          0          0        181      61328
+#              Route cache          0          0       4149     248940
+#                    Total          0          0       4330     310268
+# FastEthernet1/8
+#           Switching path    Pkts In   Chars In   Pkts Out  Chars Out
+#                Processor          0          0        181      61328
+#              Route cache          0          0       4150     249000
+#                    Total          0          0       4331     310328
+# FastEthernet1/9
+#           Switching path    Pkts In   Chars In   Pkts Out  Chars Out
+#                Processor          0          0        181      61328
+#              Route cache          0          0       4150     249000
+#                    Total          0          0       4331     310328
+# FastEthernet1/10
+#           Switching path    Pkts In   Chars In   Pkts Out  Chars Out
+#                Processor        140      52350       8501     593957
+#              Route cache          0          0       4149     248940
+#                    Total        140      52350      12650     842897
+# FastEthernet1/11
+#           Switching path    Pkts In   Chars In   Pkts Out  Chars Out
+#                Processor        138      51588        206      63077
+#              Route cache          0          0      12444     779820
+#                    Total        138      51588      12650     842897
+# FastEthernet1/12
+#           Switching path    Pkts In   Chars In   Pkts Out  Chars Out
+#                Processor        134      51027        198      62573
+#              Route cache          0          0      12449     780136
+#                    Total        134      51027      12647     842709
+# FastEthernet1/13
+#           Switching path    Pkts In   Chars In   Pkts Out  Chars Out
+#                Processor        138      53241        198      62573
+#              Route cache          0          0      12449     780136
+#                    Total        138      53241      12647     842709
+# FastEthernet1/14
+#           Switching path    Pkts In   Chars In   Pkts Out  Chars Out
+#                Processor      12628     802855        174      61065
+#              Route cache          0          0          2        124
+#                    Total      12628     802855        176      61189
+# FastEthernet1/15
+#           Switching path    Pkts In   Chars In   Pkts Out  Chars Out
+#                Processor      12601     799752        172      60945
+#              Route cache          0          0          0          0
+#                    Total      12601     799752        172      60945
+# Interface Vlan1 is disabled
+
+# Vlan1097
+#           Switching path    Pkts In   Chars In   Pkts Out  Chars Out
+#                Processor       1225     107466        187      29009
+#              Route cache          0          0          0          0
+#                    Total       1225     107466        187      29009
+
+
+vars:
+  interface_stats:
+    name: "{{ item[0].match[0] }}"
+    processor_pkts_in: "{{ item[1].match[0] }}"
+    processor_chars_in: "{{ item[1].match[1] }}"
+    processor_pkts_out:  "{{ item[1].match[2] }}"
+    processor_chars_out: "{{ item[1].match[3] }}"
+    routecache_pkts_in: "{{ item[2].match[0] }}"
+    routecache_chars_in: "{{ item[2].match[1] }}"
+    routecache_pkts_out:  "{{ item[2].match[2] }}"
+    routecache_chars_out: "{{ item[2].match[3] }}"
+    total_pkts_in: "{{ item[3].match[0] }}"
+    total_chars_in: "{{ item[3].match[1] }}"
+    total_pkts_out:  "{{ item[3].match[2] }}"
+    total_chars_out: "{{ item[3].match[3] }}"
+
+keys:
+  interface_stats:
+    value: "{{ interface_stats }}"
+    start_block: "^\\w+(|\\d+/\\d+)" 
+    end_block: "(.+Total\\s+\\w+\\W+\\w+\\W+\\w+\\W+\\w+\\d+|.+is disabled)"
+    items:
+      - "(\\w+\\d+/\\d+|Vlan\\d+)"
+      - "Processor\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)"
+      - "Route cache\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)"
+      - "Total\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)"

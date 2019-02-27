@@ -1,0 +1,13 @@
+---
+- name: PARSER META DATA
+  parser_metadata:
+    version: 1.0
+    command: show ip interface brief
+    network_os: ios
+
+- name: MATCH PATTERN
+  pattern_match:
+    regex: "^(\\S+)\\s+(\\d+\\.\\d+\\.\\d+\\.\\d+).*(up|administratively down).*(up|down)"
+    match_all: yes
+  register: section
+  export: yes

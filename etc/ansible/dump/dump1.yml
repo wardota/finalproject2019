@@ -1,0 +1,132 @@
+---
+- name: sw_ku3_2a
+  hosts: ciscos
+  gather_facts: no
+  connection: local
+  vars:
+    timeout: 60
+    init: 0
+    add: 1
+    ansible_ssh_user: cisco2
+    ansible_ssh_pass: cisco
+    shows:
+      - 'show running-config'  
+      - 'show ip interface brief'
+    dns1: 8.8.8.8
+    dns2: 4.4.4.4
+    verbosity_lvl: 1
+    namae: WIFI_B_LT1A
+    technology: protocols
+    protocol: ipv4
+    protocols:
+      internet: ipv4
+    mypool:
+      WIFI_A_LT1A:
+        ipv4:
+          network:       
+            begin: 1.1.1.1
+            end: 2.2.2.1
+          default_router: 3.3.3.1
+        lease:
+          days: 1
+          hours: 11        
+      WIFI_B_LT1A:
+        ipv4:
+          network:       
+            begin: 1.1.1.2
+            end: 2.2.2.2
+          default_router: 3.3.3.2
+        lease:
+          days: 2
+          hours: 12        
+      WIFI_PPDU_BBA:
+        ipv4:
+          network:       
+            begin: 1.1.1.3
+            end: 2.2.2.3
+          default_router: 1.1.1.3
+        lease:
+          days: 3
+          hours: 13        
+  
+
+  tasks:
+## how to do increasment variable -- scracth
+    - name: check init is {{init}} and add it with 1
+      set_fact:
+        init2: 
+          - !!int "{{ add + init }}"
+
+    - name: assert integer 
+      assert:
+          that:
+              - init == 0
+              - init2 == 1
+              - add == 1
+
+    - name: assert string
+      assert:
+          that:
+              - init != "0"
+              - init2 != "1"
+              - add != "1"
+
+
+#    - name: check init is {{init}} register it to init.init
+#      debug:
+#        var: init
+#        verbosity: "{{ verbosity_lvl }}"
+#      register: kkk
+#    - debug:
+#        var: kkk.init
+#        verbosity: "{{ verbosity_lvl }}"      
+#    - name:  check init.init is {{kkk.init}} add it with 1
+#      set_fact:
+#        init: kkk.init
+#      register: init
+#    - name: kjk
+#      debug:
+#        var: init.init
+#        verbosity: "{{ verbosity_lvl }}"
+
+#################################################
+## how to do increasment variable -- compact 
+## var:
+##   init: 0
+##   add: 1
+    - set_fact:
+        cacheable: yes
+        init: "{{init+add}}"
+    - set_fact:
+        cacheable: yes
+        init: "{{init+add}}"
+    - set_fact:
+        cacheable: yes
+        init: "{{init+add}}"
+    - debug:
+        var: init
+        verbosity: "{{ verbosity_lvl }}"
+    - set_fact:
+        init: "{{init+add}}"
+    - debug:
+        var: init
+        verbosity: "{{ verbosity_lvl }}"
+#################################################
+
+    - debug:
+        var: mypool.{{namae}}.ipv4.network.begin
+        verbosity: "{{ verbosity_lvl }}"
+    - debug:
+        var: mypool.{{namae}}.{{protocol}}.network.begin
+        verbosity: "{{ verbosity_lvl }}"
+    - debug:
+        msg: "{{ mypool[namae].ipv4.network.begin }}"
+    - debug:
+        msg: "{{ mypool[namae][protocol].network.begin }}"
+    - debug:
+        msg: "{{ mypool[namae][technology.[internet]].network.begin }}"
+##    - debug:
+##        msg: "{{ mypool[namae][technology[internet]].network.begin }}"
+
+
+  

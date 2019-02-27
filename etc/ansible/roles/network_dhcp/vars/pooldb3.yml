@@ -1,0 +1,64 @@
+
+pooldb3:
+  - name: WIFI_A_LT1A
+    ipv4:
+      network:        192.168.1.0
+      subnet:         255.255.255.0
+      prefix:         24
+      default_router: 192.168.1.1
+    lease:
+      days:  1
+      hours: 1
+    domain-name: wardota.com
+    dns-server: 192.252.252.4 192.252.252.5
+    excluded:
+      - 192.168.1.1 192.168.1.11
+      - 192.168.1.101 192.168.1.111
+  - name: WIFI_B_LT1A
+    ipv4:
+      network: 192.168.2.0
+      subnet: 255.255.255.0
+      prefix: 24
+      default_router: 192.168.2.1
+    lease:
+      days: 2
+      hours: 2
+    excluded:
+      - 192.168.2.1 192.168.2.11
+      - 192.168.2.101 192.168.2.111
+  - name: WIFI_A_LT2A
+    ipv4:
+      network: 192.168.3.0
+      subnet: 255.255.255.0
+      prefix: 24
+      default_router: 192.168.3.1
+    lease:
+      days: 3
+      hours: 3
+    excluded:
+      - 192.168.3.1 192.168.3.11
+      - 192.168.3.101 192.168.3.111
+  - name: WIFI_B_LT2A
+    ipv4:
+      network: 192.168.4.0
+      subnet: 255.255.255.0
+      prefix: 24
+      default_router: 192.168.4.1
+    lease:
+      days: 4
+      hours: 4
+    excluded:
+      - 192.168.4.1 192.168.4.11
+      - 192.168.4.101 192.168.4.111
+  - name: WIFI_PPDU_BAA
+    ipv4:
+      network: 192.168.5.0
+      subnet: 255.255.255.0
+      prefix: 24
+      default_router: 192.168.5.1
+    lease:
+      days: 5
+      hours: 5
+    excluded:
+      - 192.168.5.1 192.168.5.11
+      - 192.168.5.101 192.168.5.111

@@ -1,0 +1,108 @@
+---
+- name: sw_ku3_a1
+########################################
+# TARGET, CONNECTION, STUFF
+  hosts: sw_ku3_a1
+  gather_facts: no
+  connection: local
+  ignore_errors: yes
+########################################
+# VARIABLE                               
+  vars:
+    hostname: sw_ku3_a1 
+  vars_files:
+    - /etc/ansible/vars/dhcp_pool_db_v2.yml #pooldb dan pooldb2 
+    - /etc/ansible/vars/userdb_v2.yml # userdb dan userdb2
+    - /etc/ansible/vars/serviceslist_global.yml
+    - /etc/ansible/vars/cert_data.yml
+    - /etc/ansible/vars/line_db.yml
+    - /etc/ansible/vars/sw_ku3_a1.yml  
+    - /etc/ansible/vars/common.yml
+    - /etc/ansible/vars/vlan_db.yml
+    - /etc/ansible/vars/interface_db.yml
+    # variable yang sama teroveride file yang paling terakhir/latest
+########################################
+
+  tasks:
+# TEST AND DEBUG TASK                     
+    - name: DEBUG VAR - EXPERIMENTAL DUMP
+      debug: 
+        var: hostname
+    - debug:
+        var: "{{hostname}}"    
+      register: host_db 
+    # - debug: # match item of vlan_db listed on hostname.vlan.by_name
+    #     var: "{{ item  }}.vlan"
+    #   loop: "{{([hostname])}}"
+    #   register: host_db
+    # - debug:
+    #     var: host_db
+    # when: item.name in {{hostname}}.vlan.by_name
+    # register: match_vlan_by_name
+        # var: interface_db[hostname_a2].4.access_vlan == interface_db[hostname_a2].5.access_vlan
+        # var: interface_db[hostname_a2].4.access_vlan 
+        # var: interface_db[hostname_a2].5.access_vlan 
+        # var: interface_db_summary[hostname_a2].amount_used_vlan.access
+        # msg: '{{ ((interface_db[hostname_a2] | selectattr("access_vlan", "defined")| map(attribute="access_vlan") | list ) +( interface_db[hostname_a2] | selectattr("native_vlan", "defined") | map(attribute="native_vlan") | list )) | unique}}' 
+        # var: vlan_db | json_query('[*].[vlan_id][]')
+        # var: listoflist | flatten
+        # var : interface_db[hostname_a2] | json_query("[*].[access_vlan,native_vlan,trunk_allowed_vlan,trunk_allowed_vlan_add][]") 
+
+    - name: DEBUG MSG - EXPERIMENTAL DUMP
+      debug:
+        msg: ""
+        # msg: ""
+
+
+
+        
+############################################ 
+# SETUP VLAN - EXPRIMENTAL- ONGOING -     
+    - name: include tasks setup_vlan.yml to setup vlana
+      include_role:
+        name: sw_ku3_a2
+        tasks_from: setup_vlan_v2.yml
+############################################   
+# SETUP USER V2                           
+    - name: include tasks setup_user_v2.yml to setup users v2
+      include_role:
+        name: sw_ku3_a2
+        tasks_from: setup_user_v2.yml 
+############################################
+# LINE VTY                                
+    - name: include tasks setup_service_line_vty_ssh.yml to setup line vty 
+      include_role:
+        name: sw_ku3_a2
+        tasks_from: setup_service_line_vty_ssh.yml
+############################################
+# SETUP USER V1                           
+    - name: include tasks setup_user.yml to setup users
+      include_role:
+        name: sw_ku3_a2
+        tasks_from: setup_user.yml 
+############################################
+# ENABLE SERVICES                         
+    - name: include tasks service_enable.yml to enable service  
+      include_role:
+        name: sw_ku3_a2
+        tasks_from: service_enable.yml
+############################################
+# DISABLE SERVICES                        
+    - name: include tasks service_disable.yml to disable service  
+      include_role:
+        name: sw_ku3_a2
+        tasks_from: service_disable.yml
+############################################
+# DHCP POOL V1                            
+    - name: include tasks setup_dhcp_v1.yml to create dhcp  
+      include_role:
+        name: sw_ku3_a2
+        tasks_from: setup_dhcp_v1.yml
+      loop: "{{ host_db[hostname].dhcp_pool }}"
+      loop_control:
+        loop_var: outer_item         
+# DHCP POOL V2                            
+    - name: include task setup_dhcp_v2.yml to setup dhcp
+      include_role:
+        name: sw_ku3_a2
+        tasks_from: setup_dhcp_v2.yml
