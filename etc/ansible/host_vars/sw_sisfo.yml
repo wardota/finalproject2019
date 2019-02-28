@@ -1,5 +1,5 @@
 ansible_host: 10.240.192.2
-hostname: sisfo
+hostname: SW.SISFO
 hierarchy_layer: access
 alias:
   - access: &a access
@@ -100,7 +100,7 @@ services_on:
   - service timestamps debug datetime msec localtime
   - service timestamps log datetime localtime
   - no service password-encryption
-  - hostname SW.SISFO
+  - hostname "{{hostname}}"
   - boot-start-marker
   - boot-end-marker
   - no aaa new-model

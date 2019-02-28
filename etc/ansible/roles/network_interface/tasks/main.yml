@@ -2,8 +2,8 @@
   include_tasks: setup_interface.yml
   when: ansible_network_os == "ios" and ansible_case == "deploy" 
 - name: Usage / Monitor  Interface
-  include_tasks: nxos.yml
+  include_tasks: ios.yml
   when: ansible_network_os == "ios" and ansible_case == "usage" 
 - name: Maintenance  Interface
-  include_tasks: nxos.yml
+  include_tasks: ios.yml
   when: ansible_network_os == "ios" and ansible_case == "maintenance" 

@@ -54,7 +54,7 @@
   #       mask: 0.0.0.0
   #       area: 0
 ansible_host: 10.240.192.20
-hostname: sw_ku3_a2
+hostname: SW.KU3.02.ZONA-A
 alias:
   - access: &a access
   - trunk: &t trunk
@@ -255,7 +255,7 @@ services_on:
   - service timestamps debug datetime msec localtime
   - service timestamps log datetime localtime
   - no service password-encryption
-  - hostname {{sw_ku3_a2}}
+  - hostname {{hostname}}
   - boot-start-marker
   - boot-end-marker
   - no aaa new-model

@@ -1,5 +1,5 @@
 ansible_host: 10.240.192.21
-hostname: sw_ku3_b2
+hostname: SW.KU3.02.ZONA-B
 hierarchy_layer: access
 alias:
   - access: &a access
@@ -134,7 +134,7 @@ services_on:
   - service timestamps debug datetime msec
   - service timestamps log datetime msec
   - no service password-encryption
-  - hostname SW.KU3.02.ZONA-B
+  - hostname "{{hostname}}"
   - enable secret 5 $1$1ozU$xeyZh596LMQAoig51XNjz/
   - no aaa new-model
   - clock timezone UTC 7 0

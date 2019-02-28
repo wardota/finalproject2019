@@ -1,5 +1,5 @@
 ansible_host: 10.240.192.10
-hostname: sw_ku3_a1
+hostname: SW.KU3.01.ZONA-A
 hierarchy_layer: access
 alias:
   - access: &a access
@@ -161,7 +161,7 @@ services_on:
   - service timestamps debug datetime msec localtime
   - service timestamps log datetime localtime
   - no service password-encryption
-  - hostname SW.KU3.01.ZONA-A
+  - hostname "{{hostname}}"
   - boot-start-marker
   - boot-end-marker
   - no aaa new-model

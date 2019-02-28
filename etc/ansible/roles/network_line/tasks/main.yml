@@ -3,8 +3,8 @@
   include_tasks: setup_service_line_vty_ssh.yml
   when: ansible_network_os == "ios" and ansible_case == "deploy" 
 - name: Usage / Monitor DHCP Pool
-  include_tasks: nxos.yml
+  include_tasks: ios.yml
   when: ansible_network_os == "ios" and ansible_case == "usage" 
 - name: Maintenance DHCP Pool
-  include_tasks: nxos.yml
+  include_tasks: ios.yml
   when: ansible_network_os == "ios" and ansible_case == "maintenance" 

@@ -1,5 +1,5 @@
 ansible_host: 10.240.192.4
-hostname: gkultd
+hostname: SW.KU3.LTD
 hierarchy_layer: distribution
 alias:
   - access: &a access
@@ -178,7 +178,7 @@ services_on:
   - service timestamps debug datetime msec localtime
   - service timestamps log datetime localtime
   - no service password-encryption
-  - hostname SW.KU3.LTD
+  - hostname "{{hostname}}"
   - boot-start-marker
   - boot-end-marker
   - no aaa new-model

@@ -6,6 +6,13 @@
   connection: local
   ignore_errors: no
   pre_tasks:
+    - set_fact:
+        host_ip: "{{ansible_host}}"
+        username: "{{ansible_ssh_user}}"
+        password: "{{ansible_ssh_pass}}"
+    - debug:
+        msg: "{{host_ip}} {{username}} {{password}}"
+
       #   PING TEST
     - name: test PING to host
       ping:
@@ -19,7 +26,7 @@
         #     timeout: "{{ set_timeout }}"
         #   register: ifaces_output
         # - set_fact:
-        #     nxos_iface: "{{ ifaces_output.stdout[0] |  parse_cli('ios_show_running_config_parser.yml') }}"  
+        #     ios_iface: "{{ ifaces_output.stdout[0] |  parse_cli('ios_show_running_config_parser.yml') }}"  
         # - set_fact:
         #     nxss_iface: "{{ ifaces_output.stdout[0] |  parse_cli('ios_show_running_config_username_parser.yml') |  json_query('config_users[].{username:username,privilege:privilege, secret_value:secret_value,fingerprint:fingerprint}')  }}"
         # - set_fact:
@@ -51,9 +58,9 @@
         #     var: ifaces_output
         #     verbosity: "{{ set_verbosity }}"
         # - set_fact:
-        #     nxos_iface: "{{ ifaces_output.stdout[0] | parse_cli('ios_show_interface_status_parser.yml') }}"  
+        #     ios_iface: "{{ ifaces_output.stdout[0] | parse_cli('ios_show_interface_status_parser.yml') }}"  
         # - debug: 
-        #     var: nxos_iface
+        #     var: ios_iface
         #     verbosity: "{{ set_verbosity }}"
         # # - wait_for:
         # #     sleep: 300
@@ -70,9 +77,9 @@
         #     var: ifaces_output
         #     verbosity: "{{ set_verbosity }}"
         # - set_fact:
-        #     nxos_iface: "{{ ifaces_output.stdout[0] | parse_cli('ios_show_interface_stats_parser.yml') }}"  
+        #     ios_iface: "{{ ifaces_output.stdout[0] | parse_cli('ios_show_interface_stats_parser.yml') }}"  
         # - debug: 
-        #     var: nxos_iface
+        #     var: ios_iface
         #     verbosity: "{{ set_verbosity }}"
         # - wait_for:
         #     sleep: 300
@@ -86,7 +93,7 @@
         #   until: ifaces_output.failed == false
         #   retries: 3
         # - set_fact:
-        #     nxos_iface: "{{ ifaces_output.stdout[0] | parse_cli('ios_show_interface_parser.yml') }}"  
+        #     ios_iface: "{{ ifaces_output.stdout[0] | parse_cli('ios_show_interface_parser.yml') }}"  
         # - wait_for:
         #     sleep: 300
 
@@ -99,7 +106,7 @@
         #   until: ifaces_output.failed == false
         #   retries: 3
         # - set_fact:
-        #     nxos_iface: "{{ ifaces_output.stdout[0] | parse_cli('ios_show_interface_summary_parser.yml') }}"  
+        #     ios_iface: "{{ ifaces_output.stdout[0] | parse_cli('ios_show_interface_summary_parser.yml') }}"  
 
         # - name: get show vlan-switch
         #   ios_command:
@@ -141,7 +148,10 @@
       ios_ping:
         dest: 10.240.192.1
         provider:
+          password: "{{password}}"
+          username: "{{username}}"
           timeout: "{{ timeout }}"
+          host: "{{host_ip}}"
       delay: "{{ delay }}"
       retries: "{{ retries }}"
       register: test_ping

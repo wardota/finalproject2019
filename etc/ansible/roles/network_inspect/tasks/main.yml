@@ -97,6 +97,19 @@
         content: "{{ sh_interfaces | to_nice_json }}"
         dest: /etc/ansible/files/{{hostname}}_sh_interfaces.json
 
+    - name: ios gather fact
+      ios_facts:
+        gather_subset: interfaces
+        provider:
+          password: "{{password}}"
+          username: "{{username}}"
+          timeout: "{{ timeout }}"
+          host: "{{host_ip}}"
+      register: output
+    - copy: 
+        content: "{{ output | to_nice_json }}"
+        dest: /etc/ansible/files/{{hostname}}_gather_fact_interfaces.json
+
     - name: get show interface summary
       ios_command:
         commands:
@@ -120,3 +133,5 @@
     - copy: 
         content: "{{ sh_vlan_switch | to_nice_json }}"
         dest: /etc/ansible/files/{{hostname}}_sh_vlan_switch.json
+
+    - 

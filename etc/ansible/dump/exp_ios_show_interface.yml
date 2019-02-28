@@ -1031,7 +1031,7 @@
 
 
 
-# NXOS Show Interface Parser
+# ios Show Interface Parser
 #
 # Command:
 #   - show interface [iface_name] (Single Interface listing)
@@ -1089,23 +1089,23 @@
 # -hosts: localhost
 #  connection: local
 #  vars:
-#    iface_parse_path: /path/to/parsers/nxos_show_interface_parser.yml
+#    iface_parse_path: /path/to/parsers/ios_show_interface_parser.yml
 #  tasks:
 #     - name: Get Interface information
-#       nxos_command:
+#       ios_command:
 #         commands: show interface Ethernet2/2
 #       register: iface_output
 #
 #     - name: Parse Interface Output
 #       set_fact:
-#         nxos_interface: "{{ iface_output[0] | parse_cli(iface_parser_path)}}"
+#         ios_interface: "{{ iface_output[0] | parse_cli(iface_parser_path)}}"
 
 # Schema Output
 # -------------
 #
 #[cisco01] => {
 #    "ansible_facts": {
-#        "nxos_interface": [
+#        "ios_interface": [
 #            {
 #                "admin_state": "up",
 #                "description": "port description is",
