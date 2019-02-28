@@ -1,12 +1,4 @@
 
-# -line (?P<line_type>\w*)\s*(?P<line_first_number>\d*)\s*(?P<line_last_number>\d*)
-# -login (?P<login_opt>\w*)
-# -transport input (?P<transport_ingoing_protocol>\w*)
-# -transport output (?P<transport_outgoing_protocol>\w*)
-# -timeout login response (?P<timout_line>\w*)
-
-
-
 vars:  
   line:
     line_type: "{{item[0].line_type}}"

@@ -1,6 +1,6 @@
 ---
 - name: Automation Project
-  hosts: myall
+  hosts: ku3_a2
   gather_facts: no
   gather_timeout: 60
   connection: local
@@ -151,12 +151,12 @@
   roles: 
 
     - network_inspect
-    # - network_dhcp
-    # - network_user
-    # - network_line
-    # - network_service
-    # - network_vlan
-    # - network_interface
+    - network_dhcp
+    - network_user
+    - network_line
+    - network_service
+    - network_vlan
+    - network_interface
     # - network_inspect
     # - network_crypto
     

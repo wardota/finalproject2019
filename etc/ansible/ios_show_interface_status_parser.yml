@@ -1,31 +1,11 @@
-# ESW7#sh int status
 
+# sh int status
 # Port    Name               Status       Vlan       Duplex Speed Type
-# Fa1/0                      notconnect   1            auto    auto 10/100BaseTX
-# Fa1/1                      notconnect   1            auto    auto 10/100BaseTX
-# Fa1/2                      notconnect   1            auto    auto 10/100BaseTX
-# Fa1/3                      notconnect   1            auto    auto 10/100BaseTX
-# Fa1/4                      notconnect   1            auto    auto 10/100BaseTX
-# Fa1/5                      notconnect   1            auto    auto 10/100BaseTX
-# Fa1/6                      notconnect   1            auto    auto 10/100BaseTX
-# Fa1/7                      notconnect   1            auto    auto 10/100BaseTX
-# Fa1/8                      notconnect   1            auto    auto 10/100BaseTX
-# Fa1/9                      notconnect   1            auto    auto 10/100BaseTX
-# Fa1/10                     notconnect   1            auto    auto 10/100BaseTX
-# Fa1/11                     notconnect   1            auto    auto 10/100BaseTX
-# Fa1/12                     notconnect   1            auto    auto 10/100BaseTX
-# Fa1/13                     notconnect   1            auto    auto 10/100BaseTX
-# Fa1/14                     notconnect   1            auto    auto 10/100BaseTX
-# Fa1/15                     connected    trunk        full     100 10/100BaseTX
-
-
-# ESW3# sh int status
-# Port    Name               Status       Vlan       Duplex Speed Type
-# Fa1/0                      notconnect   1            auto    auto 10/100BaseTX
-# Fa1/1                      notconnect   1            auto    auto 10/100BaseTX
-# Fa1/2                      connected    1            full     100 10/100BaseTX
-# Fa1/3                      connected    1            full     100 10/100BaseTX
-# Fa1/4                      connected    1            full     100 10/100BaseTX
+# Fa1/0                      notconnect   901          auto    auto 10/100BaseTX
+# Fa1/1                      notconnect   901          auto    auto 10/100BaseTX
+# Fa1/2                      connected    901          full     100 10/100BaseTX
+# Fa1/3                      connected    901          full     100 10/100BaseTX
+# Fa1/4                      connected    901          full     100 10/100BaseTX
 # Fa1/5                      connected    1            full     100 10/100BaseTX
 # Fa1/6                      connected    1            full     100 10/100BaseTX
 # Fa1/7                      connected    1            full     100 10/100BaseTX
@@ -36,12 +16,8 @@
 # Fa1/12                     connected    trunk        full     100 10/100BaseTX
 # Fa1/13                     connected    trunk        full     100 10/100BaseTX
 # Fa1/14                     connected    trunk        full     100 10/100BaseTX
-# Fa1/15                     connected    1            full     100 10/100BaseTX
+# Fa1/15                     connected    trunk        full     100 10/100BaseTX
 
-#ffwefwewetwetwet
-#(?P<ports>\w+/\d+)\s+(?P<status>\w+)\s+(?P<vlan>\w+)\s+(?P<duplex>\w+)\s+(?P<speed>\w+)\s+(?P<type>\w+/\w+)
-
-    # ports: "{{ (item.ports|replace('Gi', 'GigabitEthernet') | replace('Po','PortChannel')).split(', ') }}"
 vars:
   status:
     port: "{{ item.ports }}"
@@ -55,3 +31,4 @@ keys:
   interface_status:
     value: "{{ status }}"
     items: "^(?P<ports>\\w+/\\d+)\\s+(?P<status>\\w+)\\s+(?P<vlan>\\w+(|,\\w+))\\s+(?P<duplex>[a-zA-Z-]+)\\s+(?P<speed>\\w+)\\s+(?P<type>\\w+/\\w+)?"  
+    #(?P<ports>\w+/\d+)\s+(?P<status>\w+)\s+(?P<vlan>\w+)\s+(?P<duplex>\w+)\s+(?P<speed>\w+)\s+(?P<type>\w+/\w+)

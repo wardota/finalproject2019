@@ -1,18 +1,16 @@
 
-
-vars:  
-  crypto:
-    var1: "{{item[0].name_cryto_pki_truspoint}}"
-    var2: "{{item[1].enrollment_cryto_pki_truspoint}}"
-    var3: "{{item[2].cn}}"
-    var4: "{{item[3].rsakeypair_name}}"
-keys: 
-  crypto_trustpoint:
-    value: "{{ crypto }}"
-    start_block: "^crypto pki trustpoint.*" 
-    end_block: ".+rsakeypair.*$" #BAD
-    items:         
-      - "crypto pki trustpoint (?P<name_cryto_pki_truspoint>.*)"
-      - "enrollment (?P<enrollment_cryto_pki_truspoint>.*)"
-      - "subject-name cn=(?P<cn>.*)"
-      - "rsakeypair (?P<rsakeypair_name>.*)"
+# vars:  
+#   crypto:
+#     var1: "{{item[0].name_cryto_pki_truspoint}}"
+#     var2: "{{item[1].enrollment_cryto_pki_truspoint}}"
+#     var3: "{{item[2].cn}}"
+#     var4: "{{item[3].rsakeypair_name}}"
+# keys: 
+#   crypto_trustpoint:
+#     value: "{{ crypto }}"
+#     start_block: "^crypto pki trustpoint.*" 
+#     end_block: ".+rsakeypair.*$" #BAD
+#     items:         
+#       - "crypto pki certificate chain (?P<cpcc_name>.*)"
+#       - "certificate (?P<cert_name>[a-zA-Z-]*) (?P<value>\\d*)"
+#       - "(?P<cert_name>( [0-9A-F]{8}).*)"

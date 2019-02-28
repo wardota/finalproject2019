@@ -1,5 +1,4 @@
 
-
 vars:  
   pool:
     pool_name: "{{item[0].pool_name}}"
