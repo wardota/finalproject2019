@@ -35,3 +35,27 @@
 #  1 subnet is currently in the pool :
 #  Current index        IP address range                    Leased addresses
 #  192.168.24.1         192.168.24.1     - 192.168.24.254    0
+
+vars:
+  pool:
+    uti: "{{item[0].match[0]}}"
+    sub: "{{item[1].match[0]}}"
+    tot: "{{item[2].match[0]}}"
+    lea: "{{item[3].match[0]}}"
+    pen: "{{item[4].match[0]}}"
+    cur_idx: "{{item[5].match[0]}}"
+    ip_addr_bgn: "{{item[5].match[1]}}"
+    ip_addr_end: "{{item[5].match[2]}}"
+    lea_addr: "{{item[5].match[3]}}"
+keys:
+  dhcp_pool:
+    value: "{{ pool }}"
+    start_block: "Pool.*"
+    end_block: "^$"
+    items:
+      - "Uti[a-zA-Z ()/]*: (.*)"
+      - "Sub[a-zA-Z ()/]*: (.*)"
+      - "Tot[a-zA-Z ()/]*: (.*)"
+      - "Lea[a-zA-Z ()/]*: (.*)"
+      - "Pen[a-zA-Z ()/]*: (.*)"
+      - "(\\d\\S*\\d)\\s*(\\d\\S*\\d)\\s*[-]*\\s*(\\d\\S*\\d)\\s*(\\d*)"

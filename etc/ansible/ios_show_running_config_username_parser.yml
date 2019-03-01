@@ -1,10 +1,10 @@
 
 vars:
   user:
-    username: "{{ item.username }}"
-    privilege: "{{ item.priv }}"
+    username    : "{{ item.username }}"
+    privilege   : "{{ item.priv }}"
     secret_value: "{{ item.secret_value }}"
-    fingerprint: "{{ item.fingerprint_value }}"
+    fingerprint : "{{ item.fingerprint_value }}"
 keys:
   config_users:
     value: "{{ user }}"

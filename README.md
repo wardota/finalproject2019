@@ -21,5 +21,5 @@ TBD
 ## Kibana
 TBD
 
-## NGINX
+## Nginx
 TBD

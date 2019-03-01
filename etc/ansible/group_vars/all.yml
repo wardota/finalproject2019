@@ -19,12 +19,17 @@ ansible_network_os: ios
 #     name: Security
 #     gateway: 172.20.103.1
 
+dest_output_fact: etc/ansible/files/
+roles_list: network_dhcp
 
+
+    # - network_user
+    # - network_line
+    # - network_service
+    # - network_vlan
+    # - network_interface
 set_case: deploy # deploy|monitor|maintance
-set_timeout: 300 
-set_verbosity: 0
-set_delay: 3
-set_retries: 3
+verbosity: 4
 timeout: 300 
 delay: 3
 retries: 3

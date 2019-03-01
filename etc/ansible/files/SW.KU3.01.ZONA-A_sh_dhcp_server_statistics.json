@@ -1,0 +1,22 @@
+[
+    {
+        "addr_pools": 2,
+        "auto_bindings": 0,
+        "boot_reply": 0,
+        "bootreqst": 0,
+        "database_agents": 0,
+        "dhcp_ack": 0,
+        "dhcp_decline": 0,
+        "dhcp_discover": 0,
+        "dhcp_inform": 0,
+        "dhcp_nak": 0,
+        "dhcp_offer": 0,
+        "dhcp_release": 0,
+        "dhcp_request": 0,
+        "expr_bindings": 0,
+        "malform_msg": 0,
+        "manual_bindings": 0,
+        "memory_usage": 3406,
+        "sec_arp_entries": 0
+    }
+]

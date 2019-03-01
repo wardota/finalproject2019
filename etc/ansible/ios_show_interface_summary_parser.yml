@@ -2,10 +2,10 @@
 vars:
   interface_summary:
     name: "{{ item.name }}"
-    ihq: "{{ item.ihq }}"
-    iqd: "{{ item.iqd }}"
-    ohq: "{{ item.ohq }}"
-    oqd: "{{ item.oqd }}"
+    ihq : "{{ item.ihq }}"
+    iqd : "{{ item.iqd }}"
+    ohq : "{{ item.ohq }}"
+    oqd : "{{ item.oqd }}"
     rxbs: "{{ item.rxbs }}"
     rxps: "{{ item.rxps }}"
     txbs: "{{ item.txbs }}"

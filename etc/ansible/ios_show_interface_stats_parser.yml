@@ -103,19 +103,19 @@
 
 vars:
   interface_stats:
-    name: "{{ item[0].match[0] }}"
-    processor_pkts_in: "{{ item[1].match[0] }}"
-    processor_chars_in: "{{ item[1].match[1] }}"
-    processor_pkts_out:  "{{ item[1].match[2] }}"
-    processor_chars_out: "{{ item[1].match[3] }}"
-    routecache_pkts_in: "{{ item[2].match[0] }}"
-    routecache_chars_in: "{{ item[2].match[1] }}"
-    routecache_pkts_out:  "{{ item[2].match[2] }}"
+    name                : "{{ item[0].match[0] }}"
+    processor_pkts_in   : "{{ item[1].match[0] }}"
+    processor_chars_in  : "{{ item[1].match[1] }}"
+    processor_pkts_out  : "{{ item[1].match[2] }}"
+    processor_chars_out : "{{ item[1].match[3] }}"
+    routecache_pkts_in  : "{{ item[2].match[0] }}"
+    routecache_chars_in : "{{ item[2].match[1] }}"
+    routecache_pkts_out : "{{ item[2].match[2] }}"
     routecache_chars_out: "{{ item[2].match[3] }}"
-    total_pkts_in: "{{ item[3].match[0] }}"
-    total_chars_in: "{{ item[3].match[1] }}"
-    total_pkts_out:  "{{ item[3].match[2] }}"
-    total_chars_out: "{{ item[3].match[3] }}"
+    total_pkts_in       : "{{ item[3].match[0] }}"
+    total_chars_in      : "{{ item[3].match[1] }}"
+    total_pkts_out      : "{{ item[3].match[2] }}"
+    total_chars_out     : "{{ item[3].match[3] }}"
 
 keys:
   interface_stats:

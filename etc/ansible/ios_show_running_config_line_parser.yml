@@ -1,15 +1,15 @@
 
 vars:  
   line:
-    line_type: "{{item[0].line_type}}"
-    line_number: "{{item[0].line_first_number}} {{item[0].line_last_number | default('')}}"
-    login: "{{item[1].login_opt}}"
-    transport_input: "{{item[2].transport_ingoing_protocol}}"
-    transport_output: "{{item[3].transport_outgoing_protocol}}"
-    timeout: "{{item[4].timeout_line}}"
-    privilege_lvl: "{{item[5].priv_lvl}}"
-    logging: "{{item[6].log}}"
-    exec_timeout: "{{item[7].exec_timeout}}"
+    line_type         : "{{item[0].line_type}}"
+    line_number       : "{{item[0].line_first_number}} {{item[0].line_last_number | default('')}}"
+    login             : "{{item[1].login_opt}}"
+    transport_input   : "{{item[2].transport_ingoing_protocol}}"
+    transport_output  : "{{item[3].transport_outgoing_protocol}}"
+    timeout           : "{{item[4].timeout_line}}"
+    privilege_lvl     : "{{item[5].priv_lvl}}"
+    logging           : "{{item[6].log}}"
+    exec_timeout      : "{{item[7].exec_timeout}}"
 keys: 
   lines:
     value: "{{ line }}"

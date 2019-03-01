@@ -1,8 +1,8 @@
 
 vars:  
   vlan:
-    vlan_id: "{{item[0].vlan_id}}"
-    vlan_name: "{{item[1].vlan_name}}"
+    vlan_id   : "{{item[0].vlan_id}}"
+    vlan_name : "{{item[1].vlan_name}}"
 
 keys: 
   vlans:

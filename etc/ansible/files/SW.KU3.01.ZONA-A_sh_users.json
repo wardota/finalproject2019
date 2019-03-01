@@ -1,0 +1,31 @@
+{
+    "interface_status": [
+        {
+            "false": 0,
+            "hosts": "idle ",
+            "idle": "00:06:56",
+            "line": "con",
+            "location": null,
+            "tty": 0,
+            "user": "n/a"
+        },
+        {
+            "false": 0,
+            "hosts": "idle ",
+            "idle": "00:00:24",
+            "line": "vty",
+            "location": "192.168.101.3",
+            "tty": 98,
+            "user": "n/a*n/a*n/a*n/a*n/a*n/a*n/a*n/a*n/a2n/a"
+        },
+        {
+            "false": 1,
+            "hosts": "idle ",
+            "idle": "00:00:00",
+            "line": "vty",
+            "location": "192.168.101.3",
+            "tty": 99,
+            "user": "n/a*n/a*n/a*n/a*n/a*n/a*n/a*n/a*n/a2n/a"
+        }
+    ]
+}

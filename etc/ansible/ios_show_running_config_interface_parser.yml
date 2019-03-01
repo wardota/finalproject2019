@@ -1,18 +1,18 @@
 
 vars:  
   int:
-    int_name: "{{item[0].int_name}}"
-    ip_addr: "{{item[1].ip_addr}}"
-    subnet: "{{item[1].subnet}}"
-    ip_route_cache_stats: "{{item[2].ip_route_cache_stats}}"
-    ip_route_cache_value: "{{item[2].ip_route_cache_value}}"
-    mode: "{{item[4].mode2 | default(item[3].mode) }}"
-    vlan_id: "{{item[4].vlan}}"
-    trunk_allowed_vlan_id: "{{item[5].trunk_vlan}},{{item[6].trunk_vlan_add}}"
-    st_bpduguard: "{{item[7].st_bpduguard}}"
-    desc: "{{item[8].desc}}"
-    speed: "{{item[10].speed}}"
-    duplex: "{{item[9].duplex}}"
+    int_name              : "{{item[0].int_name}}"
+    ip_addr               : "{{item[1].ip_addr}}"
+    subnet                : "{{item[1].subnet}}"
+    ip_route_cache_stats  : "{{item[2].ip_route_cache_stats}}"
+    ip_route_cache_value  : "{{item[2].ip_route_cache_value}}"
+    mode                  : "{{item[4].mode2 | default(item[3].mode) }}"
+    vlan_id               : "{{item[4].vlan}}"
+    trunk_allowed_vlan_id : "{{item[5].trunk_vlan}},{{item[6].trunk_vlan_add}}"
+    st_bpduguard          : "{{item[7].st_bpduguard}}"
+    desc                  : "{{item[8].desc}}"
+    speed                 : "{{item[10].speed}}"
+    duplex                : "{{item[9].duplex}}"
 
 keys: 
   interfaces:

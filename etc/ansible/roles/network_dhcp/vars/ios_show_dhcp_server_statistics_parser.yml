@@ -1,24 +1,71 @@
 # sw_ku3_b3#sh ip dhcp server statistics
-# Memory usage         5956
+  # Memory usage         5956
 
-# Address pools        4
-# Database agents      0
-# Automatic bindings   0
-# Manual bindings      0
-# Expired bindings     0
-# Malformed messages   0
-# Secure arp entries   0
+  # Address pools        4
+  # Database agents      0
+  # Automatic bindings   0
+  # Manual bindings      0
+  # Expired bindings     0
+  # Malformed messages   0
+  # Secure arp entries   0
 
-# Message              Received
-# BOOTREQUEST          0
-# DHCPDISCOVER         0
-# DHCPREQUEST          0
-# DHCPDECLINE          0
-# DHCPRELEASE          0
-# DHCPINFORM           0
+  # Message              Received
+  # BOOTREQUEST          0
+  # DHCPDISCOVER         0
+  # DHCPREQUEST          0
+  # DHCPDECLINE          0
+  # DHCPRELEASE          0
+  # DHCPINFORM           0
 
-# Message              Sent
-# BOOTREPLY            0
-# DHCPOFFER            0
-# DHCPACK              0
-# DHCPNAK              0
+  # Message              Sent
+  # BOOTREPLY            0
+  # DHCPOFFER            0
+  # DHCPACK              0
+  # DHCPNAK              0
+
+vars:
+  statistics:
+    memory_usage   : "{{item[0].match[0]}}"
+    addr_pools     : "{{item[1].match[0]}}"
+    database_agents: "{{item[2].match[0]}}"
+    auto_bindings  : "{{item[3].match[0]}}"
+    manual_bindings: "{{item[4].match[0]}}"
+    expr_bindings  : "{{item[5].match[0]}}"
+    malform_msg    : "{{item[6].match[0]}}"
+    sec_arp_entries: "{{item[7].match[0]}}"
+    bootreqst      : "{{item[8].match[0]}}"
+    dhcp_discover  : "{{item[9].match[0]}}"
+    dhcp_request   : "{{item[10].match[0]}}"
+    dhcp_decline   : "{{item[11].match[0]}}"
+    dhcp_release   : "{{item[12].match[0]}}"
+    dhcp_inform    : "{{item[13].match[0]}}"
+    boot_reply     : "{{item[14].match[0]}}"
+    dhcp_offer     : "{{item[15].match[0]}}"
+    dhcp_ack       : "{{item[16].match[0]}}"
+    dhcp_nak       : "{{item[17].match[0]}}"
+
+
+keys:
+  dhcp_statistics:
+    value: "{{ statistics }}"
+    start_block: "Mem[a-zA-Z ]*.*"
+    end_block: "DHCPNAK[a-zA-Z ]*.*"
+    items:
+      - "Mem[a-zA-Z ]*(.*)"
+      - "Add[a-zA-Z ]*(.*)"
+      - "Dat[a-zA-Z ]*(.*)"
+      - "Aut[a-zA-Z ]*(.*)"
+      - "Man[a-zA-Z ]*(.*)"
+      - "Exp[a-zA-Z ]*(.*)"
+      - "Mal[a-zA-Z ]*(.*)"
+      - "Sec[a-zA-Z ]*(.*)"
+      - "BOOTREQ[a-zA-Z ]*(.*)"
+      - "DISC[a-zA-Z ]*(.*)"
+      - "REQU[a-zA-Z ]*(.*)"
+      - "DECL[a-zA-Z ]*(.*)"
+      - "RELE[a-zA-Z ]*(.*)"
+      - "INFO[a-zA-Z ]*(.*)"
+      - "BOOTREPLY[a-zA-Z ]*(.*)"
+      - "OFFER[a-zA-Z ]*(.*)"
+      - "ACK[a-zA-Z ]*(.*)"
+      - "NAK[a-zA-Z ]*(.*)"

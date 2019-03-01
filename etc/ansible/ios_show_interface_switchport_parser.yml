@@ -1,0 +1,40 @@
+
+vars:
+  interface_stats:
+    name              : "{{ item[0].name }}"
+    switchport        : "{{ item[1].match[0] }}"
+    mode_admin        : "{{ item[2].match[0] }}"
+    mode_op           : "{{ item[3].match[0] }}"
+    trunk_admin_encap : "{{ item[4].match[0] }}"
+    trunk_nego        : "{{ item[5].match[0] }}"
+    access_vlan       : "{{ item[6].match[0] }}"
+    trunk_native      : "{{ item[7].match[0] }}"
+    trunk_enabled     : "{{ item[8].match[0] }}"
+    trunk_active      : "{{ item[9].match[0] }}"
+    protected         : "{{ item[10].match[0] }}"
+    prio_untag_frame  : "{{ item[11].match[0] }}"
+    prio_ovrd_vlan_tag: "{{ item[12].match[0] }}"
+    voice_vlan        : "{{ item[13].match[0] }}"
+    appliance_trust   : "{{ item[14].match[0] }}"
+
+keys:
+  interface_stats:
+    value: "{{ interface_stats }}"
+    start_block: "Name.*" 
+    end_block: "Appliance"
+    items:
+      - "(?P<name>\\w{0,20}?((Serial|Ethernet).*[/]\\d+|Vlan\\d*))"
+      - "Switchport: (.*)"
+      - "Administrative Mode: (.*)"
+      - "Operational Mode: (.*)"
+      - "Administrative Trunking Encapsulation: (.*)"
+      - "Negotiation of Trunking: (.*)"
+      - "Access Mode VLAN: (.*)"
+      - "Trunking Native Mode VLAN: (.*)"
+      - "Trunking VLANs Enabled: (.*)"
+      - "Trunking VLANs Active: (.*)"
+      - "Protected: (.*)"
+      - "Priority for untagged frames: (.*)"
+      - "Override vlan tag priority: (.*)"
+      - "Voice VLAN: (.*)"
+      - "Appliance trust: (.*)"

@@ -20,12 +20,12 @@
 
 vars:
   status:
-    port: "{{ item.ports }}"
-    vlan: "{{ item.vlan }}"
+    port  : "{{ item.ports }}"
+    vlan  : "{{ item.vlan }}"
     status: "{{ item.status }}"
     deplex: "{{ item.duplex }}"
-    speed: "{{ item.speed }}"
-    type:  "{{ item.type }}"
+    speed : "{{ item.speed }}"
+    type  : "{{ item.type }}"
   
 keys:
   interface_status:
