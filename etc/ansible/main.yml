@@ -3,7 +3,7 @@
   hosts: ku3_a1
   gather_facts: no
   gather_timeout: 60
-  connection: local
+  connection: network_cli
   ignore_errors: yes
   vars_files:
     - vars/common.yml
@@ -14,6 +14,7 @@
             host_ip: "{{ansible_host}}"
             username: "{{ansible_ssh_user}}"
             password: "{{ansible_ssh_pass}}"
+            new_ansible_host: 10.240.192.20 
       when: pre_tasks.init == true 
     - name: ping test
       block: 
@@ -151,23 +152,69 @@
         - name: test PING reachability using default vrf
           ios_ping:
             dest: 10.240.192.1
-            provider:
-              password: "{{password}}"
-              username: "{{username}}"
-              timeout: "{{ timeout }}"
-              host: "{{host_ip}}"
           delay: "{{ delay }}"
           retries: "{{ retries }}"
           register: test_ping
+        - name: get show 
+          ios_command:
+            commands:
+              - "show run"
+                  # provider:
+                  #   password: "{{password}}"
+                  #   username: "{{username}}"
+                  #   timeout: "{{ timeout }}"
+                    # host: "{{host_ip}}"
+          register: output
+
+        #   #switch host target
+        # - set_fact:
+        #     ansible_host: "{{new_ansible_host}}"
+        #     ansible_user: "{{new_ansible_user}}" 
+        #     ansible_password: "{{new_ansible_password}}"
+        # - name: get show 2
+        #   ios_command:
+        #     commands:
+        #       - "show run"
+        #           # provider:
+        #           #   password: "{{password}}"
+        #           #   username: "{{username}}"
+        #           #   timeout: "{{ timeout }}"
+        #             # host: "{{host_ip}}"
+        #   register: output
         - set_fact:
             ansible_case: usage
       when: pre_tasks.pingtest == true
+
+    # - name: show users all
+    #   ios_command:
+    #     commands:
+    #       - "show users all"
+    #   register: output
+    # - set_fact:  
+    #     sh_users: "{{ output.stdout[0] | parse_cli('/etc/ansible/ios_show_users_all_parser.yml') }}"
+    # - copy: 
+    #     content: "{{ sh_users| to_nice_json }}"
+    #     dest: /{{dest_output_fact}}{{hostname}}_sh_users.json
+
+
+
+
+    # - name: show ssh
+    #   ios_command:
+    #     commands:
+    #       - "show ssh"
+    #   register: output
+    # - set_fact:  
+    #     sh_ssh: "{{ output.stdout[0] | parse_cli('/etc/ansible/ios_show_ssh_parser.yml') }}"
+    # - copy: 
+    #     content: "{{ sh_users| to_nice_json }}"
+    #     dest: /{{dest_output_fact}}{{hostname}}_sh_ssh.json
 
 
 
 
   roles: 
-    # - "{{roles_1st | default('')}}"
+    - "{{roles_1st | default('')}}"
     # - "{{roles_2nd | default('')}}"
     # - "{{roles_3rd | default('')}}"
     # - "{{roles_4th | default('')}}"

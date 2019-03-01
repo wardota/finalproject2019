@@ -2,7 +2,7 @@
 vars:
   interface_switching:
     name              : "{{ item[0].match[0] }}"
-    protokol          : "{{ item[1].match[0] }}"
+    protocol          : "{{ item[1].match[0] }}"
     process_pktin     : "{{ item[2].pktin }}"
     process_charin    : "{{ item[2].charin }}"
     process_pktout    : "{{ item[2].pktout }}"

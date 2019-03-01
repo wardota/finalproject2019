@@ -4,7 +4,6 @@ ansible_python_interpreter: /usr/bin/env python
 # ansible_become_pass: cisco
 # snmp_ro_community: public
 # snmp_rw_community: private
-ansible_network_os: ios
 # vlans:
 #   - id: 100
 #     name: Management
@@ -22,6 +21,22 @@ ansible_network_os: ios
 dest_output_fact: etc/ansible/files/
 roles_list: network_dhcp
 
+#network_cli param
+ansible_user: cisco2
+ansible_password: cisco
+ansible_network_os: ios
+timeout: 300 
+# ansible_become: no          # default
+# ansible_become_method: sudo # default
+# remote_port: 22             # default
+# ansible_private_key_file  : null  # default
+# ansible_buffer_read_timeout: 0.1  # default
+# ansible_command_timeout: 10  # default
+# ansible_connect_timeout: 30  # default
+
+new_ansible_user: cuman
+new_ansible_password: password123d
+
 
     # - network_user
     # - network_line
@@ -30,7 +45,6 @@ roles_list: network_dhcp
     # - network_interface
 set_case: deploy # deploy|monitor|maintance
 verbosity: 4
-timeout: 300 
 delay: 3
 retries: 3
 # common ssh user pass

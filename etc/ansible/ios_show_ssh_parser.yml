@@ -1,3 +1,4 @@
+#asd
 vars:
   status:
     connection    : "{{ item.a }}"
@@ -8,6 +9,6 @@ vars:
     state         : "{{ item.f }} {{ item.g }}"
     username      : "{{ item.h | replace('2','') | replace('********','master_admin')}}"
 keys:
-  interface_status:
+  show_ssh:
     value: "{{ status }}"
     items: "^(?P<a>\\d+)\\s*(?P<b>\\S*)\\s*(?P<c>\\S*)\\s*(?P<d>\\S*)\\s*(?P<e>\\S*)\\s*(?P<f>\\S*)\\s*(?P<g>\\S*)\\s*(?P<h>\\S*)"

@@ -32,8 +32,6 @@
         - lease {{ pooldb3[item].lease.days | default (0)}} {{ ppooldb3[item].lease.hours | default (2) }}
       parents:
         - ip dhcp pool {{ pooldb3[item].name }}
-      provider:
-        timeout: "{{ timeout }}"
     loop:  "{{range(0, (pooldb3 | length), 1)| list}}"  
     loop_control:
       label: "{{ pooldb3[item].name  }}"

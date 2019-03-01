@@ -12,8 +12,6 @@
     ios_config:  
       lines:
         - ip dhcp excluded-address {{item.1}}
-      provider:
-        timeout: "{{ timeout }}"
     loop: "{{ pooldb2 | subelements('excluded') }}"  
     loop_control:
       label: "{{ item.0.name}}"
@@ -36,8 +34,6 @@
         - lease {{ pooldb2[item].lease_days | default (2)}} {{ pooldb2[item].lease_hours | default (2) }}
       parents:
         - ip dhcp pool {{ pooldb2[item].name }}
-      provider:
-        timeout: "{{ timeout }}"
     loop:  "{{range(0, (pooldb2 | length), 1)| list}}"  
     loop_control:
       label: "{{ pooldb2[item].name  }}"

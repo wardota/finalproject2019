@@ -1,4 +1,4 @@
-
+#asd
 vars:
   status:
     tty       : "{{ item.a }}"
@@ -10,6 +10,6 @@ vars:
     location  : "{{ item.g }}"
   
 keys:
-  interface_status:
+  show_users_all:
     value: "{{ status }}"
     items: "(?P<a>\\d*) (?P<b>[a-z]{3}) (?P<c>\\d*)    \\s?(?P<d>[\\S]*\\s?) \\s*\\s?(?P<e>[a-zA-Z]*\\s?) \\s*(?P<f>\\S*)\\s?(?P<g>\\S*)"

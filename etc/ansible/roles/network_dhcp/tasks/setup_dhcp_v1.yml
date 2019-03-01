@@ -12,8 +12,6 @@
     ios_config:
       lines:
         - ip dhcp excluded-address {{ item }}
-      provider:
-        timeout: "{{ timeout }}"
     loop: "{{ pooldb[outer_item].excluded }}" #BAD LOOP # UNEFFIECENT PART
     delay: "{{ delay }}"
     retries: "{{ retries }}"
@@ -36,8 +34,6 @@
         - lease {{ pooldb[item].lease.days | default (2)}} {{ pooldb[item].lease.hours | default (2) }}
       parents:
         - ip dhcp pool {{ item }}
-      provider:
-        timeout: "{{ timeout }}"
     loop: "{{dhcp_pool}}"       
     when: pooldb[item] is defined  
     delay: "{{ delay }}"

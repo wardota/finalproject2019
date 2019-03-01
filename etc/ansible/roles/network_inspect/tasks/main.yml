@@ -1,253 +1,224 @@
-    - name: get show 
-      ios_command:
-        commands:
-          - "show run"
-        provider:
-          password: "{{password}}"
-          username: "{{username}}"
-          timeout: "{{ timeout }}"
-          host: "{{host_ip}}"
-      register: output
-    - set_fact:
-        sh_run_config: "{{ output.stdout[0] |  parse_cli('ios_show_running_config_parser.yml') }}"  
-    - copy: 
-        content: "{{ sh_run_config | to_nice_json }}"
-        dest: /{{dest_output_fact}}{{hostname}}_sh_run_config.json
+- name: get show 
+  ios_command:
+    commands:
+      - "show run"
+      - "show interface status"
+      - "show interface stats"
+      - "show interface"
+      - "show interface summary"
+      - "show vlan-switch"
+      - "show interface switching"
+      - "show interface switchport"
+      - "show users all"
+      - "show ssh"
+      - "show line"
+  register: output
+- set_fact:
+    sh_run_config: "{{ output.stdout[0] |  parse_cli('/etc/ansible/ios_show_running_config_parser.yml') }}"  
+    sh_run_config_user: "{{ output.stdout[0] |  parse_cli('/etc/ansible/ios_show_running_config_username_parser.yml') |  json_query('config_users[].{username:username,privilege:privilege, secret_value:secret_value,fingerprint:fingerprint}')  }}"
+    sh_run_config_dhcp: "{{ output.stdout[0] |  parse_cli('/etc/ansible/ios_show_running_config_dhcp_parser.yml') }}"
+    sh_run_config_dhcp_ex: "{{ output.stdout[0] |  parse_cli('/etc/ansible/ios_show_running_config_dhcp_excluded_parser.yml') | json_query('ip_dhcp_excluded[].[range]')|flatten}}"
+    sh_run_config_vlan: "{{ output.stdout[0] |  parse_cli('/etc/ansible/ios_show_running_config_vlan_parser.yml') }}" 
+    sh_run_config_interface: "{{ output.stdout[0] |  parse_cli('/etc/ansible/ios_show_running_config_interface_parser.yml') }}"        
+    sh_run_config_line: "{{ output.stdout[0] |  parse_cli('/etc/ansible/ios_show_running_config_line_parser.yml') }}" 
+    sh_interface_status: "{{ output.stdout[1] | parse_cli('/etc/ansible/ios_show_interface_status_parser.yml') }}"
+    sh_interface_stats: "{{ output.stdout[2] | parse_cli('/etc/ansible/ios_show_interface_stats_parser.yml') }}"  
+    sh_interfaces: "{{ output.stdout[3] | parse_cli('/etc/ansible/ios_show_interface_parser.yml') }}"
+    sh_interface_summary: "{{ output.stdout[4] | parse_cli('/etc/ansible/ios_show_interface_summary_parser.yml') }}"  
+    sh_vlan_switch: "{{ output.stdout[5] | parse_cli('/etc/ansible/ios_show_vlan_switch_parser.yml') }}"
+    sh_interface_switching: "{{ output.stdout[6] | parse_cli('/etc/ansible/ios_show_interface_switching_parser.yml') }}"
+    sh_interface_switchport: "{{ output.stdout[7] | parse_cli('/etc/ansible/ios_show_interface_switchport_parser.yml') }}"
+    sh_users: "{{ output.stdout[8] | parse_cli('/etc/ansible/ios_show_users_all_parser.yml') }}"
+    sh_ssh: "{{ output.stdout[9] | parse_cli('/etc/ansible/ios_show_ssh_parser.yml') }}"        
+    sh_line: "{{ output.stdout[10] | parse_cli('/etc/ansible/ios_show_line_parser.yml') }}" #seems to be an issues
 
-    - set_fact:
-        sh_run_config_user: "{{ output.stdout[0] |  parse_cli('ios_show_running_config_username_parser.yml') |  json_query('config_users[].{username:username,privilege:privilege, secret_value:secret_value,fingerprint:fingerprint}')  }}"
-    - copy: 
-        content: "{{ sh_run_config_user | to_nice_json }}"
-        dest: /{{dest_output_fact}}{{hostname}}_sh_run_config_user.json
-
-    - set_fact:
-        sh_run_config_dhcp: "{{ output.stdout[0] |  parse_cli('ios_show_running_config_dhcp_parser.yml') }}"
-    - copy: 
-        content: "{{ sh_run_config_dhcp | to_nice_json }}"
-        dest: /{{dest_output_fact}}{{hostname}}_sh_run_config_dhcp.json
-
-    - set_fact:
-        sh_run_config_dhcp_ex: "{{ output.stdout[0] |  parse_cli('ios_show_running_config_dhcp_excluded_parser.yml') | json_query('ip_dhcp_excluded[].[range]')|flatten}}"
-    - copy: 
-        content: "{{ sh_run_config_dhcp_ex | to_nice_json }}"
-        dest: /{{dest_output_fact}}{{hostname}}_sh_run_config_dhcp_ex.json
-
-    # - set_fact:
-    #     crypto_pki_trustpoint: "{{ output.stdout[0] |  parse_cli('ios_show_running_config_crypto_pki_trustpoint_parser.yml') }}" 
-    # - copy: 
-    #     content: "{{ crypto_pki_trustpoint | to_nice_json }}"
-    #     dest: /{{dest_output_fact}}{{hostname}}_crypto_pki_trustpoint.json
-
-    # - set_fact:
-    #     crypto_pki_cert: "{{ output.stdout[0] |  parse_cli('ios_show_running_config_crypto_pki_certificate_parser.yml') }}"     
-    # - copy: 
-    #     content: "{{ crypto_pki_cert | to_nice_json }}"
-    #     dest: /{{dest_output_fact}}{{hostname}}_crypto_pki_cert.json
-
-    - set_fact:
-        sh_run_config_vlan: "{{ output.stdout[0] |  parse_cli('ios_show_running_config_vlan_parser.yml') }}"   
-    - copy: 
-        content: "{{ sh_run_config_vlan | to_nice_json }}"
-        dest: /{{dest_output_fact}}{{hostname}}_sh_run_config_vlan.json
-
-    - set_fact:
-        sh_run_config_interface: "{{ output.stdout[0] |  parse_cli('ios_show_running_config_interface_parser.yml') }}"
-    - copy: 
-        content: "{{ sh_run_config_interface | to_nice_json }}"
-        dest: /{{dest_output_fact}}{{hostname}}_sh_run_config_interface.json 
-        
-    - set_fact:
-        sh_run_config_line: "{{ output.stdout[0] |  parse_cli('ios_show_running_config_line_parser.yml') }}" 
-    - copy: 
-        content: "{{ sh_run_config_line | to_nice_json }}"
-        dest: /{{dest_output_fact}}{{hostname}}_sh_run_config_line.json
-
-    - name: get show interface status
-      ios_command:
-        commands:
-          - "show interface status"
-        provider:
-          password: "{{password}}"
-          username: "{{username}}"
-          timeout: "{{ timeout }}"
-          host: "{{host_ip}}"
-      register: output
-      until: output.failed == false
-      retries: 3
-    - set_fact:
-        sh_interface_status: "{{ output.stdout[0] | parse_cli('ios_show_interface_status_parser.yml') }}" 
-    - copy: 
-        content: "{{ sh_interface_status | to_nice_json }}"
-        dest: /{{dest_output_fact}}{{hostname}}_sh_interface_status.json
-
-    - name: get show interface stats
-      ios_command:
-        commands:
-          - "show interface stats"
-        provider:
-          password: "{{password}}"
-          username: "{{username}}"
-          timeout: "{{ timeout }}"
-          host: "{{host_ip}}"
-      register: output
-      until: output.failed == false
-      retries: 3
-    - set_fact:
-        sh_interface_stats: "{{ output.stdout[0] | parse_cli('ios_show_interface_stats_parser.yml') }}"  
-    - copy: 
-        content: "{{sh_run_config_line | to_nice_json }}"
-        dest: /{{dest_output_fact}}{{hostname}}_sh_interface_stats.json
-
-    - name: get show interface 
-      ios_command:
-        commands:
-          - "show interface"
-        provider:
-          password: "{{password}}"
-          username: "{{username}}"
-          timeout: "{{ timeout }}"
-          host: "{{host_ip}}"
-      register: output
-    - set_fact:
-        sh_interfaces: "{{ output.stdout[0] | parse_cli('ios_show_interface_parser.yml') }}"  
-    - copy: 
-        content: "{{ sh_interfaces | to_nice_json }}"
-        dest: /{{dest_output_fact}}{{hostname}}_sh_interfaces.json
-
-    - name: ios gather fact
-      ios_facts:
-        gather_subset: interfaces
-        provider:
-          password: "{{password}}"
-          username: "{{username}}"
-          timeout: "{{ timeout }}"
-          host: "{{host_ip}}"
-      register: output
-    - copy: 
-        content: "{{ output.ansible_facts.ansible_net_interfaces | to_nice_json }}"
-        dest: /{{dest_output_fact}}{{hostname}}_gather_fact_interfaces.json
-
-    - name: get show interface summary
-      ios_command:
-        commands:
-          - "show interface summary"
-        provider:
-          password: "{{password}}"
-          username: "{{username}}"
-          timeout: "{{ timeout }}"
-          host: "{{host_ip}}"
-      register: output
-    - set_fact:
-        sh_interface_summary: "{{ output.stdout[0] | parse_cli('ios_show_interface_summary_parser.yml') }}"  
-    - copy: 
-        content: "{{ sh_interface_summary | to_nice_json }}"
-        dest: /{{dest_output_fact}}{{hostname}}_sh_interface_summary.json
-
-    - name: get show vlan-switch
-      ios_command:
-        commands:
-          - "show vlan-switch"
-        provider:
-          password: "{{password}}"
-          username: "{{username}}"
-          timeout: "{{ timeout }}"
-          host: "{{host_ip}}"
-      register: output  
-    - set_fact:  
-        sh_vlan_switch: "{{ output.stdout[0] | parse_cli('ios_show_vlan_switch_parser.yml') }}"
-    - copy: 
-        content: "{{ sh_vlan_switch | to_nice_json }}"
-        dest: /{{dest_output_fact}}{{hostname}}_sh_vlan_switch.json
+- copy: 
+    content: "{{ sh_run_config | to_nice_json }}"
+    dest: /{{dest_output_fact}}{{hostname}}_sh_run_config.json
+- copy: 
+    content: "{{ sh_run_config_user | to_nice_json }}"
+    dest: /{{dest_output_fact}}{{hostname}}_sh_run_config_user.json
+- copy: 
+    content: "{{ sh_run_config_dhcp | to_nice_json }}"
+    dest: /{{dest_output_fact}}{{hostname}}_sh_run_config_dhcp.json
+- copy: 
+    content: "{{ sh_run_config_dhcp_ex | to_nice_json }}"
+    dest: /{{dest_output_fact}}{{hostname}}_sh_run_config_dhcp_ex.json
+- copy: 
+    content: "{{ sh_run_config_vlan | to_nice_json }}"
+    dest: /{{dest_output_fact}}{{hostname}}_sh_run_config_vlan.json
+- copy: 
+    content: "{{ sh_run_config_interface | to_nice_json }}"
+    dest: /{{dest_output_fact}}{{hostname}}_sh_run_config_interface.json 
+- copy: 
+    content: "{{ sh_run_config_line | to_nice_json }}"
+    dest: /{{dest_output_fact}}{{hostname}}_sh_run_config_line.json
+- copy: 
+    content: "{{ sh_interface_status | to_nice_json }}"
+    dest: /{{dest_output_fact}}{{hostname}}_sh_interface_status.json
+- copy: 
+    content: "{{sh_run_config_line | to_nice_json }}"
+    dest: /{{dest_output_fact}}{{hostname}}_sh_interface_stats.json
+- copy: 
+    content: "{{ sh_interfaces | to_nice_json }}"
+    dest: /{{dest_output_fact}}{{hostname}}_sh_interfaces.json
+- copy: 
+    content: "{{ sh_interface_summary | to_nice_json }}"
+    dest: /{{dest_output_fact}}{{hostname}}_sh_interface_summary.json
+- copy: 
+    content: "{{ sh_vlan_switch | to_nice_json }}"
+    dest: /{{dest_output_fact}}{{hostname}}_sh_vlan_switch.json
+- copy: 
+    content: "{{ sh_interface_switchport | to_nice_json }}"
+    dest: /{{dest_output_fact}}{{hostname}}_sh_interface_switchport.json
+- copy: 
+    content: "{{ sh_interface_switching | to_nice_json }}"
+    dest: /{{dest_output_fact}}{{hostname}}_sh_interface_switching.json
+- copy: 
+    content: "{{ sh_users| to_nice_json }}"
+    dest: /{{dest_output_fact}}{{hostname}}_sh_users.json
+- copy: 
+    content: "{{ sh_ssh| to_nice_json }}"
+    dest: /{{dest_output_fact}}{{hostname}}_sh_ssh.json
+- copy: 
+    content: "{{ sh_line| to_nice_json }}"
+    dest: /{{dest_output_fact}}{{hostname}}_sh_line.json
 
 
-    - name: show int switchport
-      ios_command:
-        commands:
-          - "show interface switchport"
-        provider:
-          password: "{{password}}"
-          username: "{{username}}"
-          timeout: "{{ timeout }}"
-          host: "{{host_ip}}"
-      register: output  
-    - set_fact:  
-        sh_interface_switchport: "{{ output.stdout[0] | parse_cli('ios_show_interface_switchport_parser.yml') }}"
-    - copy: 
-        content: "{{ sh_interface_switchport | to_nice_json }}"
-        dest: /{{dest_output_fact}}{{hostname}}_sh_interface_switchport.json
+- name: ios gather fact
+  ios_facts:
+    gather_subset: interfaces 
+  register: output
+- copy: 
+    content: "{{ output.ansible_facts.ansible_net_interfaces | to_nice_json }}"
+    dest: /{{dest_output_fact}}{{hostname}}_gather_fact_interfaces.json
 
-    - name: show int switching
-      ios_command:
-        commands:
-          - "show interface switching"
-        provider:
-          password: "{{password}}"
-          username: "{{username}}"
-          timeout: "{{ timeout }}"
-          host: "{{host_ip}}"
-      register: outputi  
-    - set_fact:  
-        sh_interface_switching: "{{ outputi.stdout[0] | parse_cli('ios_show_interface_switching_parser.yml') }}"
-    - copy: 
-        content: "{{ sh_interface_switching | to_nice_json }}"
-        dest: /{{dest_output_fact}}{{hostname}}_sh_interface_switching.json
+# - set_fact:
+#     crypto_pki_trustpoint: "{{ output.stdout[0] |  parse_cli('/etc/ansible/ios_show_running_config_crypto_pki_trustpoint_parser.yml') }}" 
+# - copy: 
+#     content: "{{ crypto_pki_trustpoint | to_nice_json }}"
+#     dest: /{{dest_output_fact}}{{hostname}}_crypto_pki_trustpoint.json
+
+# - set_fact:
+#     crypto_pki_cert: "{{ output.stdout[0] |  parse_cli('/etc/ansible/ios_show_running_config_crypto_pki_certificate_parser.yml') }}"     
+# - copy: 
+#     content: "{{ crypto_pki_cert | to_nice_json }}"
+#     dest: /{{dest_output_fact}}{{hostname}}_crypto_pki_cert.json
+
+# - name: get show interface status
+#   ios_command:
+#     commands:
+#       - "show interface status"
+#   register: output
+#   until: output.failed == false
+#   retries: 3
+# - set_fact:
+#     sh_interface_status: "{{ output.stdout[0] | parse_cli('/etc/ansible/ios_show_interface_status_parser.yml') }}" 
+# - copy: 
+#     content: "{{ sh_interface_status | to_nice_json }}"
+#     dest: /{{dest_output_fact}}{{hostname}}_sh_interface_status.json
+
+# - name: get show interface stats
+#   ios_command:
+#     commands:
+#       - "show interface stats"
+#   register: output
+#   until: output.failed == false
+#   retries: 3
+# - set_fact:
+#     sh_interface_stats: "{{ output.stdout[0] | parse_cli('/etc/ansible/ios_show_interface_stats_parser.yml') }}"  
+# - copy: 
+#     content: "{{sh_run_config_line | to_nice_json }}"
+#     dest: /{{dest_output_fact}}{{hostname}}_sh_interface_stats.json
+
+# - name: get show interface 
+#   ios_command:
+#     commands:
+#       - "show interface"
+#   register: output
+# - set_fact:
+#     sh_interfaces: "{{ output.stdout[0] | parse_cli('/etc/ansible/ios_show_interface_parser.yml') }}"  
+# - copy: 
+#     content: "{{ sh_interfaces | to_nice_json }}"
+#     dest: /{{dest_output_fact}}{{hostname}}_sh_interfaces.json
+
+# - name: get show interface summary
+#   ios_command:
+#     commands:
+#       - "show interface summary"
+#   register: output
+# - set_fact:
+#     sh_interface_summary: "{{ output.stdout[0] | parse_cli('/etc/ansible/ios_show_interface_summary_parser.yml') }}"  
+# - copy: 
+#     content: "{{ sh_interface_summary | to_nice_json }}"
+#     dest: /{{dest_output_fact}}{{hostname}}_sh_interface_summary.json
+
+# - name: get show vlan-switch
+#   ios_command:
+#     commands:
+#       - "show vlan-switch"
+#   register: output  
+# - set_fact:  
+#     sh_vlan_switch: "{{ output.stdout[0] | parse_cli('/etc/ansible/ios_show_vlan_switch_parser.yml') }}"
+# - copy: 
+#     content: "{{ sh_vlan_switch | to_nice_json }}"
+#     dest: /{{dest_output_fact}}{{hostname}}_sh_vlan_switch.json
 
 
+# - name: show int switchport
+#   ios_command:
+#     commands:
+#       - "show interface switchport"
+#   register: output  
+# - set_fact:  
+#     sh_interface_switchport: "{{ output.stdout[0] | parse_cli('/etc/ansible/ios_show_interface_switchport_parser.yml') }}"
+# - copy: 
+#     content: "{{ sh_interface_switchport | to_nice_json }}"
+#     dest: /{{dest_output_fact}}{{hostname}}_sh_interface_switchport.json
 
-    - name: show line
-      ios_command:
-        commands:
-          - "show line"
-        provider:
-          password: "{{password}}"
-          username: "{{username}}"
-          timeout: "{{ timeout }}"
-          host: "{{host_ip}}"
-      register: outputi  
-    - set_fact:  
-        sh_line: "{{ outputi.stdout[0] | parse_cli('ios_show_line_parser.yml') }}"
-    - copy: 
-        content: "{{ sh_line| to_nice_json }}"
-        dest: /{{dest_output_fact}}{{hostname}}_sh_line.json
+# - name: show int switching
+#   ios_command:
+#     commands:
+#       - "show interface switching"
+#   register: output  
+# - set_fact:  
+#     sh_interface_switching: "{{ output.stdout[0] | parse_cli('/etc/ansible/ios_show_interface_switching_parser.yml') }}"
+# - copy: 
+#     content: "{{ sh_interface_switching | to_nice_json }}"
+#     dest: /{{dest_output_fact}}{{hostname}}_sh_interface_switching.json
 
+# - name: show line
+#   ios_command:
+#     commands:
+#       - "show line"
+#   register: outputi  
+# - set_fact:  
+#     sh_line: "{{ outputi.stdout[0] | parse_cli('/etc/ansible/ios_show_line_parser.yml') }}"
+# - copy: 
+#     content: "{{ sh_line| to_nice_json }}"
+#     dest: /{{dest_output_fact}}{{hostname}}_sh_line.json
 
+# - name: show users all
+#   ios_command:
+#     commands:
+#       - "show users all"
+#   register: output
+# - set_fact:  
+#     sh_users: "{{ output.stdout[0] | parse_cli('/etc/ansible/ios_show_users_all_parser.yml') }}"
+# - copy: 
+#     content: "{{ sh_users| to_nice_json }}"
+#     dest: /{{dest_output_fact}}{{hostname}}_sh_users.json
 
-        
-
-    - name: show users all
-      ios_command:
-        commands:
-          - "show users all"
-        provider:
-          password: "{{password}}"
-          username: "{{username}}"
-          timeout: "{{ timeout }}"
-          host: "{{host_ip}}"
-      register: output
-    - set_fact:  
-        sh_users: "{{ output.stdout[0] | parse_cli('ios_show_users_all_parser.yml') }}"
-    - copy: 
-        content: "{{ sh_users| to_nice_json }}"
-        dest: /{{dest_output_fact}}{{hostname}}_sh_users.json
-
-
-
-
-    - name: show ssh
-      ios_command:
-        commands:
-          - "show ssh"
-        provider:
-          password: "{{password}}"
-          username: "{{username}}"
-          timeout: "{{ timeout }}"
-          host: "{{host_ip}}"
-      register: output
-    - set_fact:  
-        sh_users: "{{ output.stdout[0] | parse_cli('ios_show_ssh_parser.yml') }}"
-    - copy: 
-        content: "{{ sh_users| to_nice_json }}"
-        dest: /{{dest_output_fact}}{{hostname}}_sh_ssh.json
+# - name: show ssh
+#   ios_command:
+#     commands:
+#       - "show ssh"
+#   register: output
+# - set_fact:  
+#     sh_ssh: "{{ output.stdout[0] | parse_cli('/etc/ansible/ios_show_ssh_parser.yml') }}"
+# - copy: 
+#     content: "{{ sh_users| to_nice_json }}"
+#     dest: /{{dest_output_fact}}{{hostname}}_sh_ssh.json
 
 
 
