@@ -1,0 +1,177 @@
+# vlan
+# temporary static variable got from roles variable_inspect
+# changes or not , valid or not, main or not
+- include_vars: ../network_vlan/vars/vlan_db.yml
+- include_vars: 
+    file: ../network_vlan/vars/vlan_db_old.yml
+    name: old
+- set_fact:
+    mgmnt:
+      changes:
+        vlan_id   : true
+        vlan_name : true
+        ip        : true
+        prefix    : true
+        int_phy   : false
+        sw_port   : false
+      new_vlan     : "{{ vlan_db     | json_query('[?main==`true`].{name:name, id:vlan_id}')         | mandatory }}"
+      old_vlan     : "{{ old.vlan_db | json_query('[?main==`true`].{name:name, id:vlan_id}')         | mandatory }}"
+      int_vlan: "{{ interface   | json_query('[?main==`true`].{name:name,ip:ip,prefix:prefix}') | mandatory }}"
+      int_phy : "{{ interface   | json_query('[?main==`true`].{name:name,ip:ip,prefix:prefix}') | mandatory }}"
+      sw_port: "{{ interface | json_query('[?allowed!=[]].{name:name,mode:mode,allowed:allowed}')  }}"
+- set_fact:
+    find: "{{mgmnt.new_vlan[0].id}}"
+    it: "{{mgmnt.sw_port[0].allowed}}"
+- set_fact:
+    split1: "{{it.split(',') | json_query('[?contains(@, `-`) == `true`]')}}"
+    split2: "{{it.split(',') | json_query('[?contains(@, `-`) == `false`]')}}"
+- debug:
+    msg: "{{range(item.split('-').0|int,item.split('-').1|int+1) | list}}"
+  loop: "{{split1}}"
+  register: splits1
+- set_fact:
+    it: "{{ ([split1 | json_query('results[:].msg'),splits2] | flatten | join(',')).split(',')  | unique | sort}}"
+- set_fact:
+    exist: "{{find in it}}"
+        # expected condition:
+        #  int vlan id in allowed vlan
+        # expected return:
+        # var:
+        #   name:
+        #   allowed:
+        #   mode: 
+        #   
+    # vlan_main: "{{vlan_db | json_query('[?main==`true`].{name:name,vlan_id:vlan_id,main:main}') | mandatory }}"
+
+
+
+# check, is main INT VLAN  is the VLAN MGMNT ?
+- set_fact:
+    ansible_host: "{{ item.ip }}"
+  loop: "{{ mgmnt.int_vlan }}"
+  when: mgmnt.new_vlan[0].id in item.name  
+  failed_when: mgmnt.new_vlan[0].id not in item.name  # lanjutan kitka fail belum ada???!!
+
+# end of variable from roles variable_inspect
+
+
+
+# HAVE TO DO RE:SET VARIABLE and RECON ,if one of these varible is changed/updated
+# * USERNAME
+# * PASSWORD
+# * IP ADDRESS
+
+# TABLE OF CHAIN CONDITION
+#   _________________________________________________________
+#   | VLAN ID      |  C  |  -  |  -  |  -  |  C  |  -  |  -  |
+#   | NAME         |  v  |  C  |  -  |  -  |  v  |  C  |  -  |
+#   | IP/PRFIX(L3) |  v  |  -  |  C  |  -  |  v  |  C  |  -  | (*) 
+#   | SWPORT (L2)  |  v  |  -  |  -  |  v  |  v  |  -  |  C  |
+#   | INT_PHY(L1)  |  -  |  -  |  -  |  C  |  C  |  -  |  -  |
+#   |______________|_____|_____|_____|_____|_____|_____|_____|
+#  
+# (*) any task execute after ip/prefix changes HAVE TO DO RE:SET VARIABLE and RECON
+#     TIPS: ip/prefix changes execute at very last
+
+
+# BAGIAN MGMN VLAN,ID,NAME
+- block:
+  # temporarily change old vlan NAME, if ID is changed : *_old
+  - ios_vlan:
+      vlan_id: "{{ item.id }}"
+      name: "{{ item.name }}_old"
+      state: present
+    loop: "{{ mgmnt.old_vlan }}"
+    when: mgmnt.changes.vlan_id == true and mgmnt.changes.vlan_name == false
+    register: vlan_mgmnt_old_backup
+    failed_when: false # what condition it might fail ???!!
+
+  # set new ID and new NAME
+  - ios_vlan:
+      vlan_id: "{{ item.id }}"
+      name: "{{ item.name }}"
+      state: present
+    loop: "{{ mgmnt.new_vlan }}"
+    when: mgmnt.changes.vlan_name == true
+    register: vlan_mgmnt_changed
+
+# BAGIAN IP/PREFIX/INT_VLAN/L3
+- block:
+
+  # set IP / PREFIX , if IP/PREFIX/VLAN_ID is changed
+  - ios_l3_interface:
+      name: "{{ item.name }}"
+      state: present
+      ipv4: "{{ item.ip }}/{{ item.prefix }}"
+    loop: "{{ mgmnt.int_vlan }}"
+    when: mgmnt.changes.ip == true or mgmnt.changes.vlan_id == true
+    register: vlan_mgmnt_int_vlan_changed
+    ignore_unreachable: yes
+    ignore_errors: yes
+
+  - set_fact:
+      ansible_host: "{{ item.ip }}"
+    loop: "{{ mgmnt.int_vlan }}"
+    when: mgmnt.new_vlan[0].id in item.name  
+    delegate_to: localhost
+
+      # - ios_l3_interface:
+      #     name: "{{ item.name }}"
+      #     state: present
+      #     ipv4: "{{ item.ip }}/{{ item.prefix}}"
+      #     timeout: 10
+      #   loop: "{{ int_vlan_mgmnt }}"
+      #   register: int_vlan_mgmnt_changed
+
+  - ios_ping:
+      dest: 10.240.192.1
+    delay: "{{ delay }}"
+    retries: "{{ retries }}"
+    register: test_ping
+
+# BAGIAN INT_PHY/SWITCHPORT/TRUNK/L2/VLAN-ALLOWED-VLAN
+- block: 
+  - ios_l2_interface:
+      name                : "{{item.name}}"
+      trunk_allowed_vlans : "{{item.allowed}}"
+      state : present
+      mode  : trunk
+    loop: "{{switchport.vlan}}"
+    when: true
+- wait_for:
+    sleep: 300
+
+# - debug:
+#    msg: "mandatory: vlan mgmn must be one only"
+#   when: output.results | length != 1
+
+# - name: vlan
+#   ios_vlan:
+#     name:
+#     vlan_id:
+#     state:
+#   loop: 
+#   when:
+#   register:
+
+
+
+
+
+
+# name vlan
+
+# int vlan/ip addr 
+
+
+
+# switch trunk 
+
+
+
+# int fa1/15
+
+
+
+
+

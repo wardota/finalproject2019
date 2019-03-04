@@ -25,7 +25,7 @@ roles_list: network_dhcp
 ansible_user: cisco2
 ansible_password: cisco
 ansible_network_os: ios
-timeout: 300 
+timeout: 40 
 # ansible_become: no          # default
 # ansible_become_method: sudo # default
 # remote_port: 22             # default

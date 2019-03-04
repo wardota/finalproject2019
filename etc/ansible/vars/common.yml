@@ -1,24 +1,21 @@
 pre_tasks: 
   pingtest: on
   init: on
-roles_1st: network_inspect
-roles_2nd: network_dhcp
-roles_3rd: network_user
-roles_4th: network_line
-roles_5th: network_service
-roles_6th: network_vlan
-roles_7th: network_interface
-roles_8th: network_inspect
-roles_9th: network_crypto
-roles_10th:
+# roles_1st: network_inspect
+# roles_2nd: network_dhcp
+# roles_3rd: network_user
+# roles_4th: network_line
+# roles_5th: network_service
+# roles_6th: network_vlan
+# roles_7th: network_interface
+# roles_8th: network_inspect
+# roles_9th: network_crypto
+roles_10th: network_mgmn
 roles_11th:
 roles_12th:
 roles_13th:
 tasks:
 post_tasks:
-
- 
- 
  # # C O M M O N - H O S T - V A R S        
 
   #     hostname_a2: SW.KU3.02.ZONA-A

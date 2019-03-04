@@ -9,23 +9,14 @@
   # mgm
     - vlan_id: "1097"
       name: vlan-mgmn-dev
-      mandatory: yes
       main: yes
-      description: "vlan for management"
+      description: "vlan for management_old"
     - vlan_id: "3154"       
       name: network-chrome
       description:
     - vlan_id: "1099"
       name: scn-superVlan-Wirele
       description:
-    - vlan_id: "197"
-      name: vlan-mgmn-dev2
-      mandatory: yes
-      description: "vlan for management2"
-    - vlan_id: "198"
-      name: vlan-mgmn-dev3
-      # mandatory: yes
-      description: "vlan for management2"
   # lantai 1 dan 2   
     - vlan_id: "901"     
       name: RFID-LT1A

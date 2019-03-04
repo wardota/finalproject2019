@@ -1,0 +1,27 @@
+# for  VLAN MGMNT  
+ 
+      - set_fact:
+          vlan_mgmnt_changes_found: true
+
+
+      - include_vars: ../network_vlan/vars/vlan_db.yml
+      - set_fact:
+          vlan_mgmnt: "{{vlan_db | json_query('[?mandatory==`true`].{name:name,vlan_id:vlan_id}') | mandatory }}"
+            # - set_fact:
+            #     vlan_mgmn_count: "{{vlan_db | json_query('[?mandatory==`true`].{name:name,vlan_id:vlan_id}') |length}}"
+            # - set_fact:
+            #     vlan_mgmnt: "{{vlan_db | json_query('[?mandatory==`true`].{name:name,vlan_id:vlan_id}') | mandatory }}"
+            #   when: vlan_mgmn_count | int > 0
+            # - block:
+            #     - debug:
+            #         msg: "vlan mgmn amount is zero or exceed limit , using vlan_db_old instead"
+            #       when: vlan_mgmnt is not defined
+            #       failed_when: vlan_mgmnt is not defined
+            #   rescue:
+            #     - include_vars:
+            #         file:  ../network_vlan/vars/vlan_db_old.yml
+            #         name: vlan_db_old
+            #     - set_fact:
+            #         vlan_mgmnt: "{{vlan_db_old.vlan_db | json_query('[?mandatory==`true`].{name:name,vlan_id:vlan_id}') | mandatory }}"
+            # - debug:
+            #     var: vlan_mgmnt
