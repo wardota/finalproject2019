@@ -100,7 +100,7 @@
 
 vars:
   interface:
-    name                : "{{ item[0].name }}"
+    name                : "{{ item[0].name | replace('Vlan','vlan ')}}"
     operstatus          : "{{ item[0].oper }}"
     ipv4                : "{{ item[1].ipv4 }}"
     prefix              : "{{ item[1].prefix }}"

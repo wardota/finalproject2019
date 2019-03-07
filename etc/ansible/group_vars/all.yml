@@ -1,191 +1,24 @@
 ansible_python_interpreter: /usr/bin/env python
-# ansible_become: no
-# ansible_become_method: enable
-# ansible_become_pass: cisco
-# snmp_ro_community: public
-# snmp_rw_community: private
-# vlans:
-#   - id: 100
-#     name: Management
-#     gateway: 172.20.100.1
-#   - id: 101
-#     name: Private
-#     gateway: 172.20.101.1
-#   - id: 102
-#     name: Guest
-#     gateway: 172.20.102.1
-#   - id: 103
-#     name: Security
-#     gateway: 172.20.103.1
-
 dest_output_fact: etc/ansible/files/
-roles_list: network_dhcp
 
 #network_cli param
-ansible_user: cisco2
+ansible_user: cisco2123
 ansible_password: cisco
 ansible_network_os: ios
+ansible_ssh_user: cisco2123
+ansible_ssh_pass: cisco
 timeout: 40 
 # ansible_become: no          # default
 # ansible_become_method: sudo # default
+# ansible_become_method: enable
+# ansible_become_pass: cisco
 # remote_port: 22             # default
 # ansible_private_key_file  : null  # default
 # ansible_buffer_read_timeout: 0.1  # default
 # ansible_command_timeout: 10  # default
 # ansible_connect_timeout: 30  # default
+# snmp_ro_community: public
+# snmp_rw_community: private
 
 new_ansible_user: cuman
 new_ansible_password: password123d
-
-
-    # - network_user
-    # - network_line
-    # - network_service
-    # - network_vlan
-    # - network_interface
-set_case: deploy # deploy|monitor|maintance
-verbosity: 4
-delay: 3
-retries: 3
-# common ssh user pass
-ansible_ssh_user: cisco2
-ansible_ssh_pass: cisco
-dns1: 8.8.8.8
-dns2: 4.4.4.4
-cisco: 
-  message:
-    lvl:
-      emergency: 0      # eq with v:0
-      alert: 1          # eq with v:0
-      critical: 2       # eq with v:1
-      error: 3          # eq with v:1
-      warning: 4        # eq with v:2
-      notification: 5   # eq with v:3
-      informational: 6  # eq with v:3
-      debugging: 7      # eq with v:4
-ansible:
-  debugging:
-    verbosity:
-      no_v: 0  # eq with lvl 0 , 1
-      v: 1     # eq with lvl 2 , 3
-      vv: 2    # eq with lvl 4
-      vvv: 3   # eq with lvl 5, 6
-      vvvv: 4  # eq with lvl 7
-
-# E X P E R I M E N T A L  -  V A R S    a
-
-shows:
-  - 'show running-config'  
-  - 'show ip interface brief'
-myvlanss:
-  - vlan_id: 200
-    name: my200
-    state: present
-  - vlan_id: 201
-    name: my201-uu
-    state: present
-  - vlan_id: 202
-    name: my202-1a
-    state: present
-  - vlan_id: 203
-    name: my203-my-my
-    state: present
-  - vlan_id: 204
-    name: my-my_my
-    state: present
-  - vlan_id: 205
-    name:  m1-12mm
-    state: present
-  - vlan_id: 206
-    name:  m1-12mm-23423m
-    state: present
-  - vlan_id: 207
-    name:  m1-12mm-mndfg
-    state: present
-  - vlan_id: 208
-    name:  m1-12mm-mndfg213
-    state: absent     
-  - vlan_id: 209
-    name:  m1-12mm-mndfg123
-    state: active
-  - vlan_id: 210
-    name:  m1-12mm-mndfg123
-    state: suspend
-v901: "^901$"
-myset: "{{101 | int}}"
-url: "http://example.com/users/foo/resources/bar"
-match_port: 101
-query: "json[?access_vlan=='{{ 101 }}'].name"
-servers:
-  - name: foo
-    port: 1000
-  - name: bar
-    port: 2000
-pc:
-  - name: foo1
-    aa: 1000
-  - name: bar
-    aa: 2000
-list1:
-  - 1
-  - 2
-  - 3
-  - 4
-  - 5
-  - 8
-list2:
-  - 1
-  - 2
-  - 3
-  - 4 
-  - 5      
-  - 7
-domain_definition:
-    domain:
-        cluster:
-            - name: "cluster1"
-            - name: "cluster2"
-        server:
-            - name: "server11"
-              cluster: "cluster1"
-              port: "8080"
-            - name: "server12"
-              cluster: "cluster1"
-              port: "8090"
-            - name: "server21"
-              cluster: "cluster2"
-              port: "9080"
-            - name: "server22"
-              cluster: "cluster2"
-              port: "9090"
-        library:
-            - name: "lib1"
-              target: "cluster1"
-            - name: "lib2"
-              target: "cluster2"
-default_settings:
-  install:
-    dir: /usr/local
-    owner: root
-  config:
-    enabled: false
-mydomain: wardota.com 
-dict22: 
-  - "20"
-  - "10"
-  - "1"
-  - "901" 
-  - "902" 
-  - "916" 
-  - "1098" 
-  - "3104"  
-mylist:
-  - 1
-  - "{{ 3 == 3 }}"
-  - True
-myotherlist:
-  - False
-  - True
-listoflist: [[4, 2, null] , [null,4, 2] , [4, 2] ]
-line_raw: "{{ lookup('file', '/etc/ansible/group_vars/distribution.yml') }}"
-identitas: "{{name}}"

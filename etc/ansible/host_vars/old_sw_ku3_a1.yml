@@ -37,7 +37,7 @@ vlan:       # if vtp_mode=transparent, variable bellow will be ignored
     - scn-superVlan-Wirele    #1099
     - network-chrome          #3154
 interface:
-  - name: FastEthernet0/0    #reserveda
+  - name: FastEthernet0/0    #reserved
   - name: FastEthernet0/1    #reserved
     duplex: full
     speed: 100
@@ -153,9 +153,9 @@ interface:
   - name: vlan 1             #no-ip
     ip: no
   - name: vlan 1097          #ip
-    ip: 10.240.192.12
+    ip: 10.240.192.18
     subnet: 255.255.0.0
-    prefix: 15
+    prefix: 18
     main: yes
 services_on:
   - no service pad

@@ -1,7 +1,7 @@
 #asd
 vars:
   interface_stats:
-    name              : "{{ item[0].name }}"
+    name              : "{{ item[0].name |replace('Gi', 'GigabitEthernet') |replace('Fa', 'FastEthernet') |replace('Se', 'Serial')}}"
     switchport        : "{{ item[1].match[0] }}"
     mode_admin        : "{{ item[2].match[0] }}"
     mode_op           : "{{ item[3].match[0] }}"
@@ -23,7 +23,7 @@ keys:
     start_block: "Name.*" 
     end_block: "Appliance"
     items:
-      - "(?P<name>\\w{0,20}?((Serial|Ethernet).*[/]\\d+|Vlan\\d*))"
+      - "Name: (?P<name>\\w{0,20}?(\\w*.*[/]\\d+|Vlan\\d*))"
       - "Switchport: (.*)"
       - "Administrative Mode: (.*)"
       - "Operational Mode: (.*)"

@@ -1,7 +1,7 @@
 pre_tasks: 
   pingtest: on
   init: on
-# roles_1st: network_inspect
+roles_1st: network_inspect
 # roles_2nd: network_dhcp
 # roles_3rd: network_user
 # roles_4th: network_line
@@ -10,12 +10,94 @@ pre_tasks:
 # roles_7th: network_interface
 # roles_8th: network_inspect
 # roles_9th: network_crypto
-roles_10th: network_mgmn
-roles_11th:
+# roles_10th: network_mgmn
+roles_11th: variable_inspect
 roles_12th:
 roles_13th:
 tasks:
 post_tasks:
+set_case: deploy # deploy|monitor|maintance
+verbosity: 4
+delay: 3
+retries: 3
+dns1: 8.8.8.8
+dns2: 4.4.4.4
+cisco: 
+  message:
+    lvl:
+      emergency: 0      # eq with v:0
+      alert: 1          # eq with v:0
+      critical: 2       # eq with v:1
+      error: 3          # eq with v:1
+      warning: 4        # eq with v:2
+      notification: 5   # eq with v:3
+      informational: 6  # eq with v:3
+      debugging: 7      # eq with v:4
+ansible:
+  debugging:
+    verbosity:
+      no_v: 0  # eq with lvl 0 , 1
+      v: 1     # eq with lvl 2 , 3
+      vv: 2    # eq with lvl 4
+      vvv: 3   # eq with lvl 5, 6
+      vvvv: 4  # eq with lvl 7
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
  # # C O M M O N - H O S T - V A R S        
 
   #     hostname_a2: SW.KU3.02.ZONA-A
@@ -147,15 +229,6 @@ post_tasks:
   #       config:
   #         enabled: false
   #     mydomain: wardota.com 
-  #     dict22: 
-  #       - "20"
-  #       - "10"
-  #       - "1"
-  #       - "901" 
-  #       - "902" 
-  #       - "916" 
-  #       - "1098" 
-  #       - "3104"  
   #     mylist:
   #       - 1
   #       - "{{ 3 == 3 }}"
@@ -164,3 +237,5 @@ post_tasks:
   #       - False
   #       - True
   #     listoflist: [[4, 2, null] , [null,4, 2] , [4, 2] ]
+
+   

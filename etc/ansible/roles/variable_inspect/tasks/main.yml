@@ -1,12 +1,3218 @@
 # for  VLAN MGMNT  
  
-      - set_fact:
-          vlan_mgmnt_changes_found: true
+
+# # how to find vlan in allowed vlan of switchport trunk
+# # ex: find vlan 1097 in 1094-1098,1957,3101-3102,3104,3151-3152,3152,3154     
+# - set_fact:
+#     find: "{{mgmnt.new_vlan[0].id}}"
+#     it: "{{mgmnt.sw_port[0].allowed}}"
+# - set_fact:
+#     split1: "{{it.split(',') | json_query('[?contains(@, `-`) == `true`]')}}"
+#     split2: "{{it.split(',') | json_query('[?contains(@, `-`) == `false`]')}}"
+# - set_fact:
+#     items: "{{range(item.split('-').0|int,item.split('-').1|int+1) | list}}"
+#   loop: "{{split1}}"
+#   register: split1
+# - set_fact:
+#     it: "{{ ([split1 | json_query('results[:].ansible_facts.items'),split2] | flatten | join(',')).split(',')  | unique | sort}}"
+# - set_fact:
+#     exist: "{{find in it}}"
+
+# # how to find, int vlan is the vlan mgmnt ?
+# - set_fact:
+#     ansible_host: "{{ item.ip }}"
+#   loop: "{{ mgmnt.int_vlan }}"
+#   when: mgmnt.new_vlan[0].id in item.name  
+#   failed_when: mgmnt.new_vlan[0].id not in item.name  # lanjutan kitka fail belum ada???!!
+# # end of variable from roles variable_inspect
 
 
-      - include_vars: ../network_vlan/vars/vlan_db.yml
-      - set_fact:
-          vlan_mgmnt: "{{vlan_db | json_query('[?mandatory==`true`].{name:name,vlan_id:vlan_id}') | mandatory }}"
+- include_vars: ../network_vlan/vars/vlan_db.yml
+- include_vars: 
+    file: ../network_vlan/vars/vlan_db_old.yml
+    name: old
+- include_vars: 
+    file: ../../host_vars/old_sw_ku3_a1.yml
+    name: old2
+
+- set_fact:
+    old_vlan       : "{{ old.vlan_db    | json_query('[?main==`true`].{name:name, id:vlan_id}')    | mandatory }}"
+    new_vlan       : "{{ vlan_db        | json_query('[?main==`true`].{name:name, id:vlan_id}')    | mandatory }}"
+    run_vlan       : "{{ sh_vlan_switch | json_query('vlans[?status==`active`].{id:id,name:name,ports:ports}') }}"
+
+    new_int_vlan   : "{{ interface      | json_query('[?main==`true`].{name:name,ip:ip,prefix:prefix}') | mandatory }}"
+    old_int_vlan   : "{{ old2.interface | json_query('[?main==`true`].{name:name,ip:ip,prefix:prefix}') | mandatory }}"
+    run_int_vlan   : "{{ sh_interfaces  | to_json | from_json | json_query('[?contains(name, `vlan`)== `true` && ipv4 !=  `null` && link_protocol_state == `up`].{name:name,ip:ipv4,lps:link_protocol_state,prefix:prefix,operstatus:operstatus}')  }}"
+    
+    new_int_sw_port: "{{ interface      | json_query('[?allowed!=[]].{name:name,mode:mode,allowed:allowed}')  }}"
+    old_int_sw_port: "{{ old2.interface | json_query('[?allowed!=[]].{name:name,mode:mode,allowed:allowed}')  }}"
+    run_int_sw_port: "{{ sh_interface_switchport | json_query('[?trunk_active!=`none`].{name:name,mode_op:mode_op,mode_admin:mode_admin,trunk_enabled:trunk_enabled,trunk_active:trunk_active}   ') }}"
+
+
+
+- set_fact:
+    covi: "{{ item.id not in (old_vlan | json_query('[].id')) }}"     # i for id
+    covn: "{{ item.name not in (old_vlan | json_query('[].name')) }}" # n for name
+    ov: "{{ item }}"
+  loop:  "{{ run_vlan }}"
+  when: item.id in (old_vlan | json_query('[].id'))
+- set_fact:
+    cnvi: "{{ item.id not in (new_vlan | json_query('[].id')) }}"     # i for id
+    cnvn: "{{ item.name not in (new_vlan | json_query('[].name')) }}" # n for name
+    nv: "{{ item }}"
+  loop:  "{{ run_vlan }}"
+  when: item.id in (new_vlan | json_query('[].id'))
+
+
+- set_fact:
+    coivip  : "{{ item.ip not in (old_int_vlan | json_query('[].ip')) }}"
+    coivpfx : "{{ item.prefix not in (old_int_vlan | json_query('[].prefix')) }}"
+  loop: "{{run_int_vlan}}"
+  when: item.name in (old_int_vlan | json_query('[].name'))
+
+- set_fact:
+    cnivip  : "{{ item.ip not in (new_int_vlan | json_query('[].ip')) }}"
+    cnivpfx : "{{ item.prefix not in (new_int_vlan | json_query('[].prefix')) }}"
+  loop: "{{run_int_vlan}}"
+  when: item.name in (new_int_vlan | json_query('[].name'))
+
+
+
+
+
+
+
+
+- set_fact:
+    find: "{{mgmnt.new_vlan[0].id}}"
+    it: "{{mgmnt.sw_port[0].allowed}}"
+- set_fact:
+    split1: "{{it.split(',') | json_query('[?contains(@, `-`) == `true`]')}}"
+    split2: "{{it.split(',') | json_query('[?contains(@, `-`) == `false`]')}}"
+- set_fact:
+    items: "{{range(item.split('-').0|int,item.split('-').1|int+1) | list}}"
+  loop: "{{split1}}"
+  register: split1
+- set_fact:
+    it: "{{ ([split1 | json_query('results[:].ansible_facts.items'),split2] | flatten | join(',')).split(',')  | unique | sort}}"
+- set_fact:
+    exist: "{{find in it}}"
+
+
+- set_fact:
+    mgmnt:
+      changes:
+        vlan_id   : "{{cnvi}}" # true if vlan id is changed (is it declared or not yet) through current 
+        vlan_name : "{{cnvn}}" # true if vlan name is changed
+        ip        : "{{cnivip}}" # true if ip addr is changed
+        prefix    : "{{cnivpfx}}" # true if prefix is changed
+        int_phy   : false # true if int(Se/F/Ge/Eth) is changed
+        sw_port   : true # true if allowed vlan list is changed
+        exist     : true # # true if vlan id found in allowed vlan list of switchport trunk
+      new_vlan      : "{{new_vlan}}"
+      old_vlan      : "{{old_vlan}}"
+      int_vlan      : "{{new_int_vlan}}"
+      old_int_vlan  : "{{old_int_vlan}}"
+      int_phy       : "{{new_int_sw_port}}"
+      sw_port       : "{{old_int_sw_port}}"
+
+
+
+
+
+- wait_for:
+    sleep: 300
+- set_fact:
+
+  
+  loop:
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#  "ansible_facts": {
+#         "sh_interface_stats": [
+#             {
+#                 "name": "FastEthernet1/0",
+#                 "processor_chars_in": 0,
+#                 "processor_chars_out": 21791,
+#                 "processor_pkts_in": 0,
+#                 "processor_pkts_out": 283,
+#                 "routecache_chars_in": 0,
+#                 "routecache_chars_out": 0,
+#                 "routecache_pkts_in": 0,
+#                 "routecache_pkts_out": 0,
+#                 "total_chars_in": 0,
+#                 "total_chars_out": 21791,
+#                 "total_pkts_in": 0,
+#                 "total_pkts_out": 283
+#             },
+#             {
+#                 "name": "FastEthernet1/1",
+#                 "processor_chars_in": 0,
+#                 "processor_chars_out": 21791,
+#                 "processor_pkts_in": 0,
+#                 "processor_pkts_out": 283,
+#                 "routecache_chars_in": 0,
+#                 "routecache_chars_out": 0,
+#                 "routecache_pkts_in": 0,
+#                 "routecache_pkts_out": 0,
+#                 "total_chars_in": 0,
+#                 "total_chars_out": 21791,
+#                 "total_pkts_in": 0,
+#                 "total_pkts_out": 283
+#             },
+#             {
+#                 "name": "FastEthernet1/2",
+#                 "processor_chars_in": 0,
+#                 "processor_chars_out": 21791,
+#                 "processor_pkts_in": 0,
+#                 "processor_pkts_out": 283,
+#                 "routecache_chars_in": 0,
+#                 "routecache_chars_out": 0,
+#                 "routecache_pkts_in": 0,
+#                 "routecache_pkts_out": 0,
+#                 "total_chars_in": 0,
+#                 "total_chars_out": 21791,
+#                 "total_pkts_in": 0,
+#                 "total_pkts_out": 283
+#             },
+#             {
+#                 "name": "FastEthernet1/3",
+#                 "processor_chars_in": 0,
+#                 "processor_chars_out": 21791,
+#                 "processor_pkts_in": 0,
+#                 "processor_pkts_out": 283,
+#                 "routecache_chars_in": 0,
+#                 "routecache_chars_out": 0,
+#                 "routecache_pkts_in": 0,
+#                 "routecache_pkts_out": 0,
+#                 "total_chars_in": 0,
+#                 "total_chars_out": 21791,
+#                 "total_pkts_in": 0,
+#                 "total_pkts_out": 283
+#             },
+#             {
+#                 "name": "FastEthernet1/4",
+#                 "processor_chars_in": 0,
+#                 "processor_chars_out": 21791,
+#                 "processor_pkts_in": 0,
+#                 "processor_pkts_out": 283,
+#                 "routecache_chars_in": 0,
+#                 "routecache_chars_out": 0,
+#                 "routecache_pkts_in": 0,
+#                 "routecache_pkts_out": 0,
+#                 "total_chars_in": 0,
+#                 "total_chars_out": 21791,
+#                 "total_pkts_in": 0,
+#                 "total_pkts_out": 283
+#             },
+#             {
+#                 "name": "FastEthernet1/5",
+#                 "processor_chars_in": 0,
+#                 "processor_chars_out": 21791,
+#                 "processor_pkts_in": 0,
+#                 "processor_pkts_out": 283,
+#                 "routecache_chars_in": 0,
+#                 "routecache_chars_out": 0,
+#                 "routecache_pkts_in": 0,
+#                 "routecache_pkts_out": 0,
+#                 "total_chars_in": 0,
+#                 "total_chars_out": 21791,
+#                 "total_pkts_in": 0,
+#                 "total_pkts_out": 283
+#             },
+#             {
+#                 "name": "FastEthernet1/6",
+#                 "processor_chars_in": 0,
+#                 "processor_chars_out": 21791,
+#                 "processor_pkts_in": 0,
+#                 "processor_pkts_out": 283,
+#                 "routecache_chars_in": 0,
+#                 "routecache_chars_out": 0,
+#                 "routecache_pkts_in": 0,
+#                 "routecache_pkts_out": 0,
+#                 "total_chars_in": 0,
+#                 "total_chars_out": 21791,
+#                 "total_pkts_in": 0,
+#                 "total_pkts_out": 283
+#             },
+#             {
+#                 "name": "FastEthernet1/7",
+#                 "processor_chars_in": 0,
+#                 "processor_chars_out": 21791,
+#                 "processor_pkts_in": 0,
+#                 "processor_pkts_out": 283,
+#                 "routecache_chars_in": 0,
+#                 "routecache_chars_out": 0,
+#                 "routecache_pkts_in": 0,
+#                 "routecache_pkts_out": 0,
+#                 "total_chars_in": 0,
+#                 "total_chars_out": 21791,
+#                 "total_pkts_in": 0,
+#                 "total_pkts_out": 283
+#             },
+#             {
+#                 "name": "FastEthernet1/8",
+#                 "processor_chars_in": 0,
+#                 "processor_chars_out": 21791,
+#                 "processor_pkts_in": 0,
+#                 "processor_pkts_out": 283,
+#                 "routecache_chars_in": 0,
+#                 "routecache_chars_out": 0,
+#                 "routecache_pkts_in": 0,
+#                 "routecache_pkts_out": 0,
+#                 "total_chars_in": 0,
+#                 "total_chars_out": 21791,
+#                 "total_pkts_in": 0,
+#                 "total_pkts_out": 283
+#             },
+#             {
+#                 "name": "FastEthernet1/9",
+#                 "processor_chars_in": 0,
+#                 "processor_chars_out": 21791,
+#                 "processor_pkts_in": 0,
+#                 "processor_pkts_out": 283,
+#                 "routecache_chars_in": 0,
+#                 "routecache_chars_out": 0,
+#                 "routecache_pkts_in": 0,
+#                 "routecache_pkts_out": 0,
+#                 "total_chars_in": 0,
+#                 "total_chars_out": 21791,
+#                 "total_pkts_in": 0,
+#                 "total_pkts_out": 283
+#             },
+#             {
+#                 "name": "FastEthernet1/10",
+#                 "processor_chars_in": 0,
+#                 "processor_chars_out": 21791,
+#                 "processor_pkts_in": 0,
+#                 "processor_pkts_out": 283,
+#                 "routecache_chars_in": 0,
+#                 "routecache_chars_out": 0,
+#                 "routecache_pkts_in": 0,
+#                 "routecache_pkts_out": 0,
+#                 "total_chars_in": 0,
+#                 "total_chars_out": 21791,
+#                 "total_pkts_in": 0,
+#                 "total_pkts_out": 283
+#             },
+#             {
+#                 "name": "FastEthernet1/11",
+#                 "processor_chars_in": 0,
+#                 "processor_chars_out": 21791,
+#                 "processor_pkts_in": 0,
+#                 "processor_pkts_out": 283,
+#                 "routecache_chars_in": 0,
+#                 "routecache_chars_out": 0,
+#                 "routecache_pkts_in": 0,
+#                 "routecache_pkts_out": 0,
+#                 "total_chars_in": 0,
+#                 "total_chars_out": 21791,
+#                 "total_pkts_in": 0,
+#                 "total_pkts_out": 283
+#             },
+#             {
+#                 "name": "FastEthernet1/12",
+#                 "processor_chars_in": 0,
+#                 "processor_chars_out": 21791,
+#                 "processor_pkts_in": 0,
+#                 "processor_pkts_out": 283,
+#                 "routecache_chars_in": 0,
+#                 "routecache_chars_out": 0,
+#                 "routecache_pkts_in": 0,
+#                 "routecache_pkts_out": 0,
+#                 "total_chars_in": 0,
+#                 "total_chars_out": 21791,
+#                 "total_pkts_in": 0,
+#                 "total_pkts_out": 283
+#             },
+#             {
+#                 "name": "FastEthernet1/13",
+#                 "processor_chars_in": 0,
+#                 "processor_chars_out": 21791,
+#                 "processor_pkts_in": 0,
+#                 "processor_pkts_out": 283,
+#                 "routecache_chars_in": 0,
+#                 "routecache_chars_out": 0,
+#                 "routecache_pkts_in": 0,
+#                 "routecache_pkts_out": 0,
+#                 "total_chars_in": 0,
+#                 "total_chars_out": 21791,
+#                 "total_pkts_in": 0,
+#                 "total_pkts_out": 283
+#             },
+#             {
+#                 "name": "FastEthernet1/14",
+#                 "processor_chars_in": 0,
+#                 "processor_chars_out": 21791,
+#                 "processor_pkts_in": 0,
+#                 "processor_pkts_out": 283,
+#                 "routecache_chars_in": 0,
+#                 "routecache_chars_out": 0,
+#                 "routecache_pkts_in": 0,
+#                 "routecache_pkts_out": 0,
+#                 "total_chars_in": 0,
+#                 "total_chars_out": 21791,
+#                 "total_pkts_in": 0,
+#                 "total_pkts_out": 283
+#             },
+#             {
+#                 "name": "FastEthernet1/15",
+#                 "processor_chars_in": 9301392,
+#                 "processor_chars_out": 22780080,
+#                 "processor_pkts_in": 145506,
+#                 "processor_pkts_out": 341795,
+#                 "routecache_chars_in": 0,
+#                 "routecache_chars_out": 0,
+#                 "routecache_pkts_in": 0,
+#                 "routecache_pkts_out": 0,
+#                 "total_chars_in": 9301392,
+#                 "total_chars_out": 22780080,
+#                 "total_pkts_in": 145506,
+#                 "total_pkts_out": 341795
+#             },
+#             {
+#                 "name": "Vlan1097",
+#                 "processor_chars_in": 4037983,
+#                 "processor_chars_out": 6232579,
+#                 "processor_pkts_in": 59224,
+#                 "processor_pkts_out": 47111,
+#                 "routecache_chars_in": 0,
+#                 "routecache_chars_out": 0,
+#                 "routecache_pkts_in": 0,
+#                 "routecache_pkts_out": 0,
+#                 "total_chars_in": 4037983,
+#                 "total_chars_out": 6232579,
+#                 "total_pkts_in": 59224,
+#                 "total_pkts_out": 47111
+#             }
+#         ],
+#         "sh_interface_status": {
+#             "interface_status": [
+#                 {
+#                     "deplex": "auto",
+#                     "port": "Fa1/0",
+#                     "speed": "auto",
+#                     "status": "notconnect",
+#                     "type": "10/100BaseTX",
+#                     "vlan": 1
+#                 },
+#                 {
+#                     "deplex": "auto",
+#                     "port": "Fa1/1",
+#                     "speed": "auto",
+#                     "status": "notconnect",
+#                     "type": "10/100BaseTX",
+#                     "vlan": 1
+#                 },
+#                 {
+#                     "deplex": "auto",
+#                     "port": "Fa1/2",
+#                     "speed": "auto",
+#                     "status": "notconnect",
+#                     "type": "10/100BaseTX",
+#                     "vlan": 1
+#                 },
+#                 {
+#                     "deplex": "auto",
+#                     "port": "Fa1/3",
+#                     "speed": "auto",
+#                     "status": "notconnect",
+#                     "type": "10/100BaseTX",
+#                     "vlan": 1
+#                 },
+#                 {
+#                     "deplex": "auto",
+#                     "port": "Fa1/4",
+#                     "speed": "auto",
+#                     "status": "notconnect",
+#                     "type": "10/100BaseTX",
+#                     "vlan": 1
+#                 },
+#                 {
+#                     "deplex": "auto",
+#                     "port": "Fa1/5",
+#                     "speed": "auto",
+#                     "status": "notconnect",
+#                     "type": "10/100BaseTX",
+#                     "vlan": 1
+#                 },
+#                 {
+#                     "deplex": "auto",
+#                     "port": "Fa1/6",
+#                     "speed": "auto",
+#                     "status": "notconnect",
+#                     "type": "10/100BaseTX",
+#                     "vlan": 1
+#                 },
+#                 {
+#                     "deplex": "auto",
+#                     "port": "Fa1/7",
+#                     "speed": "auto",
+#                     "status": "notconnect",
+#                     "type": "10/100BaseTX",
+#                     "vlan": 1
+#                 },
+#                 {
+#                     "deplex": "auto",
+#                     "port": "Fa1/8",
+#                     "speed": "auto",
+#                     "status": "notconnect",
+#                     "type": "10/100BaseTX",
+#                     "vlan": 1
+#                 },
+#                 {
+#                     "deplex": "auto",
+#                     "port": "Fa1/9",
+#                     "speed": "auto",
+#                     "status": "notconnect",
+#                     "type": "10/100BaseTX",
+#                     "vlan": 1
+#                 },
+#                 {
+#                     "deplex": "auto",
+#                     "port": "Fa1/10",
+#                     "speed": "auto",
+#                     "status": "notconnect",
+#                     "type": "10/100BaseTX",
+#                     "vlan": 1
+#                 },
+#                 {
+#                     "deplex": "auto",
+#                     "port": "Fa1/11",
+#                     "speed": "auto",
+#                     "status": "notconnect",
+#                     "type": "10/100BaseTX",
+#                     "vlan": 1
+#                 },
+#                 {
+#                     "deplex": "auto",
+#                     "port": "Fa1/12",
+#                     "speed": "auto",
+#                     "status": "notconnect",
+#                     "type": "10/100BaseTX",
+#                     "vlan": 1
+#                 },
+#                 {
+#                     "deplex": "auto",
+#                     "port": "Fa1/13",
+#                     "speed": "auto",
+#                     "status": "notconnect",
+#                     "type": "10/100BaseTX",
+#                     "vlan": 1
+#                 },
+#                 {
+#                     "deplex": "auto",
+#                     "port": "Fa1/14",
+#                     "speed": "auto",
+#                     "status": "notconnect",
+#                     "type": "10/100BaseTX",
+#                     "vlan": 1
+#                 },
+#                 {
+#                     "deplex": "full",
+#                     "port": "Fa1/15",
+#                     "speed": 100,
+#                     "status": "connected",
+#                     "type": "10/100BaseTX",
+#                     "vlan": "trunk"
+#                 }
+#             ]
+#         },
+#         "sh_interface_summary": {
+#             "interface_summary": [
+#                 {
+#                     "ihq": 0,
+#                     "iqd": 0,
+#                     "name": "FastEthernet0/0",
+#                     "ohq": 0,
+#                     "oqd": 0,
+#                     "rxbs": 0,
+#                     "rxps": 0,
+#                     "trtl": 0,
+#                     "txbs": 0,
+#                     "txps": 0
+#                 },
+#                 {
+#                     "ihq": 0,
+#                     "iqd": 0,
+#                     "name": "Serial0/0",
+#                     "ohq": 0,
+#                     "oqd": 0,
+#                     "rxbs": 0,
+#                     "rxps": 0,
+#                     "trtl": 0,
+#                     "txbs": 0,
+#                     "txps": 0
+#                 },
+#                 {
+#                     "ihq": 0,
+#                     "iqd": 0,
+#                     "name": "FastEthernet0/1",
+#                     "ohq": 0,
+#                     "oqd": 0,
+#                     "rxbs": 0,
+#                     "rxps": 0,
+#                     "trtl": 0,
+#                     "txbs": 0,
+#                     "txps": 0
+#                 },
+#                 {
+#                     "ihq": 0,
+#                     "iqd": 0,
+#                     "name": "Serial0/1",
+#                     "ohq": 0,
+#                     "oqd": 0,
+#                     "rxbs": 0,
+#                     "rxps": 0,
+#                     "trtl": 0,
+#                     "txbs": 0,
+#                     "txps": 0
+#                 },
+#                 {
+#                     "ihq": 0,
+#                     "iqd": 0,
+#                     "name": "Serial0/2",
+#                     "ohq": 0,
+#                     "oqd": 0,
+#                     "rxbs": 0,
+#                     "rxps": 0,
+#                     "trtl": 0,
+#                     "txbs": 0,
+#                     "txps": 0
+#                 },
+#                 {
+#                     "ihq": 0,
+#                     "iqd": 0,
+#                     "name": "Serial0/3",
+#                     "ohq": 0,
+#                     "oqd": 0,
+#                     "rxbs": 0,
+#                     "rxps": 0,
+#                     "trtl": 0,
+#                     "txbs": 0,
+#                     "txps": 0
+#                 },
+#                 {
+#                     "ihq": 0,
+#                     "iqd": 0,
+#                     "name": "FastEthernet1/0",
+#                     "ohq": 0,
+#                     "oqd": 0,
+#                     "rxbs": 0,
+#                     "rxps": 0,
+#                     "trtl": 0,
+#                     "txbs": 0,
+#                     "txps": 0
+#                 },
+#                 {
+#                     "ihq": 0,
+#                     "iqd": 0,
+#                     "name": "FastEthernet1/1",
+#                     "ohq": 0,
+#                     "oqd": 0,
+#                     "rxbs": 0,
+#                     "rxps": 0,
+#                     "trtl": 0,
+#                     "txbs": 0,
+#                     "txps": 0
+#                 },
+#                 {
+#                     "ihq": 0,
+#                     "iqd": 0,
+#                     "name": "FastEthernet1/2",
+#                     "ohq": 0,
+#                     "oqd": 0,
+#                     "rxbs": 0,
+#                     "rxps": 0,
+#                     "trtl": 0,
+#                     "txbs": 0,
+#                     "txps": 0
+#                 },
+#                 {
+#                     "ihq": 0,
+#                     "iqd": 0,
+#                     "name": "FastEthernet1/3",
+#                     "ohq": 0,
+#                     "oqd": 0,
+#                     "rxbs": 0,
+#                     "rxps": 0,
+#                     "trtl": 0,
+#                     "txbs": 0,
+#                     "txps": 0
+#                 },
+#                 {
+#                     "ihq": 0,
+#                     "iqd": 0,
+#                     "name": "FastEthernet1/4",
+#                     "ohq": 0,
+#                     "oqd": 0,
+#                     "rxbs": 0,
+#                     "rxps": 0,
+#                     "trtl": 0,
+#                     "txbs": 0,
+#                     "txps": 0
+#                 },
+#                 {
+#                     "ihq": 0,
+#                     "iqd": 0,
+#                     "name": "FastEthernet1/5",
+#                     "ohq": 0,
+#                     "oqd": 0,
+#                     "rxbs": 0,
+#                     "rxps": 0,
+#                     "trtl": 0,
+#                     "txbs": 0,
+#                     "txps": 0
+#                 },
+#                 {
+#                     "ihq": 0,
+#                     "iqd": 0,
+#                     "name": "FastEthernet1/6",
+#                     "ohq": 0,
+#                     "oqd": 0,
+#                     "rxbs": 0,
+#                     "rxps": 0,
+#                     "trtl": 0,
+#                     "txbs": 0,
+#                     "txps": 0
+#                 },
+#                 {
+#                     "ihq": 0,
+#                     "iqd": 0,
+#                     "name": "FastEthernet1/7",
+#                     "ohq": 0,
+#                     "oqd": 0,
+#                     "rxbs": 0,
+#                     "rxps": 0,
+#                     "trtl": 0,
+#                     "txbs": 0,
+#                     "txps": 0
+#                 },
+#                 {
+#                     "ihq": 0,
+#                     "iqd": 0,
+#                     "name": "FastEthernet1/8",
+#                     "ohq": 0,
+#                     "oqd": 0,
+#                     "rxbs": 0,
+#                     "rxps": 0,
+#                     "trtl": 0,
+#                     "txbs": 0,
+#                     "txps": 0
+#                 },
+#                 {
+#                     "ihq": 0,
+#                     "iqd": 0,
+#                     "name": "FastEthernet1/9",
+#                     "ohq": 0,
+#                     "oqd": 0,
+#                     "rxbs": 0,
+#                     "rxps": 0,
+#                     "trtl": 0,
+#                     "txbs": 0,
+#                     "txps": 0
+#                 },
+#                 {
+#                     "ihq": 0,
+#                     "iqd": 0,
+#                     "name": "FastEthernet1/10",
+#                     "ohq": 0,
+#                     "oqd": 0,
+#                     "rxbs": 0,
+#                     "rxps": 0,
+#                     "trtl": 0,
+#                     "txbs": 0,
+#                     "txps": 0
+#                 },
+#                 {
+#                     "ihq": 0,
+#                     "iqd": 0,
+#                     "name": "FastEthernet1/11",
+#                     "ohq": 0,
+#                     "oqd": 0,
+#                     "rxbs": 0,
+#                     "rxps": 0,
+#                     "trtl": 0,
+#                     "txbs": 0,
+#                     "txps": 0
+#                 },
+#                 {
+#                     "ihq": 0,
+#                     "iqd": 0,
+#                     "name": "FastEthernet1/12",
+#                     "ohq": 0,
+#                     "oqd": 0,
+#                     "rxbs": 0,
+#                     "rxps": 0,
+#                     "trtl": 0,
+#                     "txbs": 0,
+#                     "txps": 0
+#                 },
+#                 {
+#                     "ihq": 0,
+#                     "iqd": 0,
+#                     "name": "FastEthernet1/13",
+#                     "ohq": 0,
+#                     "oqd": 0,
+#                     "rxbs": 0,
+#                     "rxps": 0,
+#                     "trtl": 0,
+#                     "txbs": 0,
+#                     "txps": 0
+#                 },
+#                 {
+#                     "ihq": 0,
+#                     "iqd": 0,
+#                     "name": "FastEthernet1/14",
+#                     "ohq": 0,
+#                     "oqd": 0,
+#                     "rxbs": 0,
+#                     "rxps": 0,
+#                     "trtl": 0,
+#                     "txbs": 0,
+#                     "txps": 0
+#                 },
+#                 {
+#                     "ihq": 0,
+#                     "iqd": 0,
+#                     "name": "FastEthernet1/15",
+#                     "ohq": 0,
+#                     "oqd": 0,
+#                     "rxbs": 0,
+#                     "rxps": 0,
+#                     "trtl": 0,
+#                     "txbs": 0,
+#                     "txps": 0
+#                 },
+#                 {
+#                     "ihq": 0,
+#                     "iqd": 0,
+#                     "name": "Vlan1",
+#                     "ohq": 0,
+#                     "oqd": 0,
+#                     "rxbs": 0,
+#                     "rxps": 0,
+#                     "trtl": 0,
+#                     "txbs": 0,
+#                     "txps": 0
+#                 },
+#                 {
+#                     "ihq": 0,
+#                     "iqd": 0,
+#                     "name": "Vlan1097",
+#                     "ohq": 3,
+#                     "oqd": 2,
+#                     "rxbs": 0,
+#                     "rxps": 0,
+#                     "trtl": 0,
+#                     "txbs": 0,
+#                     "txps": 2
+#                 }
+#             ]
+#         },
+#         "sh_interface_switching": [
+#             {
+#                 "cachemiss_charin": "-",
+#                 "cachemiss_charout": "-",
+#                 "cachemiss_pktin": 0,
+#                 "cachemiss_pktout": "-",
+#                 "fast_charin": 0,
+#                 "fast_charout": 0,
+#                 "fast_pktin": 0,
+#                 "fast_pktout": 0,
+#                 "name": "FastEthernet1/0",
+#                 "process_charin": 0,
+#                 "process_charout": 21791,
+#                 "process_pktin": 0,
+#                 "process_pktout": 283,
+#                 "protocol": "DEC MOP             ",
+#                 "sse_charin": 0,
+#                 "sse_charout": 0,
+#                 "sse_pktin": 0,
+#                 "sse_pktout": 0
+#             },
+#             {
+#                 "cachemiss_charin": "-",
+#                 "cachemiss_charout": "-",
+#                 "cachemiss_pktin": 0,
+#                 "cachemiss_pktout": "-",
+#                 "fast_charin": 0,
+#                 "fast_charout": 0,
+#                 "fast_pktin": 0,
+#                 "fast_pktout": 0,
+#                 "name": "FastEthernet1/1",
+#                 "process_charin": 0,
+#                 "process_charout": 21791,
+#                 "process_pktin": 0,
+#                 "process_pktout": 283,
+#                 "protocol": "DEC MOP             ",
+#                 "sse_charin": 0,
+#                 "sse_charout": 0,
+#                 "sse_pktin": 0,
+#                 "sse_pktout": 0
+#             },
+#             {
+#                 "cachemiss_charin": "-",
+#                 "cachemiss_charout": "-",
+#                 "cachemiss_pktin": 0,
+#                 "cachemiss_pktout": "-",
+#                 "fast_charin": 0,
+#                 "fast_charout": 0,
+#                 "fast_pktin": 0,
+#                 "fast_pktout": 0,
+#                 "name": "FastEthernet1/2",
+#                 "process_charin": 0,
+#                 "process_charout": 21791,
+#                 "process_pktin": 0,
+#                 "process_pktout": 283,
+#                 "protocol": "DEC MOP             ",
+#                 "sse_charin": 0,
+#                 "sse_charout": 0,
+#                 "sse_pktin": 0,
+#                 "sse_pktout": 0
+#             },
+#             {
+#                 "cachemiss_charin": "-",
+#                 "cachemiss_charout": "-",
+#                 "cachemiss_pktin": 0,
+#                 "cachemiss_pktout": "-",
+#                 "fast_charin": 0,
+#                 "fast_charout": 0,
+#                 "fast_pktin": 0,
+#                 "fast_pktout": 0,
+#                 "name": "FastEthernet1/3",
+#                 "process_charin": 0,
+#                 "process_charout": 21791,
+#                 "process_pktin": 0,
+#                 "process_pktout": 283,
+#                 "protocol": "DEC MOP             ",
+#                 "sse_charin": 0,
+#                 "sse_charout": 0,
+#                 "sse_pktin": 0,
+#                 "sse_pktout": 0
+#             },
+#             {
+#                 "cachemiss_charin": "-",
+#                 "cachemiss_charout": "-",
+#                 "cachemiss_pktin": 0,
+#                 "cachemiss_pktout": "-",
+#                 "fast_charin": 0,
+#                 "fast_charout": 0,
+#                 "fast_pktin": 0,
+#                 "fast_pktout": 0,
+#                 "name": "FastEthernet1/4",
+#                 "process_charin": 0,
+#                 "process_charout": 21791,
+#                 "process_pktin": 0,
+#                 "process_pktout": 283,
+#                 "protocol": "DEC MOP             ",
+#                 "sse_charin": 0,
+#                 "sse_charout": 0,
+#                 "sse_pktin": 0,
+#                 "sse_pktout": 0
+#             },
+#             {
+#                 "cachemiss_charin": "-",
+#                 "cachemiss_charout": "-",
+#                 "cachemiss_pktin": 0,
+#                 "cachemiss_pktout": "-",
+#                 "fast_charin": 0,
+#                 "fast_charout": 0,
+#                 "fast_pktin": 0,
+#                 "fast_pktout": 0,
+#                 "name": "FastEthernet1/5",
+#                 "process_charin": 0,
+#                 "process_charout": 21791,
+#                 "process_pktin": 0,
+#                 "process_pktout": 283,
+#                 "protocol": "DEC MOP             ",
+#                 "sse_charin": 0,
+#                 "sse_charout": 0,
+#                 "sse_pktin": 0,
+#                 "sse_pktout": 0
+#             },
+#             {
+#                 "cachemiss_charin": "-",
+#                 "cachemiss_charout": "-",
+#                 "cachemiss_pktin": 0,
+#                 "cachemiss_pktout": "-",
+#                 "fast_charin": 0,
+#                 "fast_charout": 0,
+#                 "fast_pktin": 0,
+#                 "fast_pktout": 0,
+#                 "name": "FastEthernet1/6",
+#                 "process_charin": 0,
+#                 "process_charout": 21791,
+#                 "process_pktin": 0,
+#                 "process_pktout": 283,
+#                 "protocol": "DEC MOP             ",
+#                 "sse_charin": 0,
+#                 "sse_charout": 0,
+#                 "sse_pktin": 0,
+#                 "sse_pktout": 0
+#             },
+#             {
+#                 "cachemiss_charin": "-",
+#                 "cachemiss_charout": "-",
+#                 "cachemiss_pktin": 0,
+#                 "cachemiss_pktout": "-",
+#                 "fast_charin": 0,
+#                 "fast_charout": 0,
+#                 "fast_pktin": 0,
+#                 "fast_pktout": 0,
+#                 "name": "FastEthernet1/7",
+#                 "process_charin": 0,
+#                 "process_charout": 21791,
+#                 "process_pktin": 0,
+#                 "process_pktout": 283,
+#                 "protocol": "DEC MOP             ",
+#                 "sse_charin": 0,
+#                 "sse_charout": 0,
+#                 "sse_pktin": 0,
+#                 "sse_pktout": 0
+#             },
+#             {
+#                 "cachemiss_charin": "-",
+#                 "cachemiss_charout": "-",
+#                 "cachemiss_pktin": 0,
+#                 "cachemiss_pktout": "-",
+#                 "fast_charin": 0,
+#                 "fast_charout": 0,
+#                 "fast_pktin": 0,
+#                 "fast_pktout": 0,
+#                 "name": "FastEthernet1/8",
+#                 "process_charin": 0,
+#                 "process_charout": 21791,
+#                 "process_pktin": 0,
+#                 "process_pktout": 283,
+#                 "protocol": "DEC MOP             ",
+#                 "sse_charin": 0,
+#                 "sse_charout": 0,
+#                 "sse_pktin": 0,
+#                 "sse_pktout": 0
+#             },
+#             {
+#                 "cachemiss_charin": "-",
+#                 "cachemiss_charout": "-",
+#                 "cachemiss_pktin": 0,
+#                 "cachemiss_pktout": "-",
+#                 "fast_charin": 0,
+#                 "fast_charout": 0,
+#                 "fast_pktin": 0,
+#                 "fast_pktout": 0,
+#                 "name": "FastEthernet1/9",
+#                 "process_charin": 0,
+#                 "process_charout": 21791,
+#                 "process_pktin": 0,
+#                 "process_pktout": 283,
+#                 "protocol": "DEC MOP             ",
+#                 "sse_charin": 0,
+#                 "sse_charout": 0,
+#                 "sse_pktin": 0,
+#                 "sse_pktout": 0
+#             },
+#             {
+#                 "cachemiss_charin": "-",
+#                 "cachemiss_charout": "-",
+#                 "cachemiss_pktin": 0,
+#                 "cachemiss_pktout": "-",
+#                 "fast_charin": 0,
+#                 "fast_charout": 0,
+#                 "fast_pktin": 0,
+#                 "fast_pktout": 0,
+#                 "name": "FastEthernet1/10",
+#                 "process_charin": 0,
+#                 "process_charout": 21791,
+#                 "process_pktin": 0,
+#                 "process_pktout": 283,
+#                 "protocol": "DEC MOP             ",
+#                 "sse_charin": 0,
+#                 "sse_charout": 0,
+#                 "sse_pktin": 0,
+#                 "sse_pktout": 0
+#             },
+#             {
+#                 "cachemiss_charin": "-",
+#                 "cachemiss_charout": "-",
+#                 "cachemiss_pktin": 0,
+#                 "cachemiss_pktout": "-",
+#                 "fast_charin": 0,
+#                 "fast_charout": 0,
+#                 "fast_pktin": 0,
+#                 "fast_pktout": 0,
+#                 "name": "FastEthernet1/11",
+#                 "process_charin": 0,
+#                 "process_charout": 21791,
+#                 "process_pktin": 0,
+#                 "process_pktout": 283,
+#                 "protocol": "DEC MOP             ",
+#                 "sse_charin": 0,
+#                 "sse_charout": 0,
+#                 "sse_pktin": 0,
+#                 "sse_pktout": 0
+#             },
+#             {
+#                 "cachemiss_charin": "-",
+#                 "cachemiss_charout": "-",
+#                 "cachemiss_pktin": 0,
+#                 "cachemiss_pktout": "-",
+#                 "fast_charin": 0,
+#                 "fast_charout": 0,
+#                 "fast_pktin": 0,
+#                 "fast_pktout": 0,
+#                 "name": "FastEthernet1/12",
+#                 "process_charin": 0,
+#                 "process_charout": 21791,
+#                 "process_pktin": 0,
+#                 "process_pktout": 283,
+#                 "protocol": "DEC MOP             ",
+#                 "sse_charin": 0,
+#                 "sse_charout": 0,
+#                 "sse_pktin": 0,
+#                 "sse_pktout": 0
+#             },
+#             {
+#                 "cachemiss_charin": "-",
+#                 "cachemiss_charout": "-",
+#                 "cachemiss_pktin": 0,
+#                 "cachemiss_pktout": "-",
+#                 "fast_charin": 0,
+#                 "fast_charout": 0,
+#                 "fast_pktin": 0,
+#                 "fast_pktout": 0,
+#                 "name": "FastEthernet1/13",
+#                 "process_charin": 0,
+#                 "process_charout": 21791,
+#                 "process_pktin": 0,
+#                 "process_pktout": 283,
+#                 "protocol": "DEC MOP             ",
+#                 "sse_charin": 0,
+#                 "sse_charout": 0,
+#                 "sse_pktin": 0,
+#                 "sse_pktout": 0
+#             },
+#             {
+#                 "cachemiss_charin": "-",
+#                 "cachemiss_charout": "-",
+#                 "cachemiss_pktin": 0,
+#                 "cachemiss_pktout": "-",
+#                 "fast_charin": 0,
+#                 "fast_charout": 0,
+#                 "fast_pktin": 0,
+#                 "fast_pktout": 0,
+#                 "name": "FastEthernet1/14",
+#                 "process_charin": 0,
+#                 "process_charout": 21791,
+#                 "process_pktin": 0,
+#                 "process_pktout": 283,
+#                 "protocol": "DEC MOP             ",
+#                 "sse_charin": 0,
+#                 "sse_charout": 0,
+#                 "sse_pktin": 0,
+#                 "sse_pktout": 0
+#             },
+#             {
+#                 "cachemiss_charin": "-",
+#                 "cachemiss_charout": "-",
+#                 "cachemiss_pktin": 0,
+#                 "cachemiss_pktout": "-",
+#                 "fast_charin": 0,
+#                 "fast_charout": 0,
+#                 "fast_pktin": 0,
+#                 "fast_pktout": 0,
+#                 "name": "FastEthernet1/15",
+#                 "process_charin": 0,
+#                 "process_charout": 21791,
+#                 "process_pktin": 0,
+#                 "process_pktout": 283,
+#                 "protocol": "DEC MOP             ",
+#                 "sse_charin": 0,
+#                 "sse_charout": 0,
+#                 "sse_pktin": 0,
+#                 "sse_pktout": 0
+#             },
+#             {
+#                 "cachemiss_charin": "-",
+#                 "cachemiss_charout": "-",
+#                 "cachemiss_pktin": 0,
+#                 "cachemiss_pktout": "-",
+#                 "fast_charin": 0,
+#                 "fast_charout": 0,
+#                 "fast_pktin": 0,
+#                 "fast_pktout": 0,
+#                 "name": "FastEthernet1/15",
+#                 "process_charin": 0,
+#                 "process_charout": 21791,
+#                 "process_pktin": 0,
+#                 "process_pktout": 283,
+#                 "protocol": "DEC MOP             ",
+#                 "sse_charin": 0,
+#                 "sse_charout": 0,
+#                 "sse_pktin": 0,
+#                 "sse_pktout": 0
+#             },
+#             {
+#                 "cachemiss_charin": "-",
+#                 "cachemiss_charout": "-",
+#                 "cachemiss_pktin": 0,
+#                 "cachemiss_pktout": "-",
+#                 "fast_charin": 0,
+#                 "fast_charout": 0,
+#                 "fast_pktin": 0,
+#                 "fast_pktout": 0,
+#                 "name": "FastEthernet1/15",
+#                 "process_charin": 0,
+#                 "process_charout": 21791,
+#                 "process_pktin": 0,
+#                 "process_pktout": 283,
+#                 "protocol": "DEC MOP             ",
+#                 "sse_charin": 0,
+#                 "sse_charout": 0,
+#                 "sse_pktin": 0,
+#                 "sse_pktout": 0
+#             },
+#             {
+#                 "cachemiss_charin": "-",
+#                 "cachemiss_charout": "-",
+#                 "cachemiss_pktin": 0,
+#                 "cachemiss_pktout": "-",
+#                 "fast_charin": 0,
+#                 "fast_charout": 0,
+#                 "fast_pktin": 0,
+#                 "fast_pktout": 0,
+#                 "name": "FastEthernet1/15",
+#                 "process_charin": 0,
+#                 "process_charout": 21791,
+#                 "process_pktin": 0,
+#                 "process_pktout": 283,
+#                 "protocol": "DEC MOP             ",
+#                 "sse_charin": 0,
+#                 "sse_charout": 0,
+#                 "sse_pktin": 0,
+#                 "sse_pktout": 0
+#             },
+#             {
+#                 "cachemiss_charin": "-",
+#                 "cachemiss_charout": "-",
+#                 "cachemiss_pktin": 0,
+#                 "cachemiss_pktout": "-",
+#                 "fast_charin": 0,
+#                 "fast_charout": 0,
+#                 "fast_pktin": 0,
+#                 "fast_pktout": 0,
+#                 "name": "Vlan1097",
+#                 "process_charin": 3966940,
+#                 "process_charout": 6265186,
+#                 "process_pktin": 58321,
+#                 "process_pktout": 46964,
+#                 "protocol": "IP                  ",
+#                 "sse_charin": 0,
+#                 "sse_charout": 0,
+#                 "sse_pktin": 0,
+#                 "sse_pktout": 0
+#             },
+#             {
+#                 "cachemiss_charin": "-",
+#                 "cachemiss_charout": "-",
+#                 "cachemiss_pktin": 0,
+#                 "cachemiss_pktout": "-",
+#                 "fast_charin": 0,
+#                 "fast_charout": 0,
+#                 "fast_pktin": 0,
+#                 "fast_pktout": 0,
+#                 "name": "Vlan1097",
+#                 "process_charin": 3966940,
+#                 "process_charout": 6265186,
+#                 "process_pktin": 58321,
+#                 "process_pktout": 46964,
+#                 "protocol": "IP                  ",
+#                 "sse_charin": 0,
+#                 "sse_charout": 0,
+#                 "sse_pktin": 0,
+#                 "sse_pktout": 0
+#             },
+#             {
+#                 "cachemiss_charin": "-",
+#                 "cachemiss_charout": "-",
+#                 "cachemiss_pktin": 0,
+#                 "cachemiss_pktout": "-",
+#                 "fast_charin": 0,
+#                 "fast_charout": 0,
+#                 "fast_pktin": 0,
+#                 "fast_pktout": 0,
+#                 "name": "Vlan1097",
+#                 "process_charin": 3966940,
+#                 "process_charout": 6265186,
+#                 "process_pktin": 58321,
+#                 "process_pktout": 46964,
+#                 "protocol": "IP                  ",
+#                 "sse_charin": 0,
+#                 "sse_charout": 0,
+#                 "sse_pktin": 0,
+#                 "sse_pktout": 0
+#             },
+#             {
+#                 "cachemiss_charin": "-",
+#                 "cachemiss_charout": "-",
+#                 "cachemiss_pktin": 0,
+#                 "cachemiss_pktout": "-",
+#                 "fast_charin": 0,
+#                 "fast_charout": 0,
+#                 "fast_pktin": 0,
+#                 "fast_pktout": 0,
+#                 "name": "Vlan1097",
+#                 "process_charin": 3966940,
+#                 "process_charout": 6265186,
+#                 "process_pktin": 58321,
+#                 "process_pktout": 46964,
+#                 "protocol": "IP                  ",
+#                 "sse_charin": 0,
+#                 "sse_charout": 0,
+#                 "sse_pktin": 0,
+#                 "sse_pktout": 0
+#             }
+#         ],
+#         "sh_interface_switchport": [
+#             {
+#                 "access_vlan": "1 (default)",
+#                 "appliance_trust": "none",
+#                 "mode_admin": "static access",
+#                 "mode_op": "down",
+#                 "name": null,
+#                 "prio_ovrd_vlan_tag": "FALSE",
+#                 "prio_untag_frame": 0,
+#                 "protected": "false",
+#                 "switchport": "Enabled",
+#                 "trunk_active": "none",
+#                 "trunk_admin_encap": "dot1q",
+#                 "trunk_enabled": "ALL",
+#                 "trunk_native": "1 (default)",
+#                 "trunk_nego": "Disabled",
+#                 "voice_vlan": "none "
+#             },
+#             {
+#                 "access_vlan": "1 (default)",
+#                 "appliance_trust": "none",
+#                 "mode_admin": "static access",
+#                 "mode_op": "down",
+#                 "name": null,
+#                 "prio_ovrd_vlan_tag": "FALSE",
+#                 "prio_untag_frame": 0,
+#                 "protected": "false",
+#                 "switchport": "Enabled",
+#                 "trunk_active": "none",
+#                 "trunk_admin_encap": "dot1q",
+#                 "trunk_enabled": "ALL",
+#                 "trunk_native": "1 (default)",
+#                 "trunk_nego": "Disabled",
+#                 "voice_vlan": "none "
+#             },
+#             {
+#                 "access_vlan": "1 (default)",
+#                 "appliance_trust": "none",
+#                 "mode_admin": "static access",
+#                 "mode_op": "down",
+#                 "name": null,
+#                 "prio_ovrd_vlan_tag": "FALSE",
+#                 "prio_untag_frame": 0,
+#                 "protected": "false",
+#                 "switchport": "Enabled",
+#                 "trunk_active": "none",
+#                 "trunk_admin_encap": "dot1q",
+#                 "trunk_enabled": "ALL",
+#                 "trunk_native": "1 (default)",
+#                 "trunk_nego": "Disabled",
+#                 "voice_vlan": "none "
+#             },
+#             {
+#                 "access_vlan": "1 (default)",
+#                 "appliance_trust": "none",
+#                 "mode_admin": "static access",
+#                 "mode_op": "down",
+#                 "name": null,
+#                 "prio_ovrd_vlan_tag": "FALSE",
+#                 "prio_untag_frame": 0,
+#                 "protected": "false",
+#                 "switchport": "Enabled",
+#                 "trunk_active": "none",
+#                 "trunk_admin_encap": "dot1q",
+#                 "trunk_enabled": "ALL",
+#                 "trunk_native": "1 (default)",
+#                 "trunk_nego": "Disabled",
+#                 "voice_vlan": "none "
+#             },
+#             {
+#                 "access_vlan": "1 (default)",
+#                 "appliance_trust": "none",
+#                 "mode_admin": "static access",
+#                 "mode_op": "down",
+#                 "name": null,
+#                 "prio_ovrd_vlan_tag": "FALSE",
+#                 "prio_untag_frame": 0,
+#                 "protected": "false",
+#                 "switchport": "Enabled",
+#                 "trunk_active": "none",
+#                 "trunk_admin_encap": "dot1q",
+#                 "trunk_enabled": "ALL",
+#                 "trunk_native": "1 (default)",
+#                 "trunk_nego": "Disabled",
+#                 "voice_vlan": "none "
+#             },
+#             {
+#                 "access_vlan": "1 (default)",
+#                 "appliance_trust": "none",
+#                 "mode_admin": "static access",
+#                 "mode_op": "down",
+#                 "name": null,
+#                 "prio_ovrd_vlan_tag": "FALSE",
+#                 "prio_untag_frame": 0,
+#                 "protected": "false",
+#                 "switchport": "Enabled",
+#                 "trunk_active": "none",
+#                 "trunk_admin_encap": "dot1q",
+#                 "trunk_enabled": "ALL",
+#                 "trunk_native": "1 (default)",
+#                 "trunk_nego": "Disabled",
+#                 "voice_vlan": "none "
+#             },
+#             {
+#                 "access_vlan": "1 (default)",
+#                 "appliance_trust": "none",
+#                 "mode_admin": "static access",
+#                 "mode_op": "down",
+#                 "name": null,
+#                 "prio_ovrd_vlan_tag": "FALSE",
+#                 "prio_untag_frame": 0,
+#                 "protected": "false",
+#                 "switchport": "Enabled",
+#                 "trunk_active": "none",
+#                 "trunk_admin_encap": "dot1q",
+#                 "trunk_enabled": "ALL",
+#                 "trunk_native": "1 (default)",
+#                 "trunk_nego": "Disabled",
+#                 "voice_vlan": "none "
+#             },
+#             {
+#                 "access_vlan": "0 ((Inactive))",
+#                 "appliance_trust": "none",
+#                 "mode_admin": "trunk",
+#                 "mode_op": "down",
+#                 "name": null,
+#                 "prio_ovrd_vlan_tag": "FALSE",
+#                 "prio_untag_frame": 0,
+#                 "protected": "false",
+#                 "switchport": "Enabled",
+#                 "trunk_active": "none",
+#                 "trunk_admin_encap": "dot1q",
+#                 "trunk_enabled": "1,2,10,20,908,1002-1005,1097",
+#                 "trunk_native": "1 (default)",
+#                 "trunk_nego": "Disabled",
+#                 "voice_vlan": "none "
+#             },
+#             {
+#                 "access_vlan": "1 (default)",
+#                 "appliance_trust": "none",
+#                 "mode_admin": "static access",
+#                 "mode_op": "down",
+#                 "name": null,
+#                 "prio_ovrd_vlan_tag": "FALSE",
+#                 "prio_untag_frame": 0,
+#                 "protected": "false",
+#                 "switchport": "Enabled",
+#                 "trunk_active": "none",
+#                 "trunk_admin_encap": "dot1q",
+#                 "trunk_enabled": "ALL",
+#                 "trunk_native": "1 (default)",
+#                 "trunk_nego": "Disabled",
+#                 "voice_vlan": "none "
+#             },
+#             {
+#                 "access_vlan": "1 (default)",
+#                 "appliance_trust": "none",
+#                 "mode_admin": "static access",
+#                 "mode_op": "down",
+#                 "name": null,
+#                 "prio_ovrd_vlan_tag": "FALSE",
+#                 "prio_untag_frame": 0,
+#                 "protected": "false",
+#                 "switchport": "Enabled",
+#                 "trunk_active": "none",
+#                 "trunk_admin_encap": "dot1q",
+#                 "trunk_enabled": "ALL",
+#                 "trunk_native": "1 (default)",
+#                 "trunk_nego": "Disabled",
+#                 "voice_vlan": "none "
+#             },
+#             {
+#                 "access_vlan": "1 (default)",
+#                 "appliance_trust": "none",
+#                 "mode_admin": "static access",
+#                 "mode_op": "down",
+#                 "name": null,
+#                 "prio_ovrd_vlan_tag": "FALSE",
+#                 "prio_untag_frame": 0,
+#                 "protected": "false",
+#                 "switchport": "Enabled",
+#                 "trunk_active": "none",
+#                 "trunk_admin_encap": "dot1q",
+#                 "trunk_enabled": "ALL",
+#                 "trunk_native": "1 (default)",
+#                 "trunk_nego": "Disabled",
+#                 "voice_vlan": "none "
+#             },
+#             {
+#                 "access_vlan": "1 (default)",
+#                 "appliance_trust": "none",
+#                 "mode_admin": "static access",
+#                 "mode_op": "down",
+#                 "name": null,
+#                 "prio_ovrd_vlan_tag": "FALSE",
+#                 "prio_untag_frame": 0,
+#                 "protected": "false",
+#                 "switchport": "Enabled",
+#                 "trunk_active": "none",
+#                 "trunk_admin_encap": "dot1q",
+#                 "trunk_enabled": "ALL",
+#                 "trunk_native": "1 (default)",
+#                 "trunk_nego": "Disabled",
+#                 "voice_vlan": "none "
+#             },
+#             {
+#                 "access_vlan": "1 (default)",
+#                 "appliance_trust": "none",
+#                 "mode_admin": "static access",
+#                 "mode_op": "down",
+#                 "name": null,
+#                 "prio_ovrd_vlan_tag": "FALSE",
+#                 "prio_untag_frame": 0,
+#                 "protected": "false",
+#                 "switchport": "Enabled",
+#                 "trunk_active": "none",
+#                 "trunk_admin_encap": "dot1q",
+#                 "trunk_enabled": "ALL",
+#                 "trunk_native": "1 (default)",
+#                 "trunk_nego": "Disabled",
+#                 "voice_vlan": "none "
+#             },
+#             {
+#                 "access_vlan": "1 (default)",
+#                 "appliance_trust": "none",
+#                 "mode_admin": "static access",
+#                 "mode_op": "down",
+#                 "name": null,
+#                 "prio_ovrd_vlan_tag": "FALSE",
+#                 "prio_untag_frame": 0,
+#                 "protected": "false",
+#                 "switchport": "Enabled",
+#                 "trunk_active": "none",
+#                 "trunk_admin_encap": "dot1q",
+#                 "trunk_enabled": "ALL",
+#                 "trunk_native": "1 (default)",
+#                 "trunk_nego": "Disabled",
+#                 "voice_vlan": "none "
+#             },
+#             {
+#                 "access_vlan": "0 ((Inactive))",
+#                 "appliance_trust": "none",
+#                 "mode_admin": "trunk",
+#                 "mode_op": "down",
+#                 "name": null,
+#                 "prio_ovrd_vlan_tag": "FALSE",
+#                 "prio_untag_frame": 0,
+#                 "protected": "false",
+#                 "switchport": "Enabled",
+#                 "trunk_active": "none",
+#                 "trunk_admin_encap": "dot1q",
+#                 "trunk_enabled": "ALL",
+#                 "trunk_native": "1 (default)",
+#                 "trunk_nego": "Disabled",
+#                 "voice_vlan": "none "
+#             },
+#             {
+#                 "access_vlan": "0 ((Inactive))",
+#                 "appliance_trust": "none",
+#                 "mode_admin": "trunk",
+#                 "mode_op": "trunk",
+#                 "name": null,
+#                 "prio_ovrd_vlan_tag": "FALSE",
+#                 "prio_untag_frame": 0,
+#                 "protected": "false",
+#                 "switchport": "Enabled",
+#                 "trunk_active": [
+#                     1,
+#                     10,
+#                     20,
+#                     30,
+#                     908,
+#                     1097
+#                 ],
+#                 "trunk_admin_encap": "dot1q",
+#                 "trunk_enabled": "ALL",
+#                 "trunk_native": "1 (default)",
+#                 "trunk_nego": "Disabled",
+#                 "voice_vlan": "none "
+#             }
+#         ],
+#         "sh_interfaces": [
+#             {
+#                 "admin_state": null,
+#                 "bandwidth": "10000 Kbit/sec",
+#                 "description": "*** Unused for Layer2 EtherSwitch ***",
+#                 "duplex": "Half-duplex",
+#                 "input_rate_bits": 0,
+#                 "input_rate_packets": 0,
+#                 "ipv4": null,
+#                 "link_protocol_state": "down",
+#                 "linktype": null,
+#                 "mac": "c207.2688.0000",
+#                 "mediatype": null,
+#                 "mtu": 1500,
+#                 "name": "FastEthernet0/0",
+#                 "operstatus": "administratively down",
+#                 "output_rate_bits": 0,
+#                 "output_rate_packets": 0,
+#                 "port_mode": null,
+#                 "prefix": null,
+#                 "speed": "10Mb",
+#                 "type": "Gt96k FE"
+#             },
+#             {
+#                 "admin_state": null,
+#                 "bandwidth": "1544 Kbit/sec",
+#                 "description": null,
+#                 "duplex": null,
+#                 "input_rate_bits": 0,
+#                 "input_rate_packets": 0,
+#                 "ipv4": null,
+#                 "link_protocol_state": "down",
+#                 "linktype": null,
+#                 "mac": null,
+#                 "mediatype": null,
+#                 "mtu": 1500,
+#                 "name": "Serial0/0",
+#                 "operstatus": "administratively down",
+#                 "output_rate_bits": 0,
+#                 "output_rate_packets": 0,
+#                 "port_mode": null,
+#                 "prefix": null,
+#                 "speed": null,
+#                 "type": "GT96K Serial"
+#             },
+#             {
+#                 "admin_state": null,
+#                 "bandwidth": "10000 Kbit/sec",
+#                 "description": "*** Unused for Layer2 EtherSwitch ***",
+#                 "duplex": "Half-duplex",
+#                 "input_rate_bits": 0,
+#                 "input_rate_packets": 0,
+#                 "ipv4": null,
+#                 "link_protocol_state": "down",
+#                 "linktype": null,
+#                 "mac": "c207.2688.0001",
+#                 "mediatype": null,
+#                 "mtu": 1500,
+#                 "name": "FastEthernet0/1",
+#                 "operstatus": "administratively down",
+#                 "output_rate_bits": 0,
+#                 "output_rate_packets": 0,
+#                 "port_mode": null,
+#                 "prefix": null,
+#                 "speed": "10Mb",
+#                 "type": "Gt96k FE"
+#             },
+#             {
+#                 "admin_state": null,
+#                 "bandwidth": "1544 Kbit/sec",
+#                 "description": null,
+#                 "duplex": null,
+#                 "input_rate_bits": 0,
+#                 "input_rate_packets": 0,
+#                 "ipv4": null,
+#                 "link_protocol_state": "down",
+#                 "linktype": null,
+#                 "mac": null,
+#                 "mediatype": null,
+#                 "mtu": 1500,
+#                 "name": "Serial0/1",
+#                 "operstatus": "administratively down",
+#                 "output_rate_bits": 0,
+#                 "output_rate_packets": 0,
+#                 "port_mode": null,
+#                 "prefix": null,
+#                 "speed": null,
+#                 "type": "GT96K Serial"
+#             },
+#             {
+#                 "admin_state": null,
+#                 "bandwidth": "1544 Kbit/sec",
+#                 "description": null,
+#                 "duplex": null,
+#                 "input_rate_bits": 0,
+#                 "input_rate_packets": 0,
+#                 "ipv4": null,
+#                 "link_protocol_state": "down",
+#                 "linktype": null,
+#                 "mac": null,
+#                 "mediatype": null,
+#                 "mtu": 1500,
+#                 "name": "Serial0/2",
+#                 "operstatus": "administratively down",
+#                 "output_rate_bits": 0,
+#                 "output_rate_packets": 0,
+#                 "port_mode": null,
+#                 "prefix": null,
+#                 "speed": null,
+#                 "type": "GT96K Serial"
+#             },
+#             {
+#                 "admin_state": null,
+#                 "bandwidth": "1544 Kbit/sec",
+#                 "description": null,
+#                 "duplex": null,
+#                 "input_rate_bits": 0,
+#                 "input_rate_packets": 0,
+#                 "ipv4": null,
+#                 "link_protocol_state": "down",
+#                 "linktype": null,
+#                 "mac": null,
+#                 "mediatype": null,
+#                 "mtu": 1500,
+#                 "name": "Serial0/3",
+#                 "operstatus": "administratively down",
+#                 "output_rate_bits": 0,
+#                 "output_rate_packets": 0,
+#                 "port_mode": null,
+#                 "prefix": null,
+#                 "speed": null,
+#                 "type": "GT96K Serial"
+#             },
+#             {
+#                 "admin_state": null,
+#                 "bandwidth": "100000 Kbit/sec",
+#                 "description": null,
+#                 "duplex": "Auto-duplex",
+#                 "input_rate_bits": 0,
+#                 "input_rate_packets": 0,
+#                 "ipv4": null,
+#                 "link_protocol_state": "down",
+#                 "linktype": null,
+#                 "mac": "c207.464c.f100",
+#                 "mediatype": null,
+#                 "mtu": 1500,
+#                 "name": "FastEthernet1/0",
+#                 "operstatus": "up",
+#                 "output_rate_bits": 0,
+#                 "output_rate_packets": 0,
+#                 "port_mode": null,
+#                 "prefix": null,
+#                 "speed": "Auto-speed",
+#                 "type": "Fast Ethernet"
+#             },
+#             {
+#                 "admin_state": null,
+#                 "bandwidth": "100000 Kbit/sec",
+#                 "description": null,
+#                 "duplex": "Auto-duplex",
+#                 "input_rate_bits": 0,
+#                 "input_rate_packets": 0,
+#                 "ipv4": null,
+#                 "link_protocol_state": "down",
+#                 "linktype": null,
+#                 "mac": "c207.464c.f101",
+#                 "mediatype": null,
+#                 "mtu": 1500,
+#                 "name": "FastEthernet1/1",
+#                 "operstatus": "up",
+#                 "output_rate_bits": 0,
+#                 "output_rate_packets": 0,
+#                 "port_mode": null,
+#                 "prefix": null,
+#                 "speed": "Auto-speed",
+#                 "type": "Fast Ethernet"
+#             },
+#             {
+#                 "admin_state": null,
+#                 "bandwidth": "100000 Kbit/sec",
+#                 "description": null,
+#                 "duplex": "Auto-duplex",
+#                 "input_rate_bits": 0,
+#                 "input_rate_packets": 0,
+#                 "ipv4": null,
+#                 "link_protocol_state": "down",
+#                 "linktype": null,
+#                 "mac": "c207.464c.f102",
+#                 "mediatype": null,
+#                 "mtu": 1500,
+#                 "name": "FastEthernet1/2",
+#                 "operstatus": "up",
+#                 "output_rate_bits": 0,
+#                 "output_rate_packets": 0,
+#                 "port_mode": null,
+#                 "prefix": null,
+#                 "speed": "Auto-speed",
+#                 "type": "Fast Ethernet"
+#             },
+#             {
+#                 "admin_state": null,
+#                 "bandwidth": "100000 Kbit/sec",
+#                 "description": null,
+#                 "duplex": "Auto-duplex",
+#                 "input_rate_bits": 0,
+#                 "input_rate_packets": 0,
+#                 "ipv4": null,
+#                 "link_protocol_state": "down",
+#                 "linktype": null,
+#                 "mac": "c207.464c.f103",
+#                 "mediatype": null,
+#                 "mtu": 1500,
+#                 "name": "FastEthernet1/3",
+#                 "operstatus": "up",
+#                 "output_rate_bits": 0,
+#                 "output_rate_packets": 0,
+#                 "port_mode": null,
+#                 "prefix": null,
+#                 "speed": "Auto-speed",
+#                 "type": "Fast Ethernet"
+#             },
+#             {
+#                 "admin_state": null,
+#                 "bandwidth": "100000 Kbit/sec",
+#                 "description": null,
+#                 "duplex": "Auto-duplex",
+#                 "input_rate_bits": 0,
+#                 "input_rate_packets": 0,
+#                 "ipv4": null,
+#                 "link_protocol_state": "down",
+#                 "linktype": null,
+#                 "mac": "c207.464c.f104",
+#                 "mediatype": null,
+#                 "mtu": 1500,
+#                 "name": "FastEthernet1/4",
+#                 "operstatus": "up",
+#                 "output_rate_bits": 0,
+#                 "output_rate_packets": 0,
+#                 "port_mode": null,
+#                 "prefix": null,
+#                 "speed": "Auto-speed",
+#                 "type": "Fast Ethernet"
+#             },
+#             {
+#                 "admin_state": null,
+#                 "bandwidth": "100000 Kbit/sec",
+#                 "description": null,
+#                 "duplex": "Auto-duplex",
+#                 "input_rate_bits": 0,
+#                 "input_rate_packets": 0,
+#                 "ipv4": null,
+#                 "link_protocol_state": "down",
+#                 "linktype": null,
+#                 "mac": "c207.464c.f105",
+#                 "mediatype": null,
+#                 "mtu": 1500,
+#                 "name": "FastEthernet1/5",
+#                 "operstatus": "up",
+#                 "output_rate_bits": 0,
+#                 "output_rate_packets": 0,
+#                 "port_mode": null,
+#                 "prefix": null,
+#                 "speed": "Auto-speed",
+#                 "type": "Fast Ethernet"
+#             },
+#             {
+#                 "admin_state": null,
+#                 "bandwidth": "100000 Kbit/sec",
+#                 "description": null,
+#                 "duplex": "Auto-duplex",
+#                 "input_rate_bits": 0,
+#                 "input_rate_packets": 0,
+#                 "ipv4": null,
+#                 "link_protocol_state": "down",
+#                 "linktype": null,
+#                 "mac": "c207.464c.f106",
+#                 "mediatype": null,
+#                 "mtu": 1500,
+#                 "name": "FastEthernet1/6",
+#                 "operstatus": "up",
+#                 "output_rate_bits": 0,
+#                 "output_rate_packets": 0,
+#                 "port_mode": null,
+#                 "prefix": null,
+#                 "speed": "Auto-speed",
+#                 "type": "Fast Ethernet"
+#             },
+#             {
+#                 "admin_state": null,
+#                 "bandwidth": "100000 Kbit/sec",
+#                 "description": null,
+#                 "duplex": "Auto-duplex",
+#                 "input_rate_bits": 0,
+#                 "input_rate_packets": 0,
+#                 "ipv4": null,
+#                 "link_protocol_state": "down",
+#                 "linktype": null,
+#                 "mac": "c207.464c.f107",
+#                 "mediatype": null,
+#                 "mtu": 1500,
+#                 "name": "FastEthernet1/7",
+#                 "operstatus": "up",
+#                 "output_rate_bits": 0,
+#                 "output_rate_packets": 0,
+#                 "port_mode": null,
+#                 "prefix": null,
+#                 "speed": "Auto-speed",
+#                 "type": "Fast Ethernet"
+#             },
+#             {
+#                 "admin_state": null,
+#                 "bandwidth": "100000 Kbit/sec",
+#                 "description": null,
+#                 "duplex": "Auto-duplex",
+#                 "input_rate_bits": 0,
+#                 "input_rate_packets": 0,
+#                 "ipv4": null,
+#                 "link_protocol_state": "down",
+#                 "linktype": null,
+#                 "mac": "c207.464c.f108",
+#                 "mediatype": null,
+#                 "mtu": 1500,
+#                 "name": "FastEthernet1/8",
+#                 "operstatus": "up",
+#                 "output_rate_bits": 0,
+#                 "output_rate_packets": 0,
+#                 "port_mode": null,
+#                 "prefix": null,
+#                 "speed": "Auto-speed",
+#                 "type": "Fast Ethernet"
+#             },
+#             {
+#                 "admin_state": null,
+#                 "bandwidth": "100000 Kbit/sec",
+#                 "description": null,
+#                 "duplex": "Auto-duplex",
+#                 "input_rate_bits": 0,
+#                 "input_rate_packets": 0,
+#                 "ipv4": null,
+#                 "link_protocol_state": "down",
+#                 "linktype": null,
+#                 "mac": "c207.464c.f109",
+#                 "mediatype": null,
+#                 "mtu": 1500,
+#                 "name": "FastEthernet1/9",
+#                 "operstatus": "up",
+#                 "output_rate_bits": 0,
+#                 "output_rate_packets": 0,
+#                 "port_mode": null,
+#                 "prefix": null,
+#                 "speed": "Auto-speed",
+#                 "type": "Fast Ethernet"
+#             },
+#             {
+#                 "admin_state": null,
+#                 "bandwidth": "100000 Kbit/sec",
+#                 "description": null,
+#                 "duplex": "Auto-duplex",
+#                 "input_rate_bits": 0,
+#                 "input_rate_packets": 0,
+#                 "ipv4": null,
+#                 "link_protocol_state": "down",
+#                 "linktype": null,
+#                 "mac": "c207.464c.f10a",
+#                 "mediatype": null,
+#                 "mtu": 1500,
+#                 "name": "FastEthernet1/10",
+#                 "operstatus": "up",
+#                 "output_rate_bits": 0,
+#                 "output_rate_packets": 0,
+#                 "port_mode": null,
+#                 "prefix": null,
+#                 "speed": "Auto-speed",
+#                 "type": "Fast Ethernet"
+#             },
+#             {
+#                 "admin_state": null,
+#                 "bandwidth": "100000 Kbit/sec",
+#                 "description": null,
+#                 "duplex": "Auto-duplex",
+#                 "input_rate_bits": 0,
+#                 "input_rate_packets": 0,
+#                 "ipv4": null,
+#                 "link_protocol_state": "down",
+#                 "linktype": null,
+#                 "mac": "c207.464c.f10b",
+#                 "mediatype": null,
+#                 "mtu": 1500,
+#                 "name": "FastEthernet1/11",
+#                 "operstatus": "up",
+#                 "output_rate_bits": 0,
+#                 "output_rate_packets": 0,
+#                 "port_mode": null,
+#                 "prefix": null,
+#                 "speed": "Auto-speed",
+#                 "type": "Fast Ethernet"
+#             },
+#             {
+#                 "admin_state": null,
+#                 "bandwidth": "100000 Kbit/sec",
+#                 "description": null,
+#                 "duplex": "Auto-duplex",
+#                 "input_rate_bits": 0,
+#                 "input_rate_packets": 0,
+#                 "ipv4": null,
+#                 "link_protocol_state": "down",
+#                 "linktype": null,
+#                 "mac": "c207.464c.f10c",
+#                 "mediatype": null,
+#                 "mtu": 1500,
+#                 "name": "FastEthernet1/12",
+#                 "operstatus": "up",
+#                 "output_rate_bits": 0,
+#                 "output_rate_packets": 0,
+#                 "port_mode": null,
+#                 "prefix": null,
+#                 "speed": "Auto-speed",
+#                 "type": "Fast Ethernet"
+#             },
+#             {
+#                 "admin_state": null,
+#                 "bandwidth": "100000 Kbit/sec",
+#                 "description": null,
+#                 "duplex": "Auto-duplex",
+#                 "input_rate_bits": 0,
+#                 "input_rate_packets": 0,
+#                 "ipv4": null,
+#                 "link_protocol_state": "down",
+#                 "linktype": null,
+#                 "mac": "c207.464c.f10d",
+#                 "mediatype": null,
+#                 "mtu": 1500,
+#                 "name": "FastEthernet1/13",
+#                 "operstatus": "up",
+#                 "output_rate_bits": 0,
+#                 "output_rate_packets": 0,
+#                 "port_mode": null,
+#                 "prefix": null,
+#                 "speed": "Auto-speed",
+#                 "type": "Fast Ethernet"
+#             },
+#             {
+#                 "admin_state": null,
+#                 "bandwidth": "100000 Kbit/sec",
+#                 "description": null,
+#                 "duplex": "Auto-duplex",
+#                 "input_rate_bits": 0,
+#                 "input_rate_packets": 0,
+#                 "ipv4": null,
+#                 "link_protocol_state": "down",
+#                 "linktype": null,
+#                 "mac": "c207.464c.f10e",
+#                 "mediatype": null,
+#                 "mtu": 1500,
+#                 "name": "FastEthernet1/14",
+#                 "operstatus": "up",
+#                 "output_rate_bits": 0,
+#                 "output_rate_packets": 0,
+#                 "port_mode": null,
+#                 "prefix": null,
+#                 "speed": "Auto-speed",
+#                 "type": "Fast Ethernet"
+#             },
+#             {
+#                 "admin_state": null,
+#                 "bandwidth": "100000 Kbit/sec",
+#                 "description": null,
+#                 "duplex": "Full-duplex",
+#                 "input_rate_bits": 0,
+#                 "input_rate_packets": 0,
+#                 "ipv4": null,
+#                 "link_protocol_state": "up",
+#                 "linktype": null,
+#                 "mac": "c207.464c.f10f",
+#                 "mediatype": null,
+#                 "mtu": 1500,
+#                 "name": "FastEthernet1/15",
+#                 "operstatus": "up",
+#                 "output_rate_bits": 0,
+#                 "output_rate_packets": 0,
+#                 "port_mode": null,
+#                 "prefix": null,
+#                 "speed": "100Mb",
+#                 "type": "Fast Ethernet"
+#             },
+#             {
+#                 "admin_state": null,
+#                 "bandwidth": "100000 Kbit/sec",
+#                 "description": null,
+#                 "duplex": null,
+#                 "input_rate_bits": 0,
+#                 "input_rate_packets": 0,
+#                 "ipv4": null,
+#                 "link_protocol_state": "down",
+#                 "linktype": null,
+#                 "mac": "c207.2688.0000",
+#                 "mediatype": null,
+#                 "mtu": 1500,
+#                 "name": "Vlan1",
+#                 "operstatus": "administratively down",
+#                 "output_rate_bits": 0,
+#                 "output_rate_packets": 0,
+#                 "port_mode": null,
+#                 "prefix": null,
+#                 "speed": null,
+#                 "type": "EtherSVI"
+#             },
+#             {
+#                 "admin_state": null,
+#                 "bandwidth": "100000 Kbit/sec",
+#                 "description": null,
+#                 "duplex": null,
+#                 "input_rate_bits": 3000,
+#                 "input_rate_packets": 3,
+#                 "ipv4": "10.240.192.10",
+#                 "link_protocol_state": "up",
+#                 "linktype": null,
+#                 "mac": "c207.2688.0000",
+#                 "mediatype": null,
+#                 "mtu": 1500,
+#                 "name": "Vlan1097",
+#                 "operstatus": "up",
+#                 "output_rate_bits": 2000,
+#                 "output_rate_packets": 2,
+#                 "port_mode": null,
+#                 "prefix": 16,
+#                 "speed": null,
+#                 "type": "EtherSVI"
+#             }
+#         ],
+#         "sh_line": {
+#             "interface_status": [
+#                 {
+#                     "a": "-",
+#                     "acc1": "-",
+#                     "accO": "-",
+#                     "int": "-",
+#                     "modem": "-",
+#                     "noise": 0,
+#                     "overruns": "0/0",
+#                     "roty": "-",
+#                     "tty": 0,
+#                     "txrx": "n/a",
+#                     "typ": "CTY",
+#                     "uses": 0
+#                 },
+#                 {
+#                     "a": "-",
+#                     "acc1": "-",
+#                     "accO": "-",
+#                     "int": "-",
+#                     "modem": "-",
+#                     "noise": 0,
+#                     "overruns": "0/0",
+#                     "roty": "-",
+#                     "tty": 97,
+#                     "txrx": "n/a9n/a6n/a0n/a0n/a/n/a9n/a6n/a0n/a0n/a",
+#                     "typ": "AUX",
+#                     "uses": 0
+#                 },
+#                 {
+#                     "a": "-",
+#                     "acc1": "-",
+#                     "accO": "-",
+#                     "int": "-",
+#                     "modem": "-",
+#                     "noise": 0,
+#                     "overruns": "0/0",
+#                     "roty": "-",
+#                     "tty": 98,
+#                     "txrx": "n/a",
+#                     "typ": "VTY",
+#                     "uses": 179
+#                 },
+#                 {
+#                     "a": "-",
+#                     "acc1": "-",
+#                     "accO": "-",
+#                     "int": "-",
+#                     "modem": "-",
+#                     "noise": 0,
+#                     "overruns": "0/0",
+#                     "roty": "-",
+#                     "tty": 99,
+#                     "txrx": "n/a",
+#                     "typ": "VTY",
+#                     "uses": 46
+#                 },
+#                 {
+#                     "a": "-",
+#                     "acc1": "-",
+#                     "accO": "-",
+#                     "int": "-",
+#                     "modem": "-",
+#                     "noise": 0,
+#                     "overruns": "0/0",
+#                     "roty": "-",
+#                     "tty": 100,
+#                     "txrx": "n/a",
+#                     "typ": "VTY",
+#                     "uses": 1
+#                 },
+#                 {
+#                     "a": "-",
+#                     "acc1": "-",
+#                     "accO": "-",
+#                     "int": "-",
+#                     "modem": "-",
+#                     "noise": 0,
+#                     "overruns": "0/0",
+#                     "roty": "-",
+#                     "tty": 101,
+#                     "txrx": "n/a",
+#                     "typ": "VTY",
+#                     "uses": 0
+#                 },
+#                 {
+#                     "a": "-",
+#                     "acc1": "-",
+#                     "accO": "-",
+#                     "int": "-",
+#                     "modem": "-",
+#                     "noise": 0,
+#                     "overruns": "0/0",
+#                     "roty": "-",
+#                     "tty": 102,
+#                     "txrx": "n/a",
+#                     "typ": "VTY",
+#                     "uses": 0
+#                 }
+#             ]
+#         },
+#         "sh_run_config": [
+#             {
+#                 "clock_timezone": null,
+#                 "cur_conf_size": 3685,
+#                 "ena_secret_fingerprint": null,
+#                 "ena_secret_value": null,
+#                 "hostname": "ESW6",
+#                 "ip_def_gw": null,
+#                 "ip_dhcp_snooping_vlan": null,
+#                 "ip_http_server_stats": "no",
+#                 "ip_https_server_stats": "no",
+#                 "log_facility": null,
+#                 "log_hostname": null,
+#                 "log_severity_lvl": null,
+#                 "ntp_server_addr": null,
+#                 "pass_encrypt_set": "no ",
+#                 "snmp_srv_community": null,
+#                 "snmp_srv_contact": null,
+#                 "snmp_srv_location": null,
+#                 "spanning_tree_extend": null,
+#                 "spanning_tree_mode": null,
+#                 "spanning_tree_vlan": null,
+#                 "spanning_vlan_status": null,
+#                 "timestamps_debug": "datetime msec",
+#                 "timestamps_log": "datetime msec",
+#                 "version": 12.4,
+#                 "viap": null,
+#                 "vtp_mode": "transparent"
+#             }
+#         ],
+#         "sh_run_config_dhcp": [],
+#         "sh_run_config_dhcp_ex": [],
+#         "sh_run_config_interface": [
+#             {
+#                 "desc": "*** Unused for Layer2 EtherSwitch ***",
+#                 "duplex": "auto",
+#                 "int_name": "FastEthernet0/0",
+#                 "ip_addr": null,
+#                 "ip_route_cache_stats": " no ",
+#                 "ip_route_cache_value": null,
+#                 "mode": null,
+#                 "speed": "auto",
+#                 "st_bpduguard": null,
+#                 "subnet": null,
+#                 "trunk_allowed_vlan_id": null,
+#                 "vlan_id": null
+#             },
+#             {
+#                 "desc": null,
+#                 "duplex": null,
+#                 "int_name": "Serial0/0",
+#                 "ip_addr": null,
+#                 "ip_route_cache_stats": " no ",
+#                 "ip_route_cache_value": null,
+#                 "mode": null,
+#                 "speed": null,
+#                 "st_bpduguard": null,
+#                 "subnet": null,
+#                 "trunk_allowed_vlan_id": null,
+#                 "vlan_id": null
+#             },
+#             {
+#                 "desc": "*** Unused for Layer2 EtherSwitch ***",
+#                 "duplex": "auto",
+#                 "int_name": "FastEthernet0/1",
+#                 "ip_addr": null,
+#                 "ip_route_cache_stats": " no ",
+#                 "ip_route_cache_value": null,
+#                 "mode": null,
+#                 "speed": "auto",
+#                 "st_bpduguard": null,
+#                 "subnet": null,
+#                 "trunk_allowed_vlan_id": null,
+#                 "vlan_id": null
+#             },
+#             {
+#                 "desc": null,
+#                 "duplex": null,
+#                 "int_name": "Serial0/1",
+#                 "ip_addr": null,
+#                 "ip_route_cache_stats": " no ",
+#                 "ip_route_cache_value": null,
+#                 "mode": null,
+#                 "speed": null,
+#                 "st_bpduguard": null,
+#                 "subnet": null,
+#                 "trunk_allowed_vlan_id": null,
+#                 "vlan_id": null
+#             },
+#             {
+#                 "desc": null,
+#                 "duplex": null,
+#                 "int_name": "Serial0/2",
+#                 "ip_addr": null,
+#                 "ip_route_cache_stats": " no ",
+#                 "ip_route_cache_value": null,
+#                 "mode": null,
+#                 "speed": null,
+#                 "st_bpduguard": null,
+#                 "subnet": null,
+#                 "trunk_allowed_vlan_id": null,
+#                 "vlan_id": null
+#             },
+#             {
+#                 "desc": null,
+#                 "duplex": null,
+#                 "int_name": "Serial0/3",
+#                 "ip_addr": null,
+#                 "ip_route_cache_stats": " no ",
+#                 "ip_route_cache_value": null,
+#                 "mode": null,
+#                 "speed": null,
+#                 "st_bpduguard": null,
+#                 "subnet": null,
+#                 "trunk_allowed_vlan_id": null,
+#                 "vlan_id": null
+#             },
+#             {
+#                 "desc": null,
+#                 "duplex": "full",
+#                 "int_name": "FastEthernet1/0",
+#                 "ip_addr": null,
+#                 "ip_route_cache_stats": null,
+#                 "ip_route_cache_value": null,
+#                 "mode": null,
+#                 "speed": 100,
+#                 "st_bpduguard": null,
+#                 "subnet": null,
+#                 "trunk_allowed_vlan_id": null,
+#                 "vlan_id": null
+#             },
+#             {
+#                 "desc": null,
+#                 "duplex": "full",
+#                 "int_name": "FastEthernet1/1",
+#                 "ip_addr": null,
+#                 "ip_route_cache_stats": null,
+#                 "ip_route_cache_value": null,
+#                 "mode": null,
+#                 "speed": 100,
+#                 "st_bpduguard": null,
+#                 "subnet": null,
+#                 "trunk_allowed_vlan_id": null,
+#                 "vlan_id": null
+#             },
+#             {
+#                 "desc": null,
+#                 "duplex": "full",
+#                 "int_name": "FastEthernet1/2",
+#                 "ip_addr": null,
+#                 "ip_route_cache_stats": null,
+#                 "ip_route_cache_value": null,
+#                 "mode": null,
+#                 "speed": 100,
+#                 "st_bpduguard": null,
+#                 "subnet": null,
+#                 "trunk_allowed_vlan_id": null,
+#                 "vlan_id": null
+#             },
+#             {
+#                 "desc": null,
+#                 "duplex": "full",
+#                 "int_name": "FastEthernet1/3",
+#                 "ip_addr": null,
+#                 "ip_route_cache_stats": null,
+#                 "ip_route_cache_value": null,
+#                 "mode": null,
+#                 "speed": 100,
+#                 "st_bpduguard": null,
+#                 "subnet": null,
+#                 "trunk_allowed_vlan_id": null,
+#                 "vlan_id": null
+#             },
+#             {
+#                 "desc": null,
+#                 "duplex": "full",
+#                 "int_name": "FastEthernet1/4",
+#                 "ip_addr": null,
+#                 "ip_route_cache_stats": null,
+#                 "ip_route_cache_value": null,
+#                 "mode": null,
+#                 "speed": 100,
+#                 "st_bpduguard": null,
+#                 "subnet": null,
+#                 "trunk_allowed_vlan_id": null,
+#                 "vlan_id": null
+#             },
+#             {
+#                 "desc": null,
+#                 "duplex": "full",
+#                 "int_name": "FastEthernet1/5",
+#                 "ip_addr": null,
+#                 "ip_route_cache_stats": null,
+#                 "ip_route_cache_value": null,
+#                 "mode": null,
+#                 "speed": 100,
+#                 "st_bpduguard": null,
+#                 "subnet": null,
+#                 "trunk_allowed_vlan_id": null,
+#                 "vlan_id": null
+#             },
+#             {
+#                 "desc": null,
+#                 "duplex": "full",
+#                 "int_name": "FastEthernet1/6",
+#                 "ip_addr": null,
+#                 "ip_route_cache_stats": null,
+#                 "ip_route_cache_value": null,
+#                 "mode": null,
+#                 "speed": 100,
+#                 "st_bpduguard": null,
+#                 "subnet": null,
+#                 "trunk_allowed_vlan_id": null,
+#                 "vlan_id": null
+#             },
+#             {
+#                 "desc": null,
+#                 "duplex": "full",
+#                 "int_name": "FastEthernet1/7",
+#                 "ip_addr": null,
+#                 "ip_route_cache_stats": null,
+#                 "ip_route_cache_value": null,
+#                 "mode": "trunk",
+#                 "speed": 100,
+#                 "st_bpduguard": null,
+#                 "subnet": null,
+#                 "trunk_allowed_vlan_id": null,
+#                 "vlan_id": null
+#             },
+#             {
+#                 "desc": null,
+#                 "duplex": "full",
+#                 "int_name": "FastEthernet1/8",
+#                 "ip_addr": null,
+#                 "ip_route_cache_stats": null,
+#                 "ip_route_cache_value": null,
+#                 "mode": null,
+#                 "speed": 100,
+#                 "st_bpduguard": null,
+#                 "subnet": null,
+#                 "trunk_allowed_vlan_id": null,
+#                 "vlan_id": null
+#             },
+#             {
+#                 "desc": null,
+#                 "duplex": "full",
+#                 "int_name": "FastEthernet1/9",
+#                 "ip_addr": null,
+#                 "ip_route_cache_stats": null,
+#                 "ip_route_cache_value": null,
+#                 "mode": null,
+#                 "speed": 100,
+#                 "st_bpduguard": null,
+#                 "subnet": null,
+#                 "trunk_allowed_vlan_id": null,
+#                 "vlan_id": null
+#             },
+#             {
+#                 "desc": null,
+#                 "duplex": "full",
+#                 "int_name": "FastEthernet1/10",
+#                 "ip_addr": null,
+#                 "ip_route_cache_stats": null,
+#                 "ip_route_cache_value": null,
+#                 "mode": null,
+#                 "speed": 100,
+#                 "st_bpduguard": null,
+#                 "subnet": null,
+#                 "trunk_allowed_vlan_id": null,
+#                 "vlan_id": null
+#             },
+#             {
+#                 "desc": null,
+#                 "duplex": "full",
+#                 "int_name": "FastEthernet1/11",
+#                 "ip_addr": null,
+#                 "ip_route_cache_stats": null,
+#                 "ip_route_cache_value": null,
+#                 "mode": null,
+#                 "speed": 100,
+#                 "st_bpduguard": null,
+#                 "subnet": null,
+#                 "trunk_allowed_vlan_id": null,
+#                 "vlan_id": null
+#             },
+#             {
+#                 "desc": null,
+#                 "duplex": "full",
+#                 "int_name": "FastEthernet1/12",
+#                 "ip_addr": null,
+#                 "ip_route_cache_stats": null,
+#                 "ip_route_cache_value": null,
+#                 "mode": null,
+#                 "speed": 100,
+#                 "st_bpduguard": null,
+#                 "subnet": null,
+#                 "trunk_allowed_vlan_id": null,
+#                 "vlan_id": null
+#             },
+#             {
+#                 "desc": null,
+#                 "duplex": "full",
+#                 "int_name": "FastEthernet1/13",
+#                 "ip_addr": null,
+#                 "ip_route_cache_stats": null,
+#                 "ip_route_cache_value": null,
+#                 "mode": null,
+#                 "speed": 100,
+#                 "st_bpduguard": null,
+#                 "subnet": null,
+#                 "trunk_allowed_vlan_id": null,
+#                 "vlan_id": null
+#             },
+#             {
+#                 "desc": null,
+#                 "duplex": "full",
+#                 "int_name": "FastEthernet1/14",
+#                 "ip_addr": null,
+#                 "ip_route_cache_stats": null,
+#                 "ip_route_cache_value": null,
+#                 "mode": "trunk",
+#                 "speed": 100,
+#                 "st_bpduguard": null,
+#                 "subnet": null,
+#                 "trunk_allowed_vlan_id": null,
+#                 "vlan_id": null
+#             },
+#             {
+#                 "desc": null,
+#                 "duplex": "full",
+#                 "int_name": "FastEthernet1/15",
+#                 "ip_addr": null,
+#                 "ip_route_cache_stats": null,
+#                 "ip_route_cache_value": null,
+#                 "mode": "trunk",
+#                 "speed": 100,
+#                 "st_bpduguard": null,
+#                 "subnet": null,
+#                 "trunk_allowed_vlan_id": null,
+#                 "vlan_id": null
+#             },
+#             {
+#                 "desc": null,
+#                 "duplex": null,
+#                 "int_name": "Vlan1",
+#                 "ip_addr": null,
+#                 "ip_route_cache_stats": " no ",
+#                 "ip_route_cache_value": null,
+#                 "mode": null,
+#                 "speed": null,
+#                 "st_bpduguard": null,
+#                 "subnet": null,
+#                 "trunk_allowed_vlan_id": null,
+#                 "vlan_id": null
+#             },
+#             {
+#                 "desc": null,
+#                 "duplex": null,
+#                 "int_name": "Vlan1097",
+#                 "ip_addr": "10.240.192.10",
+#                 "ip_route_cache_stats": null,
+#                 "ip_route_cache_value": null,
+#                 "mode": null,
+#                 "speed": null,
+#                 "st_bpduguard": null,
+#                 "subnet": "255.255.0.0",
+#                 "trunk_allowed_vlan_id": null,
+#                 "vlan_id": null
+#             },
+#             {
+#                 "desc": null,
+#                 "duplex": null,
+#                 "int_name": "Vlan1097",
+#                 "ip_addr": "10.240.192.10",
+#                 "ip_route_cache_stats": null,
+#                 "ip_route_cache_value": null,
+#                 "mode": null,
+#                 "speed": null,
+#                 "st_bpduguard": null,
+#                 "subnet": "255.255.0.0",
+#                 "trunk_allowed_vlan_id": null,
+#                 "vlan_id": null
+#             },
+#             {
+#                 "desc": null,
+#                 "duplex": null,
+#                 "int_name": "Vlan1097",
+#                 "ip_addr": "10.240.192.10",
+#                 "ip_route_cache_stats": null,
+#                 "ip_route_cache_value": null,
+#                 "mode": null,
+#                 "speed": null,
+#                 "st_bpduguard": null,
+#                 "subnet": "255.255.0.0",
+#                 "trunk_allowed_vlan_id": null,
+#                 "vlan_id": null
+#             },
+#             {
+#                 "desc": null,
+#                 "duplex": null,
+#                 "int_name": "Vlan1097",
+#                 "ip_addr": "10.240.192.10",
+#                 "ip_route_cache_stats": null,
+#                 "ip_route_cache_value": null,
+#                 "mode": null,
+#                 "speed": null,
+#                 "st_bpduguard": null,
+#                 "subnet": "255.255.0.0",
+#                 "trunk_allowed_vlan_id": null,
+#                 "vlan_id": null
+#             },
+#             {
+#                 "desc": null,
+#                 "duplex": null,
+#                 "int_name": "Vlan1097",
+#                 "ip_addr": "10.240.192.10",
+#                 "ip_route_cache_stats": null,
+#                 "ip_route_cache_value": null,
+#                 "mode": null,
+#                 "speed": null,
+#                 "st_bpduguard": null,
+#                 "subnet": "255.255.0.0",
+#                 "trunk_allowed_vlan_id": null,
+#                 "vlan_id": null
+#             },
+#             {
+#                 "desc": null,
+#                 "duplex": null,
+#                 "int_name": "Vlan1097",
+#                 "ip_addr": "10.240.192.10",
+#                 "ip_route_cache_stats": null,
+#                 "ip_route_cache_value": null,
+#                 "mode": null,
+#                 "speed": null,
+#                 "st_bpduguard": null,
+#                 "subnet": "255.255.0.0",
+#                 "trunk_allowed_vlan_id": null,
+#                 "vlan_id": null
+#             },
+#             {
+#                 "desc": null,
+#                 "duplex": null,
+#                 "int_name": "Vlan1097",
+#                 "ip_addr": "10.240.192.10",
+#                 "ip_route_cache_stats": null,
+#                 "ip_route_cache_value": null,
+#                 "mode": null,
+#                 "speed": null,
+#                 "st_bpduguard": null,
+#                 "subnet": "255.255.0.0",
+#                 "trunk_allowed_vlan_id": null,
+#                 "vlan_id": null
+#             },
+#             {
+#                 "desc": null,
+#                 "duplex": null,
+#                 "int_name": "Vlan1097",
+#                 "ip_addr": "10.240.192.10",
+#                 "ip_route_cache_stats": null,
+#                 "ip_route_cache_value": null,
+#                 "mode": null,
+#                 "speed": null,
+#                 "st_bpduguard": null,
+#                 "subnet": "255.255.0.0",
+#                 "trunk_allowed_vlan_id": null,
+#                 "vlan_id": null
+#             },
+#             {
+#                 "desc": null,
+#                 "duplex": null,
+#                 "int_name": "Vlan1097",
+#                 "ip_addr": "10.240.192.10",
+#                 "ip_route_cache_stats": null,
+#                 "ip_route_cache_value": null,
+#                 "mode": null,
+#                 "speed": null,
+#                 "st_bpduguard": null,
+#                 "subnet": "255.255.0.0",
+#                 "trunk_allowed_vlan_id": null,
+#                 "vlan_id": null
+#             },
+#             {
+#                 "desc": null,
+#                 "duplex": null,
+#                 "int_name": "Vlan1097",
+#                 "ip_addr": "10.240.192.10",
+#                 "ip_route_cache_stats": null,
+#                 "ip_route_cache_value": null,
+#                 "mode": null,
+#                 "speed": null,
+#                 "st_bpduguard": null,
+#                 "subnet": "255.255.0.0",
+#                 "trunk_allowed_vlan_id": null,
+#                 "vlan_id": null
+#             },
+#             {
+#                 "desc": null,
+#                 "duplex": null,
+#                 "int_name": "Vlan1097",
+#                 "ip_addr": "10.240.192.10",
+#                 "ip_route_cache_stats": null,
+#                 "ip_route_cache_value": null,
+#                 "mode": null,
+#                 "speed": null,
+#                 "st_bpduguard": null,
+#                 "subnet": "255.255.0.0",
+#                 "trunk_allowed_vlan_id": null,
+#                 "vlan_id": null
+#             },
+#             {
+#                 "desc": null,
+#                 "duplex": null,
+#                 "int_name": "Vlan1097",
+#                 "ip_addr": "10.240.192.10",
+#                 "ip_route_cache_stats": null,
+#                 "ip_route_cache_value": null,
+#                 "mode": null,
+#                 "speed": null,
+#                 "st_bpduguard": null,
+#                 "subnet": "255.255.0.0",
+#                 "trunk_allowed_vlan_id": null,
+#                 "vlan_id": null
+#             },
+#             {
+#                 "desc": null,
+#                 "duplex": null,
+#                 "int_name": "Vlan1097",
+#                 "ip_addr": "10.240.192.10",
+#                 "ip_route_cache_stats": null,
+#                 "ip_route_cache_value": null,
+#                 "mode": null,
+#                 "speed": null,
+#                 "st_bpduguard": null,
+#                 "subnet": "255.255.0.0",
+#                 "trunk_allowed_vlan_id": null,
+#                 "vlan_id": null
+#             },
+#             {
+#                 "desc": null,
+#                 "duplex": null,
+#                 "int_name": "Vlan1097",
+#                 "ip_addr": "10.240.192.10",
+#                 "ip_route_cache_stats": null,
+#                 "ip_route_cache_value": null,
+#                 "mode": null,
+#                 "speed": null,
+#                 "st_bpduguard": null,
+#                 "subnet": "255.255.0.0",
+#                 "trunk_allowed_vlan_id": null,
+#                 "vlan_id": null
+#             },
+#             {
+#                 "desc": null,
+#                 "duplex": null,
+#                 "int_name": "Vlan1097",
+#                 "ip_addr": "10.240.192.10",
+#                 "ip_route_cache_stats": null,
+#                 "ip_route_cache_value": null,
+#                 "mode": null,
+#                 "speed": null,
+#                 "st_bpduguard": null,
+#                 "subnet": "255.255.0.0",
+#                 "trunk_allowed_vlan_id": null,
+#                 "vlan_id": null
+#             },
+#             {
+#                 "desc": null,
+#                 "duplex": null,
+#                 "int_name": "Vlan1097",
+#                 "ip_addr": "10.240.192.10",
+#                 "ip_route_cache_stats": null,
+#                 "ip_route_cache_value": null,
+#                 "mode": null,
+#                 "speed": null,
+#                 "st_bpduguard": null,
+#                 "subnet": "255.255.0.0",
+#                 "trunk_allowed_vlan_id": null,
+#                 "vlan_id": null
+#             },
+#             {
+#                 "desc": null,
+#                 "duplex": null,
+#                 "int_name": "Vlan1097",
+#                 "ip_addr": "10.240.192.10",
+#                 "ip_route_cache_stats": null,
+#                 "ip_route_cache_value": null,
+#                 "mode": null,
+#                 "speed": null,
+#                 "st_bpduguard": null,
+#                 "subnet": "255.255.0.0",
+#                 "trunk_allowed_vlan_id": null,
+#                 "vlan_id": null
+#             },
+#             {
+#                 "desc": null,
+#                 "duplex": null,
+#                 "int_name": "Vlan1097",
+#                 "ip_addr": "10.240.192.10",
+#                 "ip_route_cache_stats": null,
+#                 "ip_route_cache_value": null,
+#                 "mode": null,
+#                 "speed": null,
+#                 "st_bpduguard": null,
+#                 "subnet": "255.255.0.0",
+#                 "trunk_allowed_vlan_id": null,
+#                 "vlan_id": null
+#             },
+#             {
+#                 "desc": null,
+#                 "duplex": null,
+#                 "int_name": "Vlan1097",
+#                 "ip_addr": "10.240.192.10",
+#                 "ip_route_cache_stats": null,
+#                 "ip_route_cache_value": null,
+#                 "mode": null,
+#                 "speed": null,
+#                 "st_bpduguard": null,
+#                 "subnet": "255.255.0.0",
+#                 "trunk_allowed_vlan_id": null,
+#                 "vlan_id": null
+#             },
+#             {
+#                 "desc": null,
+#                 "duplex": null,
+#                 "int_name": "Vlan1097",
+#                 "ip_addr": "10.240.192.10",
+#                 "ip_route_cache_stats": null,
+#                 "ip_route_cache_value": null,
+#                 "mode": null,
+#                 "speed": null,
+#                 "st_bpduguard": null,
+#                 "subnet": "255.255.0.0",
+#                 "trunk_allowed_vlan_id": null,
+#                 "vlan_id": null
+#             },
+#             {
+#                 "desc": null,
+#                 "duplex": null,
+#                 "int_name": "Vlan1097",
+#                 "ip_addr": "10.240.192.10",
+#                 "ip_route_cache_stats": null,
+#                 "ip_route_cache_value": null,
+#                 "mode": null,
+#                 "speed": null,
+#                 "st_bpduguard": null,
+#                 "subnet": "255.255.0.0",
+#                 "trunk_allowed_vlan_id": null,
+#                 "vlan_id": null
+#             },
+#             {
+#                 "desc": null,
+#                 "duplex": null,
+#                 "int_name": "Vlan1097",
+#                 "ip_addr": "10.240.192.10",
+#                 "ip_route_cache_stats": null,
+#                 "ip_route_cache_value": null,
+#                 "mode": null,
+#                 "speed": null,
+#                 "st_bpduguard": null,
+#                 "subnet": "255.255.0.0",
+#                 "trunk_allowed_vlan_id": null,
+#                 "vlan_id": null
+#             }
+#         ],
+#         "sh_run_config_line": [
+#             {
+#                 "exec_timeout": "0 0",
+#                 "line_number": 0,
+#                 "line_type": "con",
+#                 "logging": "synchronous",
+#                 "login": null,
+#                 "privilege_lvl": 15,
+#                 "timeout": null,
+#                 "transport_input": null,
+#                 "transport_output": null
+#             },
+#             {
+#                 "exec_timeout": "0 0",
+#                 "line_number": 0,
+#                 "line_type": "aux",
+#                 "logging": "synchronous",
+#                 "login": null,
+#                 "privilege_lvl": 15,
+#                 "timeout": null,
+#                 "transport_input": null,
+#                 "transport_output": null
+#             },
+#             {
+#                 "exec_timeout": null,
+#                 "line_number": "0 4",
+#                 "line_type": "vty",
+#                 "logging": null,
+#                 "login": "local",
+#                 "privilege_lvl": null,
+#                 "timeout": null,
+#                 "transport_input": "ssh",
+#                 "transport_output": null
+#             }
+#         ],
+#         "sh_run_config_user": [
+#             {
+#                 "fingerprint": "$1$uMcA$NZ/edKuhrobHTSzyyzMKW0",
+#                 "privilege": 15,
+#                 "secret_value": 5,
+#                 "username": "cisco2"
+#             }
+#         ],
+#         "sh_run_config_vlan": [
+#             {
+#                 "vlan_id": 10,
+#                 "vlan_name": "vlan10-test"
+#             },
+#             {
+#                 "vlan_id": 20,
+#                 "vlan_name": "vlan20-test"
+#             },
+#             {
+#                 "vlan_id": 908,
+#                 "vlan_name": "WIFI-B-LT1A"
+#             },
+#             {
+#                 "vlan_id": 1097,
+#                 "vlan_name": "vlan-mgmn-dev"
+#             }
+#         ],
+#         "sh_ssh": {
+#             "show_ssh": [
+#                 {
+#                     "connection": 98,
+#                     "encryption": "aes128-cbc",
+#                     "hmac": "hmac-md5",
+#                     "mode": "IN",
+#                     "state": "Session started",
+#                     "username": "cisco",
+#                     "version": 2.0
+#                 },
+#                 {
+#                     "connection": 98,
+#                     "encryption": "aes128-cbc",
+#                     "hmac": "hmac-md5",
+#                     "mode": "OUT",
+#                     "state": "Session started",
+#                     "username": "cisco",
+#                     "version": 2.0
+#                 }
+#             ]
+#         },
+#         "sh_users": {
+#             "show_users_all": [
+#                 {
+#                     "hosts": "idle ",
+#                     "idle": "03:40:47",
+#                     "line": "con",
+#                     "location": null,
+#                     "number": 0,
+#                     "tty": 0,
+#                     "user": null
+#                 },
+#                 {
+#                     "hosts": null,
+#                     "idle": "00:00:00",
+#                     "line": "tty",
+#                     "location": null,
+#                     "number": 1,
+#                     "tty": 1,
+#                     "user": null
+#                 },
+#                 {
+#                     "hosts": null,
+#                     "idle": "00:00:00",
+#                     "line": "tty",
+#                     "location": null,
+#                     "number": 2,
+#                     "tty": 2,
+#                     "user": null
+#                 },
+#                 {
+#                     "hosts": null,
+#                     "idle": "00:00:00",
+#                     "line": "tty",
+#                     "location": null,
+#                     "number": 3,
+#                     "tty": 3,
+#                     "user": null
+#                 },
+#                 {
+#                     "hosts": null,
+#                     "idle": "00:00:00",
+#                     "line": "tty",
+#                     "location": null,
+#                     "number": 4,
+#                     "tty": 4,
+#                     "user": null
+#                 },
+#                 {
+#                     "hosts": null,
+#                     "idle": "00:00:00",
+#                     "line": "aux",
+#                     "location": null,
+#                     "number": 0,
+#                     "tty": 97,
+#                     "user": null
+#                 },
+#                 {
+#                     "hosts": "idle ",
+#                     "idle": "00:00:00",
+#                     "line": "vty",
+#                     "location": "192.168.101.3",
+#                     "number": 0,
+#                     "tty": 98,
+#                     "user": "cisco2"
+#                 },
+#                 {
+#                     "hosts": null,
+#                     "idle": "00:00:00",
+#                     "line": "vty",
+#                     "location": null,
+#                     "number": 1,
+#                     "tty": 99,
+#                     "user": null
+#                 },
+#                 {
+#                     "hosts": null,
+#                     "idle": "00:00:00",
+#                     "line": "vty",
+#                     "location": null,
+#                     "number": 2,
+#                     "tty": 100,
+#                     "user": null
+#                 },
+#                 {
+#                     "hosts": null,
+#                     "idle": "00:00:00",
+#                     "line": "vty",
+#                     "location": null,
+#                     "number": 3,
+#                     "tty": 101,
+#                     "user": null
+#                 },
+#                 {
+#                     "hosts": null,
+#                     "idle": "00:00:00",
+#                     "line": "vty",
+#                     "location": null,
+#                     "number": 4,
+#                     "tty": 102,
+#                     "user": null
+#                 }
+#             ]
+#         },
+#         "sh_vlan_switch": {
+#             "vlans": [
+#                 {
+#                     "id": 1,
+#                     "name": "default",
+#                     "ports": [
+#                         "Fa1/0",
+#                         "Fa1/1",
+#                         "Fa1/2",
+#                         "Fa1/3",
+#                         "Fa1/4",
+#                         "Fa1/5",
+#                         "Fa1/6",
+#                         "Fa1/7",
+#                         "Fa1/8",
+#                         "Fa1/9",
+#                         "Fa1/10",
+#                         "Fa1/11",
+#                         "Fa1/12",
+#                         "Fa1/13",
+#                         "Fa1/14"
+#                     ],
+#                     "status": "active"
+#                 },
+#                 {
+#                     "id": 10,
+#                     "name": "vlan10-test",
+#                     "ports": [
+#                         ""
+#                     ],
+#                     "status": "active"
+#                 },
+#                 {
+#                     "id": 20,
+#                     "name": "vlan20-test",
+#                     "ports": [
+#                         ""
+#                     ],
+#                     "status": "active"
+#                 },
+#                 {
+#                     "id": 30,
+#                     "name": "VLAN0030",
+#                     "ports": [
+#                         ""
+#                     ],
+#                     "status": "active"
+#                 },
+#                 {
+#                     "id": 908,
+#                     "name": "WIFI-B-LT1A",
+#                     "ports": [
+#                         ""
+#                     ],
+#                     "status": "active"
+#                 },
+#                 {
+#                     "id": 1002,
+#                     "name": "fddi-default",
+#                     "ports": [
+#                         ""
+#                     ],
+#                     "status": "act/unsup"
+#                 },
+#                 {
+#                     "id": 1003,
+#                     "name": "token-ring-default",
+#                     "ports": [
+#                         ""
+#                     ],
+#                     "status": "act/unsup"
+#                 },
+#                 {
+#                     "id": 1004,
+#                     "name": "fddinet-default",
+#                     "ports": [
+#                         ""
+#                     ],
+#                     "status": "act/unsup"
+#                 },
+#                 {
+#                     "id": 1005,
+#                     "name": "trnet-default",
+#                     "ports": [
+#                         ""
+#                     ],
+#                     "status": "act/unsup"
+#                 },
+#                 {
+#                     "id": 1097,
+#                     "name": "vlan-mgmn-dev",
+#                     "ports": [
+#                         ""
+#                     ],
+#                     "status": "active"
+#                 }
+#             ]
+#         }
+#     },
+#     "changed": false
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+            # - set_fact:
+            #     vlan_mgmnt_changes_found: true
+
+
+            # - include_vars: ../network_vlan/vars/vlan_db.yml
+            # - set_fact:
+            #     vlan_mgmnt: "{{vlan_db | json_query('[?mandatory==`true`].{name:name,vlan_id:vlan_id}') | mandatory }}"
             # - set_fact:
             #     vlan_mgmn_count: "{{vlan_db | json_query('[?mandatory==`true`].{name:name,vlan_id:vlan_id}') |length}}"
             # - set_fact:
