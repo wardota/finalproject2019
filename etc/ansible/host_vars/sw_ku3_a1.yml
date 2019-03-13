@@ -26,7 +26,7 @@ user:
     - abu
     - caca
 vlan:       # if vtp_mode=transparent, variable bellow will be ignored
-  by_name:  # Vlan can not be added. Maximum number of 32 vlan(s) in the database.
+  by_name:  # Maximum number of 32 vlan(s) in the database.
     - RFID-LT1A               #901
     - CAMERA-LT1A             #902
     - LAN-PPDU-BAA           #903
@@ -35,9 +35,9 @@ vlan:       # if vtp_mode=transparent, variable bellow will be ignored
     - vlan-mgmn-dev           #1097
     - vlan-mgmn-ap            #1098
     - scn-superVlan-Wirele    #1099
-    - network-chrome          #3154
+    - network-chrome          #3154         
 interface:
-  - name: FastEthernet0/0    #reserveda
+  - name: FastEthernet0/0    #reserved
   - name: FastEthernet0/1    #reserved
     duplex: full
     speed: 100

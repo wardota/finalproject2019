@@ -11,6 +11,8 @@
 # vlan
 # temporary static variable got from roles variable_inspect
 # changes or not , valid or not, main or not
+  - pause:
+      prompt: "NET_MGMN?"
   - include_vars: ../network_vlan/vars/vlan_db.yml
   - include_vars: 
       file: ../network_vlan/vars/vlan_db_old.yml
@@ -19,14 +21,15 @@
       file: ../../host_vars/old_sw_ku3_a1.yml
       name: old2
   - set_fact:
+      allVlan: 1-4094
       mgmnt:
         changes:
           vlan_id   : false # true if vlan id is changed 
-          vlan_name : true # true if vlan name is changed
-          ip        : true # true if ip addr is changed
-          prefix    : true # true if prefix is changed
-          int_phy   : false # true if int(Se/F/Ge/Eth) is changed
-          sw_port   : true # true if allowed vlan list is changed
+          vlan_name : true  # true if vlan name is changed
+          ip        : true  # true if ip addr is changed
+          prefix    : true  # true if prefix is changed
+          int_phy   : false # true if int(Se/F/Ge/Eth) is changed /locked
+          sw_port   : true  # true if allowed vlan list is changed
           exist: true # # true if vlan id found in allowed vlan list of switchport trunk
         new_vlan     : "{{ vlan_db        | json_query('[?main==`true`].{name:name, id:vlan_id}')         | mandatory }}"
         # new_vlan   : "{{ vlan_db        | json_query('[?main==`true`].{name:name, id:vlan_id}|[0]')     | mandatory }}"
@@ -41,27 +44,94 @@
   # ex: find vlan 1097 in 1094-1098,1957,3101-3102,3104,3151-3152,3152,3154     
   - set_fact:
       find: "{{mgmnt.new_vlan[0].id}}"
-      it: "{{mgmnt.sw_port[0].allowed}}"
+      it: "{{mgmnt.sw_port[0].allowed}},{{default_vlan}}"
   - set_fact:
       split1: "{{it.split(',') | json_query('[?contains(@, `-`) == `true`]')}}"
       split2: "{{it.split(',') | json_query('[?contains(@, `-`) == `false`]')}}"
+      aVn: "{{(range(allVlan.split('-').0|int,allVlan.split('-').1|int+1) | list | join(',')) .split(',')}}"
+
   - set_fact:
       items: "{{range(item.split('-').0|int,item.split('-').1|int+1) | list}}"
     loop: "{{split1}}"
     register: split1
   - set_fact:
       it: "{{ ([split1 | json_query('results[:].ansible_facts.items'),split2] | flatten | join(',')).split(',')  | unique | sort}}"
-        # - wait_for:
-        #     sleep: 300
-        # - debug:
-        #     msg: "{{range(item.split('-').0|int,item.split('-').1|int+1) | list}}"
-        #   loop: "{{split1}}"
-        #   register: split1
-        # - set_fact:
-        #     it: "{{ ([split1 | json_query('results[:].msg'),split2] | flatten | join(',')).split(',')  | unique | sort}}"
+  - set_fact:
+      ex1: "{{aVn | difference(it) }}"
+
+
+  - set_fact:
+      ex6: "{% for item in ex1 %}{% if loop.last %}{{item}}{% break %}{% elif ex1[loop.index-2]|int+1 == ex1[loop.index-1]|int and ex1[loop.index-1]|int+1 == ex1[loop.index]|int %}-{% else %}{{item}},{% endif %}{% endfor %}"  
+      ex7: "{% for item in ex1 %}{% if loop.last %}{{item}}{% break %}{% elif loop.first %}{{item}}{%if ex1[loop.index0]|int+1 == ex1[loop.index0+1]|int%}-{%else%},{%endif%}{% continue %}{% elif (ex1[loop.index0]|int) - ex1[loop.index0-1]|int>1 %}{% if (ex1[loop.index0]|int) - ex1[loop.index0+1]|int<-1 %}{{item}},{%else%}{{item}}-{%endif%}{% else %}{% if (ex1[loop.index0]|int) - ex1[loop.index0+1]|int<-1 %}{{item}},{%else%}{% endif %}{% endif %}{% endfor %}"
+            # - set_fact:
+                # ex7:
+            # - set_fact:
+            #     ex7: "{{ex7| regex_replace('(,-){1,}','-')| regex_replace('(-){1,}','-')}},{{(ex1[item-1]|int+1==ex1[item+1]|int-1 )| replace(false,ex1[item]) | replace(true,'-')}}"
+            #   loop: "{{ range(0|int,ex1|length|int-1)|list}}"
+            #   loop_control:
+            #     label: "{{item}}"
+            # - set_fact:
+            #     ex7: "{{ex7| replace('None,','')| replace('-,-,-','-')| replace('-,-','-') | regex_replace('(-,){1,}','-')}}{{ex1[ex1|length|int-1]}}"
+
+  - set_fact:
+      ex6: "{{ex6|replace(',-','-')|regex_replace('(-){1,}','-')}}"
+      split_ex7: "{{ex7.split(',')|batch(24)|list}}"  #batch is 24 because maximum line string is 255 character ; (24x9)+39==255 ; 9 is item length possible example : (3000-4000); 39 is reserved for command 'switchport trunk allowed vlan add|remove|except|all'
+
+  - ios_config:
+      parents: interface FastEthernet1/14
+      lines: switchport trunk allowed vlan all
+      
+  - ios_l2_interface:
+      name                : FastEthernet1/14
+      trunk_vlans : "{{item | join(',')}}"
+      state : absent
+      mode  : trunk
+    loop: "{{split_ex7}}"
+  #   loop_control:
+  #      label: "removing {{ex1[item:item+36]| join(',')|replace(' ','')}}"
+
+  - pause:
+      prompt: ""
+  # - debug:
+  #     msg: "{{(ex1[item-1]|int+1==ex1[item+1]|int-1 )| replace(false,ex1[item]) | replace(true,'-')}}"
+  #   loop: "{{ range(0|int,ex1|length|int-1)|list}}"
+  #   register: ex4
+  # - debug:
+  #     var: ex4.results
+  #   # when: ex1[item-1]|int+1!=ex1[item+1]|int-1
+  #   # when: item[0-1]>
+  # - set_fact:
+  #     ex6: "{{ex1 | json_query('[?==]')}}"
+
+
+
+  # - ios_config:
+  #     parents: interface FastEthernet1/14
+  #     lines: switchport trunk allowed vlan all
+      
+  # - ios_l2_interface:
+  #     name                : FastEthernet1/14
+  #     trunk_vlans : "{{ex1[item:item+36]| join(',')|replace(' ','')}}"
+  #     state : absent
+  #     mode  : trunk
+  #   loop: "{{ range(0|int,ex1|length|int,36)|list}}"
+  #   loop_control:
+  #      label: "removing {{ex1[item:item+36]| join(',')|replace(' ','')}}"
+
+  # - set_fact:
+  #     ex1: "{{ex1[item]}}"
+  #   loop: "{{ range(0|int,ex1|length|int)|list}}"
+  #   when: ex1[item-1]|int+1==ex1[item+1]|int-1
+  #   # when: item[0-1]>
+  - pause:
+      prompt: "" 
+
+
+
+
   - set_fact:
       exist: "{{find in it}}"
-
+      exclude: "{{ads | difference(it) | join(',')}}"
   # how to find, int vlan is the vlan mgmnt ?
   - set_fact:
       ansible_host: "{{ item.ip }}"
@@ -83,7 +153,7 @@
   #   | VLAN NAME    |  v  |  C  |  -  |  -  |  v  |  C  |  -  |
   #   | IP/PRFIX(L3) |  v  |  -  |  C  |  -  |  v  |  C  |  -  |          (*) 
   #   | SWPORT (L2)  |  v  |  -  |  -  |  v  |  v  |  -  |  C  |
-  #   | INT_PHY(L1)  |  -  |  -  |  -  |  C  |  C  |  -  |  -  |
+  #   | INT_PHY(L1)  |  -  |  -  |  -  |  C  |  C  |  -  |  -  | (no intention to give this feature) REASON: because in order to chnage interface physical the new port should already on connected and up condition.
   #   |______________|_____|_____|_____|_____|_____|_____|_____| 
   #  
   # (*) any task execute after ip/prefix changes HAVE TO DO RE:SET VARIABLE and RECON
@@ -219,17 +289,56 @@
   #     do warning not declared yet in , but added automaticaly
   #
   - block: 
+    # - ios_l2_interface:
+    #     name                : "{{item.name}}"
+    #     trunk_vlans : "{{item.allowed}},{{default_vlan}}"
+    #     state : present
+    #     mode  : trunk
+    #   loop: "{{mgmnt.sw_port}}"
+    #   when: mgmnt.changes.sw_port == true
+    #   register: mgmnt_sw_port_changed
+    #   notify:
+    - ios_config:
+        parents: interface FastEthernet1/14
+        lines: switchport trunk allowed vlan all
+        
     - ios_l2_interface:
-        name                : "{{item.name}}"
-        trunk_allowed_vlans : "{{item.allowed}}"
-        state : present
+        name                : FastEthernet1/14
+        trunk_allowed_vlans : 2-88
+        state : absent
         mode  : trunk
-      loop: "{{mgmnt.sw_port}}"
-      when: mgmnt.changes.sw_port == true
-      register: mgmnt_sw_port_changed
-      notify:
+      # loop: "{{mgmnt.sw_port}}"
+      # when: mgmnt.changes.sw_port == true
+      # register: mgmnt_sw_port_changed
+      # notify:
+
+    # - ios_l2_interface:
+    #     name                : "{{item.name}}"
+    #     trunk_vlans : "{{item.allowed}}"
+    #     state : absent
+    #     mode  : trunk
+    #   loop: "{{mgmnt.sw_port}}"
+    #   when: mgmnt.changes.sw_port == true
+    #   register: mgmnt_sw_port_changed
+    #   notify:
+  #       # set the vlan as allowed vlan on switch port trunk
+  #       # ketika switchport trunk mengalami perubahan(true) dan vlan id mgmn ada di list allowed vlan(true)
+  #       # maka rubah vlan allowed vlan yang ada
+  #   - debug:
+  #       msg: "do warning: vlan id declared not in sw_port allowed vlan , but added automaticaly"
+  #       verbosity:  4 #locked
+  #     when: not exist   
+    # - ios_l2_interface:
+    #     name                : FastEthernet1/14
+    #     trunk_vlans : "{{exclude}}"
+    #     state : present
+    #     mode  : trunk
+    #   register: mgmnt_sw_port_changed
+    #   notify:
+    #   notify:
+
         # set the vlan as allowed vlan on switch port trunk
-        # ketika switchport trunk mengalami perubahan(true) dan vlan id mgmn ada di list allowed vlan(true)
+    #     # ketika switchport trunk mengalami perubahan(true) dan vlan id mgmn ada di list allowed vlan(true)
         # maka rubah vlan allowed vlan yang ada
     - debug:
         msg: "do warning: vlan id declared not in sw_port allowed vlan , but added automaticaly"
@@ -240,7 +349,8 @@
     always:
     - debug:
 
-
+  - pause:
+      prompt: "OK2?"
 #__________________________________________________________________________________________
   # BAGIAN IP/PREFIX/INT_VLAN/L3
 
@@ -336,10 +446,11 @@
     - debug:
     always:
     - debug:
-
+  - pause:
+      prompt: "OK2?"
   - wait_for:
       sleep: 300
-
+ 
 
 
   # name vlan

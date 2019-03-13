@@ -1,3 +1,5 @@
+# A.K.A gather fact
+
 - name: get show 
   ios_command:
     commands:
@@ -31,7 +33,7 @@
     sh_users                : "{{ output.stdout[8]  | parse_cli('/etc/ansible/ios_show_users_all_parser.yml') }}"
     sh_ssh                  : "{{ output.stdout[9]  | parse_cli('/etc/ansible/ios_show_ssh_parser.yml') }}"        
     sh_line                 : "{{ output.stdout[10] | parse_cli('/etc/ansible/ios_show_line_parser.yml') }}" #seems to be an issues
-
+- debug:
 
 # - copy: 
 #     content: "{{ sh_run_config | to_nice_json }}"

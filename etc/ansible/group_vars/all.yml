@@ -2,12 +2,12 @@ ansible_python_interpreter: /usr/bin/env python
 dest_output_fact: etc/ansible/files/
 
 #network_cli param
-ansible_user: cisco2123
+ansible_user: cisco2
 ansible_password: cisco
 ansible_network_os: ios
-ansible_ssh_user: cisco2123
+ansible_ssh_user: cisco2
 ansible_ssh_pass: cisco
-timeout: 40 
+timeout: 300
 # ansible_become: no          # default
 # ansible_become_method: sudo # default
 # ansible_become_method: enable

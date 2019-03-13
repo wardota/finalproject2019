@@ -2,17 +2,17 @@ pre_tasks:
   pingtest: on
   init: on
 roles_1st: network_inspect
-# roles_2nd: network_dhcp
-# roles_3rd: network_user
-# roles_4th: network_line
-# roles_5th: network_service
-# roles_6th: network_vlan
-# roles_7th: network_interface
-# roles_8th: network_inspect
-# roles_9th: network_crypto
-# roles_10th: network_mgmn
-roles_11th: variable_inspect
-roles_12th:
+roles_2nd: variable_inspect
+roles_3rd: network_mgmn
+# roles_4th: network_dhcp
+# roles_5th: network_user
+# roles_6th: network_line
+# roles_7th: network_service
+# roles_8th: network_vlan
+# roles_9th: network_interface
+# roles_10th: network_inspect
+# roles_11th: network_crypto
+# roles_12th: network_mgmn
 roles_13th:
 tasks:
 post_tasks:

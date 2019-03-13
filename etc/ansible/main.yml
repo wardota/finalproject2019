@@ -1,33 +1,70 @@
 ---
 - name: Automation Project
-  hosts: ku3_a1
+  hosts: gkultd
   gather_facts: no
   gather_timeout: 60
   connection: network_cli
   ignore_errors: no
   vars_files:
-    - vars/common.yml
-
+    - vars/common.yml 
+  vars:
+    all_names:
+      names:
+        - name: john
+        - name: joe
+        - name: joan
+    name_filter: joe
   pre_tasks:    
-
-    - name: ping test
-      block: 
-        - pause:
-            prompt: "TARGET HOST or IP undefined, Please cancel or type IP Address of host {{hostname}} "
-          when: ansible_hostasd is undefined
-          register: prompt_host
-        - pause:
-            prompt: "ansible_ssh_user enter to continue"
-          when: ansible_ssh_userasd is undefined and ansible_userasd is undefined
-          register: prompt_user
-        - pause:
-            prompt: "ansible_ssh_passPress enter to continue"
-            echo: no
-          when: ansible_ssh_passasd is undefined and ansible_padass is undefined
-          register: prompt_pass
-        - debug:
-            var: prompt_host.user_input |replace('\\b','')| regex_replace('(.*)(\d*.\d*.\d*.\d*)','$2')
-      delegate_to: localhost
+    - block:
+        - set_fact:
+            selected_names: "{{ all_names | json_query(\"names[?name=='\" + name_filter + \"'].name\") }}"
+    # - say:
+    #     msg: '{{ inventory_hostname }}In computing, Ansible is an open-source software provisioning, configuration management, and application deployment tool. It runs on many Unix-like systems, and can configure both Unix-like systems as well as Microsoft Windows. It includes its own declarative language to describe system configuration. Wikipedia'
+    #     voice: indonesian
+    #   delegate_to: localhost
+    # - name: Init Delegate to localhost
+    #   block: 
+    #     # - name: Sending an e-mail using Gmail SMTP servers
+    #       mail:
+    #         host: smtp.gmail.com
+    #         port: 587
+    #         username: samidatodraw@student.telkomuniversity.ac.id
+    #         password: bnuesdqz
+    #         to: Dimas bayu <wardota8@gmail.com>
+    #         subject: Ansible-report
+    #         body: "On {{lookup('pipe', 'date')}}\n System has been started to be provisioned \n"
+    #         attach: 
+    #           - dump/gns_topology.PNG
+    #         subtype: plain
+    #         headers:
+    #           - Reply-To=john@example.com
+    #           - X-Special="Something or other"
+    #           - Feedback-To="@wardota8"
+        
+    # - pause:
+    #     prompt: ""
+    #       register: prompt 
+    #       until: prompt.user_input | regex_search('\\d{1,3}.\\d{1,3}.\\d{1,3}.\\d{1,3}')
+    #       when: ansible_hostasd is undefined
+    #       retries: "{{retries}}"
+    #       # no_log: yes
+    #       # run_once: yes
+    #     - pause:
+    #         prompt: "TARGET HOST or IP undefined, Please cancel or type IP Address of host {{hostname}} "
+    #       register: prompt_host
+    #       when: ansible_hostasd is undefined
+    #     - pause:
+    #         prompt: "ansible_ssh_user enter to continue"
+    #       when: ansible_ssh_userasd is undefined and ansible_userasd is undefined
+    #       register: prompt_user
+    #     - pause:
+    #         prompt: "ansible_ssh_passPress enter to continue"
+    #         echo: no
+    #       when: ansible_ssh_passasd is undefined and ansible_padass is undefined
+    #       register: prompt_pass
+    #     - debug:
+    #         var: prompt_host.user_input |replace('\\b','')| regex_replace('(.*)(\d*.\d*.\d*.\d*)','$2')
+    #   delegate_to: localhost
       
     - name: ping test
       block: 
@@ -38,51 +75,61 @@
           register: test 
           failed_when: test.ping != 'pong'
           ignore_errors: yes
+
+        - name: ping
+          ios_ping:
+              dest: 10.240.192.1
+              state: present
+          register: a
         - debug:
-            msg: 
-              - "FAILED because,{{test.msg}}"
-              - "ip: {{ansible_host}} , hostname: {{hostname}} , user: {{ansible_ssh_user}} , pass: {{ansible_ssh_pass|hash('sha1')}}"
-          when: test.failed
-          failed_when: test.failed
-          delegate_to: localhost
-      rescue:
-        - debug:
-            msg: "'Plz input input username ofy'"
-          delegate_to: localhost
+            var: a
         - pause:
-            prompt: "Provide a value for example_var. Enter defaults to 'example_value':"
-          when: example_var is not defined
-          register: example_var
-          delegate_to: localhost
+            prompt: ""
+    #     - debug:
+    #         msg: 
+    #           - "FAILED because,{{test.msg}}"
+    #           - "ip: {{ansible_host}} , hostname: {{hostname}} , user: {{ansible_ssh_user}} , pass: {{ansible_ssh_pass|hash('sha1')}}"
+    #       when: test.failed
+    #       failed_when: test.failed
+    #       delegate_to: localhost
+    #   rescue:
+    #     - debug:
+    #         msg: "'Plz input input username ofy'"
+    #       delegate_to: localhost
+    #     - pause:
+    #         prompt: "Provide a value for example_var. Enter defaults to 'example_value':"
+    #       when: example_var is not defined
+    #       register: example_var
+    #       delegate_to: localhost
  
-        - name: Default for example_var
-          set_fact:
-            example_var: example_value
-          when: example_var == ""
-          delegate_to: localhost
-        # - pause:
-        #     prompt: undefined # not required. Optional text to use for the prompt message.
-        # - set_fact:
-        #     key: 
-        - debug:
-            var: example_var
-          delegate_to: localhost
+    #     - name: Default for example_var
+    #       set_fact:
+    #         example_var: example_value
+    #       when: example_var == ""
+    #       delegate_to: localhost
+    #     # - pause:
+    #     #     prompt: undefined # not required. Optional text to use for the prompt message.
+    #     # - set_fact:
+    #     #     key: 
+    #     - debug:
+    #         var: example_var
+    #       delegate_to: localhost
 
   
-        # - debug: 
-        #     msg: "ip: {{ansible_host}} , hostname: {{hostname}} , user: {{ansible_ssh_user}} , pass: {{ansible_ssh_pass|hash('sha1')}}"
-        # - set_fact:
-        #     ansible_host_status: 
-        # - name: get show 
-        #   ios_command:
-        #     commands:
-        #       - "show version"
-        #   register: init_ping
+    #     # - debug: 
+    #     #     msg: "ip: {{ansible_host}} , hostname: {{hostname}} , user: {{ansible_ssh_user}} , pass: {{ansible_ssh_pass|hash('sha1')}}"
+    #     # - set_fact:
+    #     #     ansible_host_status: 
+    #     # - name: get show 
+    #     #   ios_command:
+    #     #     commands:
+    #     #       - "show version"
+    #     #   register: init_ping
 
-            # #     - set_fact:
-            # #         host_ip: "{{ansible_host}}"
-            # #         username: "{{ansible_ssh_user}}"
-            # #         password: "{{ansible_ssh_pass}}"
+    #         # #     - set_fact:
+    #         # #         host_ip: "{{ansible_host}}"
+    #         # #         username: "{{ansible_ssh_user}}"
+    #         # #         password: "{{ansible_ssh_pass}}"
             # #         new_ansible_host: 10.240.192.20 
 
   roles: 
