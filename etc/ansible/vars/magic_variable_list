@@ -1,0 +1,21 @@
+inventory_hostname      # output sesuai nama host/ip contoh output: sw_ku3_a1 [dict]
+inventory_dir           # /etc/ansible  [dict]
+inventory_file          # /etc/ansible/hosts [dict]
+playbook_dir            # /etc/ansible [dict]
+role_path               # /etc/ansible/roles/xxxxxx hanya muncul di task dalam roles, selain itu maka undefined [dict]
+ansible_check_mode      # true/false , default  [dict]
+ansible_play_batch      # output sesuai nama host/ip contoh output: sw_ku3_a1,sw_ku3_a2 [list]
+ansible_play_hosts      # output sesuai nama host/ip contoh output: sw_ku3_a1,sw_ku3_a2 [list]
+inventory_hostname_short# output sesuai nama host/ip contoh output: sw_ku3_a1 [dict]
+ansible_host            # output sesuai nama host/ip contoh output: sw_ku3_a1 [dict]
+group_names             # berupa daftar group dari host terkait contoh: access, gku_zona_a [list] 
+hostvars                # powerfull var , mencakup seluruh variabel di seluruh host
+groups                  # berupa keseluruhan grup dan daftar host masing-masing grup contoh distribution: sw_lc,sw_gkultd [list in list]
+environment             # [] secara default masih empty yah???
+ansible_group_priority  # undefined
+remote_user             # undefined
+gather_facts            # undefined
+gathering               # undefined
+ansible_facts           # undefined
+ansible_hostname        # undefined
+serial                  # undefined

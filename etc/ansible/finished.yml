@@ -1,0 +1,17 @@
+- name: Finishing playbook
+  hosts: myall
+  gather_facts: no
+  serial: 1
+  gather_timeout: 60
+  connection: network_cli
+  ignore_errors: no
+  vars_files:
+    - vars/common.yml 
+  pre_tasks:  
+    - name:  copying variable file in host_vars as old_file
+      copy:
+        dest: "{{playbook_dir}}/host_vars/old2_{{inventory_hostname}}.yml"
+        src: "{{playbook_dir}}/host_vars/{{inventory_hostname}}.yml"
+        backup: yes 
+      when: false 
+      

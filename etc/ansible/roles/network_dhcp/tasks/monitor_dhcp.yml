@@ -13,7 +13,7 @@
       sh_dhcp_binding: "{{ output.stdout[0] | parse_cli('roles/network_dhcp/vars/ios_show_dhcp_binding_parser.yml') | json_query('dhcp_binding[]. { ip_addr: ip_addr,client_id: client_id,lease_exp: lease_exp,type: type }') }}"
   - copy: 
       content: "{{ sh_dhcp_binding | to_nice_json }}"
-      dest: /{{dest_output_fact}}{{hostname}}_sh_dhcp_binding.json
+      dest: "{{playbook_dir}}/files/{{hostname}}_sh_dhcp_binding.json"
 
 ## | sh dhcp conflict
   - name: show command
@@ -29,7 +29,7 @@
       sh_dhcp_conflict: "{{ output.stdout[0] | parse_cli('roles/network_dhcp/vars/ios_show_dhcp_conflict_parser.yml')  | json_query('dhcp_binding[]. { ip_addr: ip_addr, detection_method: detection_method, detection_time: detection_time, vrf: vrf }') }}"  
   - copy: 
       content: "{{ sh_dhcp_conflict | to_nice_json }}"
-      dest: /{{dest_output_fact}}{{hostname}}_sh_dhcp_conflict.json    
+      dest: "{{playbook_dir}}/files/{{hostname}}_sh_dhcp_conflict.json"    
     
 ## | sh dhcp pool
   - name: show command
@@ -46,7 +46,7 @@
       sh_dhcp_pool: "{{ output.stdout[0] | parse_cli('roles/network_dhcp/vars/ios_show_dhcp_pool_parser.yml')  }}"
   - copy: 
       content: "{{ sh_dhcp_pool | to_nice_json }}"
-      dest: /{{dest_output_fact}}{{hostname}}_sh_dhcp_pool.json
+      dest: "{{playbook_dir}}/files/{{hostname}}_sh_dhcp_pool.json"
 
 ## | sh dhcp server statistics
   - name: show command
@@ -63,4 +63,4 @@
       sh_dhcp_server_statistics: "{{ output.stdout[0] | parse_cli('roles/network_dhcp/vars/ios_show_dhcp_server_statistics_parser.yml')  }}"
   - copy: 
       content: "{{ sh_dhcp_server_statistics | to_nice_json }}"
-      dest: /{{dest_output_fact}}{{hostname}}_sh_dhcp_server_statistics.json
+      dest: "{{playbook_dir}}/files/{{hostname}}_sh_dhcp_server_statistics.json"

@@ -1,11 +1,42 @@
 ---
-- name: Automation Project
-  hosts: ku3_b2
+- name: Experimental Playbook
+  hosts: myall
   gather_facts: no
   gather_timeout: 60
-  connection: local
+  connection: network_cli
   ignore_errors: no
+  vars_files:
+    - vars/test.yml
   pre_tasks:
+    - name: test PING to host
+      ping:
+          data: pong 
+    - set_fact:
+        host_ip: "{{ansible_host}}"
+        username: "{{ansible_ssh_user}}"
+        password: "{{ansible_ssh_pass}}"
+    - debug:
+        msg: "{{host_ip}} {{username}} {{password}}"
+
+    - name: test PING reachability using default vrf
+      ios_ping:
+        dest: 10.240.192.1
+        provider:
+          password: "{{password}}"
+          username: "{{username}}"
+          timeout: "{{ timeout }}"
+          host: "{{host_ip}}"
+      delay: "{{ delay }}"
+      retries: "{{ retries }}"
+      register: test_ping
+    - set_fact:
+        password: "{{new_ansible_ssh_pass}}"
+      when: password!=new_ansible_ssh_pass
+    - set_fact:
+        username: "{{new_ansible_ssh_user}}"
+      when: username!=new_ansible_ssh_user
+    - debug:
+        msg: "{{host_ip}} {{username}} {{password}}"   
     - name: test PING to host
       ping:
           data: pong 
@@ -13,12 +44,10 @@
       ios_command:
         commands:
           - "show run"
-        provider:
-          timeout: "{{ set_timeout }}"
       register: ifaces_output
     - set_fact:
         sh_run_config: "{{ ifaces_output.stdout[0] |  parse_cli('ios_show_running_config_parser.yml') }}" 
-     
+    # 
     # - set_fact:
     #     sh_run_config_user: "{{ ifaces_output.stdout[0] |  parse_cli('ios_show_running_config_username_parser.yml') |  json_query('config_users[].{username:username,privilege:privilege, secret_value:secret_value,fingerprint:fingerprint}')  }}"
     # - set_fact:

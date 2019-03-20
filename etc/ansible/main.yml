@@ -1,23 +1,152 @@
 ---
+- name: include experimental_playbook
+  import_playbook: experimental_playbooks.yml
+  when: false  
+
 - name: Automation Project
-  hosts: gkultd
+  hosts: myall
   gather_facts: no
+  serial: 1
   gather_timeout: 60
   connection: network_cli
   ignore_errors: no
   vars_files:
     - vars/common.yml 
-  vars:
-    all_names:
-      names:
-        - name: john
-        - name: joe
-        - name: joan
-    name_filter: joe
-  pre_tasks:    
-    - block:
-        - set_fact:
-            selected_names: "{{ all_names | json_query(\"names[?name=='\" + name_filter + \"'].name\") }}"
+  pre_tasks:  
+    - name: ping test
+      block: 
+        - name: Ping test, from Ansible server to host  # if it fail , wrong ip or blocked (e.g. because firewall,diffrent vlan,acl, or other)
+          ping:
+            data: pong
+          register: test 
+          failed_when: test.ping != 'pong'
+          ignore_errors: yes
+
+        - name: Connectivity test, from host itself to host itself 
+          ios_ping:
+              dest: "{{ansible_host}}"     
+              state: present
+          register: ping
+          failed_when: ping.failed == true
+    - name: pre task
+      include_tasks: pre_task.yml
+      when: true
+    - name: pre task experimental
+      include_tasks: experimental_tasks.yml
+      when: true
+  roles: 
+    - name: The first role  
+      role: "{{roles_1st | default('')}}"
+      vars:
+        example: "first"
+      when: true
+    - name: The second role  
+      role: "{{roles_2nd | default('')}}"
+      vars:
+        example: "second"
+      when: true
+    - "{{roles_3rd | default('')}}"
+    - "{{roles_4th | default('')}}"
+    - "{{roles_5th | default('')}}"
+    - "{{roles_6th | default('')}}"
+    - "{{roles_7th | default('')}}"
+    - "{{roles_8th | default('')}}"
+    - "{{roles_9th | default('')}}"
+    - "{{roles_10th | default('')}}"
+    - "{{roles_11th | default('')}}"
+    - "{{roles_12th | default('')}}"
+    # .............................
+    - "{{roles_last | default('')}}"
+  tasks:   
+  post_tasks:
+
+- name: Management migration playbook
+  import_playbook: management_vlan_migration.yml
+  when: not hostvars[inventory_hostname].ping.failed  # conditional ?? (conditional masih salah , sementara ini dulu)
+
+- name: Finishing playbook
+  import_playbook: finished.yml  # the conditional is processed inside the playbook
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#######################################################################################
+
+    # - block:
+      
+      
+      # - pause:
+      #     prompt: ""
+      # - name: add host to group 'just_created' with variable foo=42
+      #   add_host:
+      #     name: "{{ ip_from_ec2 }}"
+      #     groups: just_created
+      #     foo: 42
+
+      # - name: add host to multiple groups
+      #   add_host:
+      #     hostname: "{{ new_ip }}"
+      #     groups:
+      #       - group1
+      #       - group2
+
+      # - name: add a host with a non-standard port local to your machines
+      #   add_host:
+      #     name: "{{ new_ip }}:{{ new_port }}"
+
+      # - name: add a host alias that we reach through a tunnel (Ansible <= 1.9)
+      #   add_host:
+      #     hostname: "{{ new_ip }}"
+      #     ansible_ssh_host: "{{ inventory_hostname }}"
+      #     ansible_ssh_port: "{{ new_port }}"
+
+      # - name: add a host alias that we reach through a tunnel (Ansible >= 2.0)
+      #   add_host:
+      #     hostname: "{{ new_ip }}"
+      #     ansible_host: "{{ inventory_hostname }}"
+      #     ansible_port: "{{ new_port }}"
+
+      # - name: Ensure inventory vars are set to the same value as the inventory_hostname has (close to pre 2.4 behaviour)
+      #   add_host:
+      #     hostname: charlie
+      #     inventory_dir: "{{inventory_dir}}"
+   
     # - say:
     #     msg: '{{ inventory_hostname }}In computing, Ansible is an open-source software provisioning, configuration management, and application deployment tool. It runs on many Unix-like systems, and can configure both Unix-like systems as well as Microsoft Windows. It includes its own declarative language to describe system configuration. Wikipedia'
     #     voice: indonesian
@@ -62,29 +191,18 @@
     #         echo: no
     #       when: ansible_ssh_passasd is undefined and ansible_padass is undefined
     #       register: prompt_pass
-    #     - debug:
+    #     - debug:  
     #         var: prompt_host.user_input |replace('\\b','')| regex_replace('(.*)(\d*.\d*.\d*.\d*)','$2')
     #   delegate_to: localhost
-      
-    - name: ping test
-      block: 
-          #   PING TEST
-        - name: test PING to host
-          ping:
-            data: pong
-          register: test 
-          failed_when: test.ping != 'pong'
-          ignore_errors: yes
 
-        - name: ping
-          ios_ping:
-              dest: 10.240.192.1
-              state: present
-          register: a
-        - debug:
-            var: a
-        - pause:
-            prompt: ""
+
+
+#######################################################################################
+
+
+
+        # - pause:
+        
     #     - debug:
     #         msg: 
     #           - "FAILED because,{{test.msg}}"
@@ -132,74 +250,9 @@
     #         # #         password: "{{ansible_ssh_pass}}"
             # #         new_ansible_host: 10.240.192.20 
 
-  roles: 
-    - "{{roles_1st | default('')}}"
-    - "{{roles_2nd | default('')}}"
-    - "{{roles_3rd | default('')}}"
-    - "{{roles_4th | default('')}}"
-    - "{{roles_5th | default('')}}"
-    - "{{roles_6th | default('')}}"
-    - "{{roles_7th | default('')}}"
-    - "{{roles_8th | default('')}}"
-    - "{{roles_9th | default('')}}"
-    - "{{roles_10th | default('')}}"
-    - "{{roles_11th | default('')}}"
-    - "{{roles_12th | default('')}}"
-
-    - "{{roles_last | default('')}}"
-    
-  tasks:
-  post_tasks:
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+#######################################################################################
 
   # TEST
             # # - name: get user,pass,target

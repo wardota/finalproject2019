@@ -1,24 +1,26 @@
 ansible_python_interpreter: /usr/bin/env python
 dest_output_fact: etc/ansible/files/
+inventory_hostname: "{{inventory_hostname}}"
+inventory_dir: "{{inventory_dir}}"
 
-#network_cli param
+# network_cli param
 ansible_user: cisco2
 ansible_password: cisco
 ansible_network_os: ios
 ansible_ssh_user: cisco2
 ansible_ssh_pass: cisco
 timeout: 300
-# ansible_become: no          # default
-# ansible_become_method: sudo # default
-# ansible_become_method: enable
-# ansible_become_pass: cisco
-# remote_port: 22             # default
-# ansible_private_key_file  : null  # default
-# ansible_buffer_read_timeout: 0.1  # default
-# ansible_command_timeout: 10  # default
-# ansible_connect_timeout: 30  # default
-# snmp_ro_community: public
-# snmp_rw_community: private
+#ansible_become: no          # default
+#ansible_become_method: sudo # default
+#ansible_become_method: enable
+#ansible_become_pass: cisco
+#remote_port: 22             # default
+#ansible_private_key_file  : null  # default
+#ansible_buffer_read_timeout: 0.1  # default
+#ansible_command_timeout: 10  # default
+#ansible_connect_timeout: 30  # default
+#snmp_ro_community: public
+#snmp_rw_community: private
 
 new_ansible_user: cuman
 new_ansible_password: password123d

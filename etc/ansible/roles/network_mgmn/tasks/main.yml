@@ -18,7 +18,7 @@
       file: ../network_vlan/vars/vlan_db_old.yml
       name: old
   - include_vars: 
-      file: ../../host_vars/old_sw_ku3_a1.yml
+      file: "../../host_vars/old_{{inventory_hostname}}.yml"
       name: old2
   - set_fact:
       allVlan: 1-4094

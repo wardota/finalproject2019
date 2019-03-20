@@ -42,6 +42,7 @@ ku3_b3
 
 [mydist:children]
 gkultd
+lc
 
 [mycore:children]
 sisfo

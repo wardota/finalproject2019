@@ -1,9 +1,6 @@
 pre_tasks: 
-  pingtest: on
-  init: on
-roles_1st: network_inspect
-roles_2nd: variable_inspect
-roles_3rd: network_mgmn
+# roles_1st: network_inspect
+# roles_2nd: variable_inspect
 # roles_4th: network_dhcp
 # roles_5th: network_user
 # roles_6th: network_line
@@ -13,7 +10,7 @@ roles_3rd: network_mgmn
 # roles_10th: network_inspect
 # roles_11th: network_crypto
 # roles_12th: network_mgmn
-roles_13th:
+# roles_last:
 tasks:
 post_tasks:
 set_case: deploy # deploy|monitor|maintance
