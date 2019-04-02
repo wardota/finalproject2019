@@ -94,6 +94,7 @@ interface:
     ip: 10.240.192.2
     subnet: 255.255.0.0
     prefix: 16
+    main: yes
 
 services_on:
   - no service pad

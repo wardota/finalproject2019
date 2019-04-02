@@ -129,6 +129,7 @@ interface:
     ip: 10.240.192.21
     subnet: 255.255.0.0
     prefix: 16
+    main: yes
 services_on:
   - no service pad
   - service timestamps debug datetime msec

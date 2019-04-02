@@ -233,6 +233,7 @@ interface:
     ip: 10.240.192.20
     subnet: 255.255.0.0
     prefix: 16
+    main: yes
       # // karena interface terbatas dari fa1/0 hingga fa1/15 total ada 16 tapi saya gunakan 14 saja dan menadi sebagai berikut//
       # 901=IntFa1/0-4 access
 

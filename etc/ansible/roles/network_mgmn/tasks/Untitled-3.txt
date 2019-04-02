@@ -19,7 +19,7 @@
       file: "../../host_vars/old_{{inventory_hostname}}.yml"
       name: old2
   - set_fact:
-      all_id: 1-4094   # 1-4094 string
+      allVlan: 1-4094
       mgmnt:
         changes:
           vlan_id   : false # true if vlan id is changed 
@@ -36,42 +36,68 @@
         old_int_vlan : "{{ old2.interface | json_query('[?main==`true`].{name:name,ip:ip,prefix:prefix}') | mandatory }}"
         int_phy      : "{{ interface      | json_query('[?main==`true`].{name:name,ip:ip,prefix:prefix}') | mandatory }}"
         sw_port      : "{{ interface      | json_query('[?allowed!=[]].{name:name,mode:mode,allowed:allowed}')  }}"
-   
+
+
+  # how to find vlan in allowed vlan of switchport trunk
+  # ex: find vlan 1097 in 1094-1098,1957,3101-3102,3104,3151-3152,3152,3154     
   - set_fact:
-      allowed_id: "{{mgmnt.sw_port[0].allowed}},{{default_vlan}}" # string e.g. 1094-1098,1957,3101-3102,3104,3151-3152,3152,3154,1,1002-1005
-      all_id: "{{(range(all_id.split('-').0|int,all_id.split('-').1|int+1) | list | join(',')) .split(',')}}" # [1,...,4094]
+      find: "{{mgmnt.new_vlan[0].id}}"
+      it: "{{mgmnt.sw_port[0].allowed}},{{default_vlan}}"
   - set_fact:
-      allowed_id_part1: "{{allowed_id.split(',') | json_query('[?contains(@, `-`) == `true`]')}}"  # list e.g. [1094-1098,3101-3102,3151-3152,1002-1005]
-      allowed_id_part2: "{{allowed_id.split(',') | json_query('[?contains(@, `-`) == `false`]')}}" # list e.g. [1098,1957,3101,3152,3152,3154,1]
+      split1: "{{it.split(',') | json_query('[?contains(@, `-`) == `true`]')}}"
+      split2: "{{it.split(',') | json_query('[?contains(@, `-`) == `false`]')}}"
+      aVn: "{{(range(allVlan.split('-').0|int,allVlan.split('-').1|int+1) | list | join(',')) .split(',')}}"
+
   - set_fact:
       items: "{{range(item.split('-').0|int,item.split('-').1|int+1) | list}}"
-    loop: "{{allowed_id_part1}}"
-    register: allowed_id_part1
+    loop: "{{split1}}"
+    register: split1
   - set_fact:
-      allowed_id: "{{ ([allowed_id_part1 | json_query('results[:].ansible_facts.items'),allowed_id_part2] | flatten | join(',')).split(',')  | unique | sort}}"
+      it: "{{ ([split1 | json_query('results[:].ansible_facts.items'),split2] | flatten | join(',')).split(',')  | unique | sort}}"
   - set_fact:
-      not_allowed_id: "{{all_id| difference(allowed_id) }}"
-  - set_fact:
-      not_allowed_id: "{% for item in not_allowed_id %}{% if loop.last %}{{item}}{% break %}{% elif loop.first %}{{item}}{%if not_allowed_id[loop.index0]|int+1 == not_allowed_id[loop.index0+1]|int%}-{%else%},{%endif%}{% continue %}{% elif (not_allowed_id[loop.index0]|int) - not_allowed_id[loop.index0-1]|int>1 %}{% if (not_allowed_id[loop.index0]|int) - not_allowed_id[loop.index0+1]|int<-1 %}{{item}},{%else%}{{item}}-{%endif%}{% else %}{% if (not_allowed_id[loop.index0]|int) - not_allowed_id[loop.index0+1]|int<-1 %}{{item}},{%else%}{% endif %}{% endif %}{% endfor %}"
-      not_allowed_id_v2: "{% for item in not_allowed_id %}{% if loop.last %}{{item}}{% break %}{% elif not_allowed_id[loop.index-2]|int+1 == not_allowed_id[loop.index-1]|int and not_allowed_id[loop.index-1]|int+1 == not_allowed_id[loop.index]|int %}-{% else %}{{item}},{% endif %}{% endfor %}"  
-  - set_fact:
-      not_allowed_id: "{{not_allowed_id.split(',')|batch(24)|list|flatten}}"  #batch is 24 because maximum line string is 255 character ; (24x9)+39==255 ; 9 is item length possible example : (3000-4000); 39 is reserved for command 'switchport trunk allowed vlan add|remove|except|all'
-      not_allowed_id_v2: "{{(not_allowed_id_v2|replace(',-','-')|regex_replace('(-){1,}','-')).split(',')}}"
+      ex1: "{{aVn | difference(it) }}"
 
 
+  - set_fact:
+      ex6: "{% for item in ex1 %}{% if loop.last %}{{item}}{% break %}{% elif ex1[loop.index-2]|int+1 == ex1[loop.index-1]|int and ex1[loop.index-1]|int+1 == ex1[loop.index]|int %}-{% else %}{{item}},{% endif %}{% endfor %}"  
+      ex7: "{% for item in ex1 %}{% if loop.last %}{{item}}{% break %}{% elif loop.first %}{{item}}{%if ex1[loop.index0]|int+1 == ex1[loop.index0+1]|int%}-{%else%},{%endif%}{% continue %}{% elif (ex1[loop.index0]|int) - ex1[loop.index0-1]|int>1 %}{% if (ex1[loop.index0]|int) - ex1[loop.index0+1]|int<-1 %}{{item}},{%else%}{{item}}-{%endif%}{% else %}{% if (ex1[loop.index0]|int) - ex1[loop.index0+1]|int<-1 %}{{item}},{%else%}{% endif %}{% endif %}{% endfor %}"
+            # - set_fact:
+                # ex7:
+            # - set_fact:
+            #     ex7: "{{ex7| regex_replace('(,-){1,}','-')| regex_replace('(-){1,}','-')}},{{(ex1[item-1]|int+1==ex1[item+1]|int-1 )| replace(false,ex1[item]) | replace(true,'-')}}"
+            #   loop: "{{ range(0|int,ex1|length|int-1)|list}}"
+            #   loop_control:
+            #     label: "{{item}}"
+            # - set_fact:
+            #     ex7: "{{ex7| replace('None,','')| replace('-,-,-','-')| replace('-,-','-') | regex_replace('(-,){1,}','-')}}{{ex1[ex1|length|int-1]}}"
+
+  - set_fact:
+      ex6: "{{ex6|replace(',-','-')|regex_replace('(-){1,}','-')}}"
+      split_ex7: "{{ex7.split(',')|batch(24)|list}}"  #batch is 24 because maximum line string is 255 character ; (24x9)+39==255 ; 9 is item length possible example : (3000-4000); 39 is reserved for command 'switchport trunk allowed vlan add|remove|except|all'
+
+  - ios_config:
+      parents: interface FastEthernet1/14
+      lines: switchport trunk allowed vlan all
+      
+  - ios_l2_interface:
+      name                : FastEthernet1/14
+      trunk_vlans : "{{item | join(',')}}"
+      state : absent
+      mode  : trunk
+    loop: "{{split_ex7}}"
   #   loop_control:
-  #      label: "removing {{not_allowed_id[item:item+36]| join(',')|replace(' ','')}}"
+  #      label: "removing {{ex1[item:item+36]| join(',')|replace(' ','')}}"
 
   # - debug:
-  #     msg: "{{(not_allowed_id[item-1]|int+1==not_allowed_id[item+1]|int-1 )| replace(false,not_allowed_id[item]) | replace(true,'-')}}"
-  #   loop: "{{ range(0|int,not_allowed_id|length|int-1)|list}}"
+  #     msg: "{{(ex1[item-1]|int+1==ex1[item+1]|int-1 )| replace(false,ex1[item]) | replace(true,'-')}}"
+  #   loop: "{{ range(0|int,ex1|length|int-1)|list}}"
   #   register: ex4
   # - debug:
   #     var: ex4.results
-  #   # when: not_allowed_id[item-1]|int+1!=not_allowed_id[item+1]|int-1
+  #   # when: ex1[item-1]|int+1!=ex1[item+1]|int-1
   #   # when: item[0-1]>
   # - set_fact:
-  #     not_allowed_id_v2: "{{not_allowed_id | json_query('[?==]')}}"
+  #     ex6: "{{ex1 | json_query('[?==]')}}"
 
 
 
@@ -81,21 +107,26 @@
       
   # - ios_l2_interface:
   #     name                : FastEthernet1/14
-  #     trunk_vlans : "{{not_allowed_id[item:item+36]| join(',')|replace(' ','')}}"
+  #     trunk_vlans : "{{ex1[item:item+36]| join(',')|replace(' ','')}}"
   #     state : absent
   #     mode  : trunk
-  #   loop: "{{ range(0|int,not_allowed_id|length|int,36)|list}}"
+  #   loop: "{{ range(0|int,ex1|length|int,36)|list}}"
   #   loop_control:
-  #      label: "removing {{not_allowed_id[item:item+36]| join(',')|replace(' ','')}}"
+  #      label: "removing {{ex1[item:item+36]| join(',')|replace(' ','')}}"
 
   # - set_fact:
-  #     not_allowed_id: "{{not_allowed_id[item]}}"
-  #   loop: "{{ range(0|int,not_allowed_id|length|int)|list}}"
-  #   when: not_allowed_id[item-1]|int+1==not_allowed_id[item+1]|int-1
+  #     ex1: "{{ex1[item]}}"
+  #   loop: "{{ range(0|int,ex1|length|int)|list}}"
+  #   when: ex1[item-1]|int+1==ex1[item+1]|int-1
   #   # when: item[0-1]>
 
 
 
+
+  - set_fact:
+      it: "{{it}}"
+      exist: "{{find in it}}"
+      exclude: "{{split_ex7 | difference(it) | join(',')}}"
   # how to find, int vlan is the vlan mgmnt ?
   - set_fact:
       ansible_host: "{{ item.ip }}"
@@ -204,6 +235,14 @@
 
   - block:
     - when: mgmnt.changes.vlan_id == true and mgmnt.changes.vlan_name == false  
+      name: debug - ganti nama vlan jadi old
+      debug:
+        msg: "{{ item.id }} - {{ item.name }}_old"
+      loop: "{{ mgmnt.old_vlan }}"
+      register: mgmnt_vlan_old_backup
+      failed_when: false # what condition it might fail ???
+      notify:
+    - when: mgmnt.changes.vlan_id == true and mgmnt.changes.vlan_name == false  
       name: ganti nama vlan jadi old
       ios_vlan:
         vlan_id: "{{ item.id }}"
@@ -222,6 +261,13 @@
         # apabila gagal maka jalankan failed_when: ???
         # apabila terdapat perubahan notify: ???
 
+    - debug:
+        msg: "{{ item.id }} - {{ item.name }}"
+      loop: "{{ mgmnt.new_vlan }}"
+      when: mgmnt.changes.vlan_name == true
+      register: mgmnt_vlan_changed
+      name: debug - add/change vlan
+      notify:
     - ios_vlan:
         vlan_id: "{{ item.id }}"
         name: "{{ item.name }}"
@@ -234,6 +280,10 @@
         # set new ID and new NAME
         # ketika vlan name berubah(true) 
         # maka ubah nama vlan
+    rescue:
+    - debug:
+    always:
+    - debug:
 
 
 #__________________________________________________________________________________________
@@ -252,33 +302,38 @@
   #     do warning not declared yet in , but added automaticaly
   #
   - block: 
-
+    # - ios_l2_interface:
+    #     name                : "{{item.name}}"
+    #     trunk_vlans : "{{item.allowed}},{{default_vlan}}"
+    #     state : present
+    #     mode  : trunk
+    #   loop: "{{mgmnt.sw_port}}"
+    #   when: mgmnt.changes.sw_port == true
+    #   register: mgmnt_sw_port_changed
+    #   notify:
     - ios_config:
         parents: interface FastEthernet1/14
         lines: switchport trunk allowed vlan all
+        
     - ios_l2_interface:
-        name : FastEthernet1/14
-        trunk_vlans : "{{item | join(',')}}"
+        name                : FastEthernet1/14
+        trunk_allowed_vlans : 2-88
         state : absent
         mode  : trunk
-      loop: "{{not_allowed_id}}"
-    - ios_l2_interface:
-        name  : "{{item.name}}"
-        trunk_vlans : "{{item.allowed}},{{default_vlan}}"
-        state : present
-        mode  : trunk
-      loop: "{{mgmnt.sw_port}}"
-      when: mgmnt.changes.sw_port == true
-      register: mgmnt_sw_port_changed
+      # loop: "{{mgmnt.sw_port}}"
+      # when: mgmnt.changes.sw_port == true
+      # register: mgmnt_sw_port_changed
+      # notify:
 
-    - ios_l2_interface:
-        name                : "{{item.name}}"
-        trunk_vlans : "{{item.allowed}}"
-        state : absent
-        mode  : trunk
-      loop: "{{mgmnt.sw_port}}"
-      when: mgmnt.changes.sw_port == true
-      register: mgmnt_sw_port_changed
+    # - ios_l2_interface:
+    #     name                : "{{item.name}}"
+    #     trunk_vlans : "{{item.allowed}}"
+    #     state : absent
+    #     mode  : trunk
+    #   loop: "{{mgmnt.sw_port}}"
+    #   when: mgmnt.changes.sw_port == true
+    #   register: mgmnt_sw_port_changed
+    #   notify:
   #       # set the vlan as allowed vlan on switch port trunk
   #       # ketika switchport trunk mengalami perubahan(true) dan vlan id mgmn ada di list allowed vlan(true)
   #       # maka rubah vlan allowed vlan yang ada
@@ -302,6 +357,11 @@
         msg: "do warning: vlan id declared not in sw_port allowed vlan , but added automaticaly"
         verbosity:  4 #locked
       when: not exist
+    rescue:
+    - debug:
+    always:
+    - debug:
+
   - pause:
       prompt: "OK2?"
 #__________________________________________________________________________________________
@@ -319,6 +379,7 @@
   #     else
   #       do emergency we are screwed
   - block:
+
     - ios_l3_interface:
         name: "{{ item.name }}"
         state: present
@@ -328,7 +389,7 @@
       register: mgmnt_int_vlan_changed
       ignore_unreachable: yes
       ignore_errors: yes
-
+      notify:
         # set IP / PREFIX , if IP/PREFIX/VLAN_ID is changed
         # ketika ip address berubah(true) atau vlan id berubah(true)
         # maka rubah interface name jika berubah dan ip address jika berubah
@@ -339,6 +400,7 @@
       loop: "{{ mgmnt.int_vlan }}"
       when: mgmnt.new_vlan[0].id in item.name  
       delegate_to: localhost
+      notify:
 
     # do test new connection, it should be connected
     - ios_ping:
@@ -346,6 +408,7 @@
       delay: "{{ delay }}"
       retries: "{{ retries }}"
       register: test_ping
+      notify:
 
 
 
@@ -373,6 +436,7 @@
       retries: "{{ retries }}"
       when: test_ping.failed
       register: test_old_ping
+      notify:
     - debug:
         msg: "ping new ip failed, do warning failed ip address dont delete old vlan"
       when: test_ping.failed
@@ -388,6 +452,11 @@
       loop: "{{mgmnt.old_int_phy}}"
       when: not mgmnt_sw_port_changed.failed
       register: delete_mgmnt_sw_port_changed
+      notify:
+    rescue:
+    - debug:
+    always:
+    - debug:
   - pause:
       prompt: "OK2?"
 

@@ -1,70 +1,213 @@
+
+# - IDE :
+#   - alarm bangun pagi (sensor gerakan, accelerometer sensor, gyroscope sensor=> sudut, led ldr => cahaya, sensor deteksi air di tangan)
+#   - deteksi dan penyaring air bersih dari bahan metal, (metal detector sensor, sensor cahaya, sensor ph)
+#   - monitor air galon (sensor suhu, tekanan/volume, suhu lingkungan)
+
+
+
 ---
 - name: Experimental Playbook
-  hosts: myall
+  hosts: localhost
   gather_facts: no
   gather_timeout: 60
-  connection: network_cli
+  connection: local
   ignore_errors: no
   vars_files:
     - vars/test.yml
+  vars:
+    dict1:
+      as: as
+    dict2:
+      ak: ak
+    bbb: "as"
+    aa:
+      - - 111
+        - 112
+        - 113
+      - - 221
+        - 222
+        - 223
+    myarray: 
+      - foo
+      - foobar
+      - barfoo
+      - bar
+      - baz
+      - barbaz
+      - barfoobaz
+  
+    bb:
+      - asd: asd
+        ask: asd
+      - asd: as23
+        ask: we
+    users:
+      - name: ANAN
+        telephone: 123-456-7890
+      - name: BOBO
+        telephone: 987-654-3210
+      - name: CACA
+        telephone: 987-654-3210
+      - name: DODO
+        telephone: 987-654-3210    
+    jq: "[?contains(hostname, 'alpha')]"
+    json: |
+      [{
+          "active_transaction": null,
+          "cores": 4,
+          "hostname": "alpha-auth-wb01"
+      },
+      {
+          "active_transaction": null,
+          "cores": 4,
+          "hostname": "beta-auth-wb01"
+      }]
+    alpha: [ '1-3', '4-7', '10-13' ]
+    awe: "1094-1098,1957,3101-3102,3104,3151-3152,3152,3151,7"
+    numbers:  [ 1, 2, 3, 4, 5, 7,8,10 ]
+    number2:  [ [ [rrdrr, ssss], [tttt, uuuu, v]],[[eeee, ffff],[ gggg, kkkk, llll]],[[mmmm, oooo, pppp], [qqqq, rrrr]],[[ssss, tttt], [uuuu, vvvv, wwww]] ]
+    number:  [ [rrrr, ssss, tttt, uuuu, v],[eeee, ffff, gggg, kkkk, llll],[mmmm, oooo, pppp, qqqq, rrrr],[ssss, tttt, uuuu, vvvv, wwww] ]
   pre_tasks:
-    - name: test PING to host
-      ping:
-          data: pong 
-    - set_fact:
-        host_ip: "{{ansible_host}}"
-        username: "{{ansible_ssh_user}}"
-        password: "{{ansible_ssh_pass}}"
+    - set_fact: 
+        asd: "{{ awe | dash2inrange_int }}"
+    - pause:
+        prompt: "" 
+    - set_fact: 
+        ass: "{{ myarray | to_json | from_json | json_query(\"[?contains(@, 'foo')]\") }}"
+    - pause:
+        prompt: "" 
+    - name: 
+      set_fact: 
+        ass: "{{ [] | zip_longest(numbers, fillvalue=bbb) | list }}"  
+    - name: 
+      set_fact: 
+        ass: "{{ ass + [] | zip_longest(numbers, fillvalue=bbb) | list  }}"
     - debug:
-        msg: "{{host_ip}} {{username}} {{password}}"
+        msg: "{{ ass[index].0 }} => {{ ass[index].1 }}"
+      loop: "{{ass}}"
+      loop_control:
+        index_var: index
+    - pause:
+        prompt: ""  
+    - name: give me longest combo of three lists , fill with X
+      set_fact:
+        host_network_info: "{{ host_network_info | default([]) + [dict( bbb =item[0], ip=item[1])  ] }}"
+      loop: "{{ alpha | zip(numbers) | list }}"
+    - name: give me longest combo of three lists , fill with X
+      set_fact:
+        host_network_info: "{{ host_network_info | items2dict(key_name='bbb', value_name='ip')}}"
 
-    - name: test PING reachability using default vrf
-      ios_ping:
-        dest: 10.240.192.1
-        provider:
-          password: "{{password}}"
-          username: "{{username}}"
-          timeout: "{{ timeout }}"
-          host: "{{host_ip}}"
-      delay: "{{ delay }}"
-      retries: "{{ retries }}"
-      register: test_ping
-    - set_fact:
-        password: "{{new_ansible_ssh_pass}}"
-      when: password!=new_ansible_ssh_pass
-    - set_fact:
-        username: "{{new_ansible_ssh_user}}"
-      when: username!=new_ansible_ssh_user
+    - name: with_nested
+      debug:
+        msg: "{{ item | join(',')}} - {{index}}"
+      loop: "{{ number2[1][0:] }}"
+      loop_control:
+        index_var: index
+    - pause:
+        prompt: ""  
     - debug:
-        msg: "{{host_ip}} {{username}} {{password}}"   
-    - name: test PING to host
-      ping:
-          data: pong 
-    - name: get show 
-      ios_command:
-        commands:
-          - "show run"
-      register: ifaces_output
-    - set_fact:
-        sh_run_config: "{{ ifaces_output.stdout[0] |  parse_cli('ios_show_running_config_parser.yml') }}" 
-    # 
-    # - set_fact:
-    #     sh_run_config_user: "{{ ifaces_output.stdout[0] |  parse_cli('ios_show_running_config_username_parser.yml') |  json_query('config_users[].{username:username,privilege:privilege, secret_value:secret_value,fingerprint:fingerprint}')  }}"
-    # - set_fact:
-    #     sh_run_config_dhcp: "{{ ifaces_output.stdout[0] |  parse_cli('ios_show_running_config_dhcp_parser.yml') }}"
-    # - set_fact:
-    #     sh_run_config_dhcp_ex: "{{ ifaces_output.stdout[0] |  parse_cli('ios_show_running_config_dhcp_excluded_parser.yml') | json_query('ip_dhcp_excluded[].[range]')|flatten}}"
-    # - set_fact:
-    #     crypto_pki_trustpoint: "{{ ifaces_output.stdout[0] |  parse_cli('ios_show_running_config_crypto_pki_trustpoint_parser.yml') }}" 
-    # - set_fact:
-    #     crypto_pki_cert: "{{ ifaces_output.stdout[0] |  parse_cli('ios_show_running_config_crypto_pki_certificate_parser.yml') }}" 
-    # - set_fact:
-    #     sh_run_config_vlan: "{{ ifaces_output.stdout[0] |  parse_cli('ios_show_running_config_vlan_parser.yml') }}" 
-    # - set_fact:
-    #     sh_run_config_interface: "{{ ifaces_output.stdout[0] |  parse_cli('ios_show_running_config_interface_parser.yml') }}" 
-    # - set_fact:
-    #     sh_run_config_line: "{{ ifaces_output.stdout[0] |  parse_cli('ios_show_running_config_line_parser.yml') }}" 
+        var: number
+    - debug:
+        msg: "{{ item.0 }} and {{ item.1 }} and {{ item[2:][0:] |join(',') }} -- {{ index }}"
+      with_together:
+        - "{{ alpha }}"
+        - "{{ numbers }}"
+        - "{{ number }}"
+      loop_control:
+        index_var: index
+    - name: with_indexed_items -> loop
+      debug:
+        msg: "{{ index }} - {{ item }}"
+      loop: "{{ alpha|flatten(levels=1) }}"
+      loop_control:
+        index_var: index
+    - pause:
+        prompt: ""  
+    - name: with_together
+      debug:
+        msg: "{{ item }}"
+      with_together:
+        - "{{ aa }}"
+        - "{{ bb }}"
+        - "{{ range(0|int,aa|length|int)|list}}"
+    - debug:
+        msg: "{{ item }}"
+      loop: "{{ aa|zip(bb)|list }}"
+    - debug:
+        msg: "User {{ item.key }} is {{ item.value.name }} ({{ item.value.telephone }})"
+      with_dict: "{{ users }}"
+    - name: with_dict
+      debug:
+        msg: "{{ item.key }} - {{ item.value }}"
+      with_dict: "{{ users }}"
 
-    - copy: 
-        content: "{{ sh_run_config | to_nice_json }}"
-        dest: /etc/ansible/ios_show_running_config_{{hostname}}.json
+    - name: with_dict -> loop (option 1)
+      debug:
+        msg: "{{ item.key }} - {{ item.value.name }}"
+      loop: "{{  users |dict2items }}"
+
+    - name: with_dict -> loop (option 2)
+      debug:
+        msg: "{{ item.0 }} - {{ item.1 }}"
+      loop: "{{  users |dictsort }}"
+
+
+    - pause:
+        prompt: ""  
+
+    # - set_fact:
+    #     host_ip: "{{ansible_host}}"
+    #     username: "{{ansible_ssh_user}}"
+    #     password: "{{ansible_ssh_pass}}"
+    # - debug:
+    #     msg: "{{host_ip}} {{username}} {{password}}"
+    # - name: test PING reachability using default vrf
+    #   ios_ping:
+    #     dest: 10.240.192.1
+    #     provider:
+    #       password: "{{password}}"
+    #       username: "{{username}}"
+    #       timeout: "{{ timeout }}"
+    #       host: "{{host_ip}}"
+    #   delay: "{{ delay }}"
+    #   retries: "{{ retries }}"
+    #   register: test_ping
+    # - set_fact:
+    #     password: "{{new_ansible_ssh_pass}}"
+    #   when: password!=new_ansible_ssh_pass
+    # - set_fact:
+    #     username: "{{new_ansible_ssh_user}}"
+    #   when: username!=new_ansible_ssh_user
+    # - debug:
+    #     msg: "{{host_ip}} {{username}} {{password}}"   
+    # - name: test PING to host
+    #   ping:
+    #       data: pong 
+    # - name: get show 
+    #   ios_command:
+    #     commands:
+    #       - "show run"
+    #   register: ifaces_output
+    # - set_fact:
+    #     sh_run_config: "{{ ifaces_output.stdout[0] |  parse_cli('ios_show_running_config_parser.yml') }}" 
+    # # 
+    # # - set_fact:
+    # #     sh_run_config_user: "{{ ifaces_output.stdout[0] |  parse_cli('ios_show_running_config_username_parser.yml') |  json_query('config_users[].{username:username,privilege:privilege, secret_value:secret_value,fingerprint:fingerprint}')  }}"
+    # # - set_fact:
+    # #     sh_run_config_dhcp: "{{ ifaces_output.stdout[0] |  parse_cli('ios_show_running_config_dhcp_parser.yml') }}"
+    # # - set_fact:
+    # #     sh_run_config_dhcp_ex: "{{ ifaces_output.stdout[0] |  parse_cli('ios_show_running_config_dhcp_excluded_parser.yml') | json_query('ip_dhcp_excluded[].[range]')|flatten}}"
+    # # - set_fact:
+    # #     crypto_pki_trustpoint: "{{ ifaces_output.stdout[0] |  parse_cli('ios_show_running_config_crypto_pki_trustpoint_parser.yml') }}" 
+    # # - set_fact:
+    # #     crypto_pki_cert: "{{ ifaces_output.stdout[0] |  parse_cli('ios_show_running_config_crypto_pki_certificate_parser.yml') }}" 
+    # # - set_fact:
+    # #     sh_run_config_vlan: "{{ ifaces_output.stdout[0] |  parse_cli('ios_show_running_config_vlan_parser.yml') }}" 
+    # # - set_fact:
+    # #     sh_run_config_interface: "{{ ifaces_output.stdout[0] |  parse_cli('ios_show_running_config_interface_parser.yml') }}" 
+    # # - set_fact:
+    # #     sh_run_config_line: "{{ ifaces_output.stdout[0] |  parse_cli('ios_show_running_config_line_parser.yml') }}" 
+    # - copy: 
+    #     content: "{{ sh_run_config | to_nice_json }}"
+    #     dest: /etc/ansible/ios_show_running_config_{{hostname}}.json

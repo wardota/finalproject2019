@@ -1,0 +1,7 @@
+- set_fact:    
+    not_allowed_id: "{{ (all_id2| difference(((intended_cfg_main_int_sw_port[outer_item].allowed +\",\"+ default_vlan) | dash2inrange_int)) | inrange_int2dash).split(',') | mybatch(4) | list  }}"
+    allowed_id: "{{ (((intended_cfg_main_int_sw_port[outer_item].allowed +\",\"+ default_vlan) | dash2inrange_int) | inrange_int2dash).split(',') | mybatch(4) |list}}" 
+  
+- set_fact: 
+    tmp_n_allowed: "{{tmp_n_allowed | default([]) + [] | zip_longest(not_allowed_id, fillvalue=intended_cfg_main_int_sw_port[outer_item].name) | list }}"
+    tmp_allowed: "{{tmp_allowed | default([]) + [] | zip_longest(allowed_id, fillvalue=intended_cfg_main_int_sw_port[outer_item].name) | list }}"

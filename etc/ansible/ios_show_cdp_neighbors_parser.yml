@@ -1,0 +1,13 @@
+#Device ID         Local Intrfce     Holdtme    Capability  Platform  Port ID
+vars:
+  status:
+    device_id         : "{{ item.a }}"
+    lcl_intrfce       : "{{ item.b }}"
+    holdtime          : "{{ item.c }}"
+    capa              : "{{ item.d }}"
+    platform          : "{{ item.e }}"
+    port_id           : "{{ item.f }}"
+keys:
+  show_cdp_neighbors:
+    value: "{{ status }}"
+    items: "^(?P<a>\\S*)\\s+(?P<b>\\S*\\s\\S*)\\s+(?P<c>\\d{1,})\\s+(?P<d>(?:[RPMSTHBIr ]?){1,5})\\s+(?P<e>\\S*\\s\\S*)\\s+(?P<f>\\S*\\s\\S*)$"
