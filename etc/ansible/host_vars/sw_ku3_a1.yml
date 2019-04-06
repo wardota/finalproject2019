@@ -1,4 +1,4 @@
-ansible_host: 10.240.192.12
+ansible_host: 10.240.192.173
 hostname: SW.KU3.01.ZONA-A
 hierarchy_layer: access
 vtp_mode: transparent # server/cliet/transparent
@@ -159,7 +159,7 @@ interface:
   - name: vlan 1             #value is 'vlan + VLANID'   , dont fill it with 'VLANNAME'
     ip: no
   - name: vlan 1097          #value is 'vlan + VLANID'   , dont fill it with 'VLANNAME'
-    ip: 10.240.192.13
+    ip: 10.240.192.183
     subnet: 255.255.0.0
     prefix: 15
     main: yes

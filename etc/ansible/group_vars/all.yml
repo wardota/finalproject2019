@@ -9,7 +9,7 @@ ansible_password: cisco
 ansible_network_os: ios
 ansible_ssh_user: cisco2
 ansible_ssh_pass: cisco
-timeout: 300
+timeout: 40
 #ansible_become: no          # default
 #ansible_become_method: sudo # default
 #ansible_become_method: enable

@@ -13,5 +13,5 @@
         dest: "{{playbook_dir}}/host_vars/old2_{{inventory_hostname}}.yml"
         src: "{{playbook_dir}}/host_vars/{{inventory_hostname}}.yml"
         backup: yes 
-      when: false 
+      when: true
       

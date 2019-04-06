@@ -56,11 +56,19 @@ class FilterModule(object):
 
     def do_batch2(self,value, linecount, d=u','):
         tmp = []
+        pos=0
         for item in value:
+            pos+=1
             if len(tmp) == linecount:
                 
                 d = d.join(tmp)
                 yield d
                 d=u','
                 tmp = []
+            
             tmp.append(item)
+            
+            if (len(value) == pos) and (len(tmp) != linecount):
+
+                d = d.join(tmp)
+                yield d

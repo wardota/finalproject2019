@@ -1,13 +1,29 @@
-#Device ID         Local Intrfce     Holdtme    Capability  Platform  Port ID
+# Capability Codes: R - Router, T - Trans Bridge, B - Source Route Bridge
+#                   S - Switch, H - Host, I - IGMP, r - Repeater, P - Phone,
+#                   D - Remote, C - CVTA, M - Two-port Mac Relay
+# Device ID         Local Intrfce     Holdtme    Capability  Platform  Port ID
+# ESW16.wardota.com Fas 1/13           139          S I      3725      Fas 1/15
+# ESW2.wardota.com  Fas 1/15           128          S I      3725      Fas 1/14
+# ESW1.wardota.com  Fas 1/14           78           S I      3725      Fas 1/15
+# ESW6.wardota.com  Fas 1/11           142          S I      3725      Fas 1/15
+# ESW7.wardota.com  Fas 1/10           168          S I      3725      Fas 1/15
+# ESW5.wardota.com  Fas 1/12           122          S I      3725      Fas 1/15
+# 10.64.107.251    Gig 37/3      176            R I   CPT 600   Gig 36/41
+# 10.64.107.251    Gig 37/1      174            R I   CPT 600   Gig 36/43
+# 10.64.107.251    Gig 36/41     134            R I   CPT 600   Gig 37/3
+# 10.64.107.251    Gig 36/43     134            R I   CPT 600   Gig 37/1
+# 10.64.107.251    Ten 3/2       132            R I   WS-C3560X   Ten 4/2
+# 10.64.107.251    Ten 4/2       174            R S I   CPT 600   Ten 3/2
+# SEP583453458349634 Gig 0/5   412     H P M  IP Phone   Port 1
 vars:
   status:
     device_id         : "{{ item.a }}"
-    lcl_intrfce       : "{{ item.b }}"
+    local_interface   : "{{ item.b | replace('Fas','FastEthernet')| replace('Gig','GigabitEthernet')| replace('Ten','Ten-GigabitEthernet')}}"
     holdtime          : "{{ item.c }}"
-    capa              : "{{ item.d }}"
+    capability        : "{{(item.d | replace('r','repeater')| replace('  ','')| replace('R','Router')| replace('S','Switch')| replace('B','Source-Route-Bridge')| replace('D','Remote')| replace('T','Trans-Bridge')| replace('H','Host')| replace('C','CVTA')| replace('M','Two-port-Mac-Relay') | replace('I','IGMP')).split(' ')}}"
     platform          : "{{ item.e }}"
-    port_id           : "{{ item.f }}"
+    port_id           : "{{ item.f | replace('Fas','FastEthernet')| replace('Gig','GigabitEthernet')| replace('Ten','Ten-GigabitEthernet')}}"
 keys:
   show_cdp_neighbors:
     value: "{{ status }}"
-    items: "^(?P<a>\\S*)\\s+(?P<b>\\S*\\s\\S*)\\s+(?P<c>\\d{1,})\\s+(?P<d>(?:[RPMSTHBIr ]?){1,5})\\s+(?P<e>\\S*\\s\\S*)\\s+(?P<f>\\S*\\s\\S*)$"
+    items: "^(?P<a>\\S*)\\s+(?P<b>\\S*\\s\\S*)\\s+(?P<c>\\d{1,})\\s+(?P<d>(?:[RSDTHCBIMPr ]?){1,5})\\s+(?P<e>\\S*\\s\\S*)\\s+(?P<f>\\S*\\s\\S*)$"

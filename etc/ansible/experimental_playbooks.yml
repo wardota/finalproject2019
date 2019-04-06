@@ -69,6 +69,7 @@
     number2:  [ [ [rrdrr, ssss], [tttt, uuuu, v]],[[eeee, ffff],[ gggg, kkkk, llll]],[[mmmm, oooo, pppp], [qqqq, rrrr]],[[ssss, tttt], [uuuu, vvvv, wwww]] ]
     number:  [ [rrrr, ssss, tttt, uuuu, v],[eeee, ffff, gggg, kkkk, llll],[mmmm, oooo, pppp, qqqq, rrrr],[ssss, tttt, uuuu, vvvv, wwww] ]
   pre_tasks:
+      
     - set_fact: 
         asd: "{{ awe | dash2inrange_int }}"
     - pause:

@@ -12,7 +12,7 @@
         old_saved_cfg_main_vlan        : "{{ old.vlan_db    | json_query('[?main==`true`].{name:name, id:vlan_id}')    | mandatory }}"
         running_cfg_main_vlan          : "{{ sh_vlan_switch | json_query('vlans[?status==`active`].{id:id,name:name,ports:ports}') }}"
     - set_fact:
-        all_id: "{{(range(all_id.split('-').0|int,all_id.split('-').1|int+1) | list | join(',')) .split(',')}}" # [1,...,4094]
+        # all_id: "{{(range(all_id.split('-').0|int,all_id.split('-').1|int+1) | list | join(',')) .split(',')}}" # [1,...,4094]
         all_id2: "{{ all_id | dash2inrange_int }}" # [1,...,4094]
         intended_cfg_main_vlan         : "{%if intended_cfg_main_vlan == [] %}{{old_saved_cfg_main_vlan}}{%else%}{{intended_cfg_main_vlan}}{%endif%}"  # nilai digantikan apabila intended_cfg_main_vlan lupa belum di deklarasi/notfound
     - set_fact:
@@ -28,53 +28,40 @@
         running_cfg_main_int_sw_port2:  "{{ (sh_interface_switchport| to_json | from_json | json_query(\"[?contains(trunk_active.to_string(@),'\"+intended_cfg_main_vlan[0].id+\"')]\"))  | replace('ALL','1-4094')  }}"
         myrunning_mgmt_ip              : "{{ ansible_host }}"                                                                              
         myrunning_mgmt_id              : "{{ sh_interfaces | to_json | from_json | json_query(\"[?ipv4 == '\" + ansible_host + \"'].name | [0]\") | replace('vlan ','')}}"
+        interfaces_have_neighbors: "{{ (sh_cdp_nei.show_cdp_neighbors | to_json | from_json | json_query(\"[?contains(device_id.to_string(@),'\"+sh_run_config[0].ip_domain_name+\"')].local_interface\"))  | replace(' ','') }}" #find neighbors with in our domain name,  then it is means the port is essential and shold only use method add all then remove the unnecessary . Instead of method remove all then add the necessary
 
-    #----------------------------------------------------------------------------------------------------------------------
+    #----------------------------------------------------------------------------------------
     - name: helper loop
       include_tasks: "{{role_path}}/tasks/helper_loop.yml"
       loop: "{{ range(0|int,intended_cfg_main_int_sw_port|length|int)|list}}"
       loop_control:
         loop_var: outer_item
+      when: intended_cfg_main_int_sw_port[outer_item].name in interfaces_have_neighbors #  and ((intended_cfg_main_vlan[0].id|int) in (intended_cfg_main_int_sw_port[outer_item].allowed | dash2inrange_int))
 
     - set_fact:
         mgmnt:
           changes:
-            vlan_id   : "{{         intended_cfg_main_vlan[0].id == (running_cfg_main_vlan     | json_query(\"[?id == '\" + intended_cfg_main_vlan[0].id + \"'].id\"))[0]         }}" 
-            vlan_name : "{{       intended_cfg_main_vlan[0].name == (running_cfg_main_vlan     | json_query(\"[?id == '\" + intended_cfg_main_vlan[0].id + \"'].name\"))[0]       }}" 
-            ip        : "{{     intended_cfg_main_int_vlan[0].ip == (running_cfg_main_int_vlan | json_query(\"[?name == '\"+intended_cfg_main_int_vlan[0].name+\"'].ip\"))[0]     }}" 
-            prefix    : "{{ intended_cfg_main_int_vlan[0].prefix == (running_cfg_main_int_vlan | json_query(\"[?name == '\"+intended_cfg_main_int_vlan[0].name+\"'].prefix\"))[0] }}" 
-            sw_port   : "{{ (running_cfg_main_int_sw_port | to_json | from_json | json_query(\"[?contains(trunk_active.to_string(@),'\"+intended_cfg_main_vlan[0].id+\"')]\"))   }}"
+            vlan_id   : "{{         intended_cfg_main_vlan[0].id != (running_cfg_main_vlan     | json_query(\"[?id == '\" + intended_cfg_main_vlan[0].id + \"'].id\"))[0]         }}" 
+            vlan_name : "{{       intended_cfg_main_vlan[0].name != (running_cfg_main_vlan     | json_query(\"[?id == '\" + intended_cfg_main_vlan[0].id + \"'].name\"))[0]       }}" 
+            ip        : "{{     intended_cfg_main_int_vlan[0].ip != (running_cfg_main_int_vlan | json_query(\"[?name == '\"+intended_cfg_main_int_vlan[0].name+\"'].ip\"))[0]     }}" 
+            prefix    : "{{ intended_cfg_main_int_vlan[0].prefix != (running_cfg_main_int_vlan | json_query(\"[?name == '\"+intended_cfg_main_int_vlan[0].name+\"'].prefix\"))[0] }}" 
+            sw_port: no
+
+            #sw_port   : "{{ (running_cfg_main_int_sw_port | to_json | from_json | json_query(\"[?contains(trunk_active.to_string(@),'\"+intended_cfg_main_vlan[0].id+\"')]\"))   }}" #useless 
+            # sw_port: "{{ intended_cfg_main_int_sw_port[0].allowed ==  (running_cfg_main_int_vlan | to_json | from_json  | json_query(\"[?name == '\"+intended_cfg_main_int_vlan[0].name+\"'].prefix\"))[0] }}"
   delegate_to: localhost
-
-
-- debug:
-    var:  tmp_n_allowed 
-- debug:
-    var:  tmp_allowed 
-- debug:
-    var:  intended_cfg_main_vlan
-- pause:
-    prompt: ""
-        # sw_port: "{{ intended_cfg_main_int_sw_port[0].allowed ==  (running_cfg_main_int_vlan | to_json | from_json  | json_query(\"[?name == '\"+intended_cfg_main_int_vlan[0].name+\"'].prefix\"))[0] }}"
 - set_fact:
-    sw_port2: "{{ running_cfg_main_int_sw_port | to_json | from_json | json_query(\"[?contains(trunk_active.to_string(@),'1097')].trunk_enabled\") }}" 
-    sw_port: "{{ (running_cfg_main_int_sw_port | to_json | from_json | json_query(\"[?contains(trunk_active.to_string(@),'\"+intended_cfg_main_vlan[0].id+\"')]\")) }}"
-
-
+    sw_port2: "{{ running_cfg_main_int_sw_port | to_json | from_json | json_query(\"[?contains(trunk_active.to_string(@),'1097')].trunk_enabled\") }}" #useless 
+    sw_port: "{{ (running_cfg_main_int_sw_port | to_json | from_json | json_query(\"[?contains(trunk_active.to_string(@),'\"+intended_cfg_main_vlan[0].id+\"')]\")) }}" #useless 
         # running_cfg_main_int_sw_port[?contains(trunk_active.to_string(@),'1097')]
-        
         # ip2  : "{{ running_cfg_main_int_vlan | json_query('[?name == `vlan 1097`].ip') }}" 
-- pause:
-    prompt: ""
         # int_phy   : false # true if int(Se/F/Ge/Eth) is changed /locked  | compare between intended and running one
         # sw_port   : true  # true if allowed vlan list is changed | compare between intended and running one
         # exist     : true  # true if vlan id found in allowed vlan list of switchport trunk      | compare between intended and running one
-
-- set_fact: 
-    intended_cfg_main_int_sw_port  : "{%if intended_cfg_main_int_sw_port == [] %}{{old_saved_cfg_main_int_sw_port}}{%else%}{{intended_cfg_main_int_sw_port}}{%endif%}" # nilai digantikan apabila intended_cfg_main_int_vlan lupa belum di deklarasi/notfound
-    myrunning_mgmt_int_phy_with_trunk: "{{ sh_interface_switchport | json_query(\"[?trunk_active!=`none`].{trunk_active:trunk_active.to_array(@)[].to_string(@)|[?contains(@, '\" + myrunning_mgmt_id + \"') == `true`],name:name}| [?trunk_active].name \") }}" # jadikan batasan , tidak untuk migrasi phy interface, return name list
-    all_id: "{{(range(all_id.split('-').0|int,all_id.split('-').1|int+1) | list | join(',')) .split(',')}}" # [1,...,4094]
-    mgmnt:
+    xintended_cfg_main_int_sw_port  : "{%if intended_cfg_main_int_sw_port == [] %}{{old_saved_cfg_main_int_sw_port}}{%else%}{{intended_cfg_main_int_sw_port}}{%endif%}" # nilai digantikan apabila intended_cfg_main_int_vlan lupa belum di deklarasi/notfound
+    xmyrunning_mgmt_int_phy_with_trunk: "{{ sh_interface_switchport | json_query(\"[?trunk_active!=`none`].{trunk_active:trunk_active.to_array(@)[].to_string(@)|[?contains(@, '\" + myrunning_mgmt_id + \"') == `true`],name:name}| [?trunk_active].name \") }}" # jadikan batasan , tidak untuk migrasi phy interface, return name list
+    # xall_id: "{{(range(all_id.split('-').0|int,all_id.split('-').1|int+1) | list | join(',')).split(',')}}" # [1,...,4094]
+    xmgmnt:
       changes:
         int_phy   : false # true if int(Se/F/Ge/Eth) is changed /locked  | compare between intended and running one
         sw_port   : true  # true if allowed vlan list is changed | compare between intended and running one
@@ -82,6 +69,7 @@
 
 
 #----------------------------------------------------------------------------------------------------------------------
+
 - block:
   - when: mgmnt.changes.vlan_id == true and mgmnt.changes.vlan_name == false  
     name: ganti nama vlan jadi old
@@ -91,7 +79,7 @@
       state: present
     loop: "{{ running_cfg_main_vlan }}"
     register: output
-    failed_when: false # what condition it might fail ???
+    # failed_when: false # what condition it might fail ???
 
   - ios_vlan:
       vlan_id: "{{ item.id }}"
@@ -104,12 +92,12 @@
 
 #----------------------------------------------------------------------------------------------------------------------
 - block: 
-  - ios_config:
-      parents: "interface {{item.name}}"
+  - name: Firstly allow all vlan 
+    ios_config:
+      parents: "interface {{tmp_n_allowed[index].0}}"
       lines: switchport trunk allowed vlan all
-    loop: "{{ intended_cfg_main_int_sw_port }}"
-    when: mgmnt.changes.sw_port
-  - name:  blacklist
+    loop: "{{ tmp_n_allowed }}"
+  - name: Then remove the not allowed 
     ios_l2_interface:
       name : "{{ tmp_n_allowed[index].0 }} "
       trunk_vlans : "{{ tmp_n_allowed[index].1 }}"
@@ -118,13 +106,13 @@
     loop: "{{ tmp_n_allowed }}"
     loop_control:
       index_var: index
-    when: mgmnt.changes.sw_port
-  - name: whitelist
-    debug:
-      msg: "{{ tmp_allowed[index].0 }} => {{ tmp_allowed[index].1 }}"
-    loop: "{{tmp_allowed }}"
-    loop_control:
-      index_var: index
+  when: (tmp_n_allowed is defined) #when: mgmnt.changes.sw_port and (tmp_n_allowed is defined)
+  # - name: whitelist 
+  #   debug:
+  #     msg: "{{ tmp_allowed[index].0 }} => {{ tmp_allowed[index].1 }}"
+  #   loop: "{{tmp_allowed }}"
+  #   loop_control:
+  #     index_var: index
   # - pause:
   #     prompt: ""  
 
@@ -146,26 +134,32 @@
   #   register: mgmnt_sw_port_changed
 
 #----------------------------------------------------------------------------------------------------------------------
+
+  
 - block:
-  - ios_l3_interface:
+  - ios_ping:
+      dest: 10.240.192.1
+    delay: "{{ delay }}"
+    retries: "{{ retries }}"
+    register: test_ping
+  - ios_l3_interface:  # NEED to change timeout value
       name: "{{ item.name }}"
       state: present
       ipv4: "{{ item.ip }}/{{ item.prefix }}"
+      timeout: 5
     loop: "{{ intended_cfg_main_int_vlan }}"
     when: mgmnt.changes.ip == true or mgmnt.changes.vlan_id == true
-    register: mgmnt_int_vlan_changed
+    register: mgmnt_ip
     ignore_unreachable: yes
     ignore_errors: yes
-
       # set IP / PREFIX , if IP/PREFIX/VLAN_ID is changed
       # ketika ip address berubah(true) atau vlan id berubah(true)
       # maka rubah interface name jika berubah dan ip address jika berubah
 
   # set new connection  by the changes ip 
   - set_fact:
-      ansible_host: "{{ item.ip }}"
-    loop: "{{ intended_cfg_main_int_vlan }}"
-    when: intended_cfg_main_vlan[0].id in item.name  
+      ansible_host: "{{ intended_cfg_main_int_vlan[0].ip }}"
+    when: mgmnt.changes.ip == true or mgmnt.changes.vlan_id == true
     delegate_to: localhost
 
   # do test new connection, it should be connected
@@ -175,9 +169,14 @@
     retries: "{{ retries }}"
     register: test_ping
 
+  - lineinfile:
+      path: "{{inventory_dir}}/host_vars/{{inventory_hostname}}.yml"
+      regexp: '^ansible_host'
+      line: 'ansible_host: {{ansible_host}}'
 - block: 
   # delete old ip address if  vlan id was changed
-  - ios_l3_interface:
+  - name: delete old ip
+    ios_l3_interface:
       name: "{{ item.name }}"
       state: absent 
       ipv4: "{{ item.ip }}/{{ item.prefix }}"
@@ -185,13 +184,18 @@
     when: not test_ping.failed and mgmnt.changes.ip
     register: delete_mgmnt_old_int_vlan
     
+  - lineinfile:
+      path: "{{inventory_dir}}/host_vars/old_{{inventory_hostname}}.yml"
+      regexp: '^ansible_host'
+      line: 'ansible_host: {{ansible_host}}'
+
+
   - set_fact:
       ansible_host: "{{ item.ip }}"
     loop: "{{ old_saved_cfg_main_int_vlan }}"
     when: test_ping.failed
     delegate_to: localhost
     notify:
-  
   - name: test old ping
     ios_ping:
       dest: 10.240.192.1
@@ -214,8 +218,8 @@
   #   loop: "{{mgmnt.old_int_phy}}"
   #   when: not mgmnt_sw_port_changed.failed
   #   register: delete_mgmnt_sw_port_changed
-- pause:
-    prompt: "OK2?"
+# - pause:
+#     prompt: "OK2?"
 
 
 

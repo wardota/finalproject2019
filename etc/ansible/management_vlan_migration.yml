@@ -13,11 +13,11 @@
       role: network_inspect
     - name: "Second role"
       role: variable_inspect
-    - name: "Third role"
-      role: network_mgmn
+    # - name: "Third role"
+    #   role: network_mgmn
   tasks:
     - debug:
-        msg: "access - imported success {{inventory_hostname}} -  {{hostname}} {{migration}}"
+        msg: "access - imported success {{inventory_hostname}} -  {{hostname}}"
 - name: Managament migration phase 2 Test 
   hosts: mydist
   gather_facts: no
@@ -32,11 +32,11 @@
       role: network_inspect
     - name: "Second role"
       role: variable_inspect
-    - name: "Third role"
-      role: network_mgmn
+    # - name: "Third role"
+    #   role: network_mgmn
   tasks:
     - debug:
-        msg: "distribution - imported success {{inventory_hostname}} -  {{hostname}} {{migration}}"
+        msg: "distribution - imported success {{inventory_hostname}} -  {{hostname}}"
 - name: Managament migration phase 3 Test 
   hosts: mycore
   gather_facts: no
@@ -51,8 +51,8 @@
       role: network_inspect
     - name: "Second role"
       role: variable_inspect
-    - name: "Third role"
-      role: network_mgmn
+    # - name: "Third role"
+    #   role: network_mgmn
   tasks:
     - debug:
-        msg: "core - imported success {{inventory_hostname}} -  {{hostname}} {{migration}}"
+        msg: "core - imported success {{inventory_hostname}} -  {{hostname}}"

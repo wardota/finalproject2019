@@ -1,4 +1,4 @@
-ansible_host: 10.240.192.4
+ansible_host: 10.240.192.22
 hostname: SW.KU3.LTD
 hierarchy_layer: distribution
 alias:

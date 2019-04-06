@@ -1,4 +1,4 @@
-ansible_host: 10.240.192.2
+ansible_host: 10.240.192.172
 hostname: SW.SISFO
 hierarchy_layer: access
 alias:
@@ -91,7 +91,7 @@ interface:
   - name: vlan 1             #no-ip
     ip: no
   - name: vlan 1097          #ip
-    ip: 10.240.192.2
+    ip: 10.240.192.182
     subnet: 255.255.0.0
     prefix: 16
     main: yes

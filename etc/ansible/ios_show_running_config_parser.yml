@@ -27,6 +27,7 @@ vars:
     snmp_srv_contact        : "{{ item[21].snmp_srv_contact }}"
     ntp_server_addr         : "{{ item[22].ntp_server_addr }}"
     ip_def_gw               : "{{ item[23].ip_def_gw }}"
+    ip_domain_name          : "{{ item[24].ip_domain_name }}"
 
 
 
@@ -61,4 +62,5 @@ keys:
       - "snmp-server contact (?P<snmp_srv_contact>.*)"
       - "ntp server (?P<ntp_server_addr>.*)"
       - "ip default-gateway (?P<ip_def_gw>.*)"
+      - "ip domain name (?P<ip_domain_name>.*)"
     

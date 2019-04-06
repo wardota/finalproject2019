@@ -11,6 +11,8 @@
 # vlan
 # temporary static variable got from roles variable_inspect
 # changes or not , valid or not, main or not
+  - pause:
+      prompt: ""
   - include_vars: ../network_vlan/vars/vlan_db.yml
   - include_vars: 
       file: ../network_vlan/vars/vlan_db_old.yml

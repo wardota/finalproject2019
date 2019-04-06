@@ -1,115 +1,123 @@
-- name: get show 
-  ios_command:
-    commands:
-      - "show run"
-      - "show interface status"
-      - "show interface stats" 
-      - "show interface"
-      - "show interface summary"
-      - "show vlan-switch"
-      - "show interface switching"
-      - "show interface switchport"
-      - "show users all"
-      - "show ssh"
-      - "show line"
-  register: output
-- set_fact:
-    sh_run_config           : "{{ output.stdout[0]  | parse_cli('/etc/ansible/ios_show_running_config_parser.yml') }}"  
-    sh_run_config_user      : "{{ output.stdout[0]  | parse_cli('/etc/ansible/ios_show_running_config_username_parser.yml') |  json_query('config_users[].{username:username,privilege:privilege, secret_value:secret_value,fingerprint:fingerprint}')  }}"
-    sh_run_config_dhcp      : "{{ output.stdout[0]  | parse_cli('/etc/ansible/ios_show_running_config_dhcp_parser.yml') }}"
-    sh_run_config_dhcp_ex   : "{{ output.stdout[0]  | parse_cli('/etc/ansible/ios_show_running_config_dhcp_excluded_parser.yml') | json_query('ip_dhcp_excluded[].[range]')|flatten}}"
-    sh_run_config_vlan      : "{{ output.stdout[0]  | parse_cli('/etc/ansible/ios_show_running_config_vlan_parser.yml') }}" 
-    sh_run_config_interface : "{{ output.stdout[0]  | parse_cli('/etc/ansible/ios_show_running_config_interface_parser.yml') }}"        
-    sh_run_config_line      : "{{ output.stdout[0]  | parse_cli('/etc/ansible/ios_show_running_config_line_parser.yml') }}" 
-    sh_interface_status     : "{{ output.stdout[1]  | parse_cli('/etc/ansible/ios_show_interface_status_parser.yml') }}"
-    sh_interface_stats      : "{{ output.stdout[2]  | parse_cli('/etc/ansible/ios_show_interface_stats_parser.yml') }}"  
-    sh_interfaces           : "{{ output.stdout[3]  | parse_cli('/etc/ansible/ios_show_interface_parser.yml') }}"
-    sh_interface_summary    : "{{ output.stdout[4]  | parse_cli('/etc/ansible/ios_show_interface_summary_parser.yml') }}"  
-    sh_vlan_switch          : "{{ output.stdout[5]  | parse_cli('/etc/ansible/ios_show_vlan_switch_parser.yml') }}"
-    sh_interface_switching  : "{{ output.stdout[6]  | parse_cli('/etc/ansible/ios_show_interface_switching_parser.yml') }}"
-    sh_interface_switchport : "{{ output.stdout[7]  | parse_cli('/etc/ansible/ios_show_interface_switchport_parser.yml') }}"
-    sh_users                : "{{ output.stdout[8]  | parse_cli('/etc/ansible/ios_show_users_all_parser.yml') }}"
-    sh_ssh                  : "{{ output.stdout[9]  | parse_cli('/etc/ansible/ios_show_ssh_parser.yml') }}"        
-    sh_line                 : "{{ output.stdout[10] | parse_cli('/etc/ansible/ios_show_line_parser.yml') }}" #seems to be an issues
-    # - name: "save show run config"
-    #   copy: 
-    #     content: "{{ sh_run_config | to_nice_json }}"
-    #     dest: "{{playbook_dir}}/files/{{hostname}}_sh_run_config.json"
-    # - name: "save show run config section user"
-    #   copy: 
-    #     content: "{{ sh_run_config_user | to_nice_json }}"
-    #     dest: "{{playbook_dir}}/files/{{hostname}}_sh_run_config_user.json"
-    # - name: "save show run config section dhcp"
-    #   copy: 
-    #     content: "{{ sh_run_config_dhcp | to_nice_json }}"
-    #     dest: "{{playbook_dir}}/files/{{hostname}}_sh_run_config_dhcp.json"
-    # - name: "save show run config section dhcp excluded"
-    #   copy: 
-    #     content: "{{ sh_run_config_dhcp_ex | to_nice_json }}"
-    #     dest: "{{playbook_dir}}/files/{{hostname}}_sh_run_config_dhcp_ex.json"
-    # - name: "save show run config section vlan"
-    #   copy: 
-    #     content: "{{ sh_run_config_vlan | to_nice_json }}"
-    #     dest: "{{playbook_dir}}/files/{{hostname}}_sh_run_config_vlan.json"
-    # - name: "save show run config section interfaces"
-    #   copy: 
-    #     content: "{{ sh_run_config_interface | to_nice_json }}"
-    #     dest: "{{playbook_dir}}/files/{{hostname}}_sh_run_config_interface.json" 
-    # - name: "save show run config section line"
-    #   copy: 
-    #     content: "{{ sh_run_config_line | to_nice_json }}"
-    #     dest: "{{playbook_dir}}/files/{{hostname}}_sh_run_config_line.json"
-    # - name: "save show interface status"
-    #   copy: 
-    #     content: "{{ sh_interface_status | to_nice_json }}"
-    #     dest: "{{playbook_dir}}/files/{{hostname}}_sh_interface_status.json"
-    # - name: "save show interface stats"
-    #   copy: 
-    #     content: "{{sh_run_config_line | to_nice_json }}"
-    #     dest: "{{playbook_dir}}/files/{{hostname}}_sh_interface_stats.json"
-    # - name: "save show interfaces"
-    #   copy: 
-    #     content: "{{ sh_interfaces | to_nice_json }}"
-    #     dest: "{{playbook_dir}}/files/{{hostname}}_sh_interfaces.json"
-    # - name: "save show interface summary"
-    #   copy: 
-    #     content: "{{ sh_interface_summary | to_nice_json }}"
-    #     dest: "{{playbook_dir}}/files/{{hostname}}_sh_interface_summary.json"
-    # - name: "save show vlan-switch"
-    #   copy: 
-    #     content: "{{ sh_vlan_switch | to_nice_json }}"
-    #     dest: "{{playbook_dir}}/files/{{hostname}}_sh_vlan_switch.json"
-    # - name: "save show interface switchport"
-    #   copy: 
-    #     content: "{{ sh_interface_switchport | to_nice_json }}"
-    #     dest: "{{playbook_dir}}/files/{{hostname}}_sh_interface_switchport.json"
-    # - name: "save show interface switching"
-    #   copy: 
-    #     content: "{{ sh_interface_switching | to_nice_json }}"
-    #     dest: "{{playbook_dir}}/files/{{hostname}}_sh_interface_switching.json"
-    # - name: "save show users"
-    #   copy: 
-    #     content: "{{ sh_users| to_nice_json }}"
-    #     dest: "{{playbook_dir}}/files/{{hostname}}_sh_users.json"
-    # - name: "save show ssh"
-    #   copy: 
-    #     content: "{{ sh_ssh| to_nice_json }}"
-    #     dest: "{{playbook_dir}}/files/{{hostname}}_sh_ssh.json"
-    # - name: "save show line"
-    #   copy: 
-    #     content: "{{ sh_line| to_nice_json }}"
-    #     dest: "{{playbook_dir}}/files/{{hostname}}_sh_line.json"
+- block:
+    - name: get show 
+      ios_command:
+        commands:
+          - "show run"
+          - "show interface status"
+          - "show interface stats" 
+          - "show interface"
+          - "show interface summary"
+          - "show vlan-switch"
+          - "show interface switching"
+          - "show interface switchport"
+          - "show users all"
+          - "show ssh"
+          - "show line"
+          - "show cdp neighbors"
+      register: output
+- block:
+    - set_fact:
+        sh_run_config           : "{{ output.stdout[0]  | parse_cli('/etc/ansible/ios_show_running_config_parser.yml') }}"  
+        sh_run_config_user      : "{{ output.stdout[0]  | parse_cli('/etc/ansible/ios_show_running_config_username_parser.yml') |  json_query('config_users[].{username:username,privilege:privilege, secret_value:secret_value,fingerprint:fingerprint}')  }}"
+        sh_run_config_dhcp      : "{{ output.stdout[0]  | parse_cli('/etc/ansible/ios_show_running_config_dhcp_parser.yml') }}"
+        sh_run_config_dhcp_ex   : "{{ output.stdout[0]  | parse_cli('/etc/ansible/ios_show_running_config_dhcp_excluded_parser.yml') | json_query('ip_dhcp_excluded[].[range]')|flatten}}"
+        sh_run_config_vlan      : "{{ output.stdout[0]  | parse_cli('/etc/ansible/ios_show_running_config_vlan_parser.yml') }}" 
+        sh_run_config_interface : "{{ output.stdout[0]  | parse_cli('/etc/ansible/ios_show_running_config_interface_parser.yml') }}"        
+        sh_run_config_line      : "{{ output.stdout[0]  | parse_cli('/etc/ansible/ios_show_running_config_line_parser.yml') }}" 
+        sh_interface_status     : "{{ output.stdout[1]  | parse_cli('/etc/ansible/ios_show_interface_status_parser.yml') }}"
+        sh_interface_stats      : "{{ output.stdout[2]  | parse_cli('/etc/ansible/ios_show_interface_stats_parser.yml') }}"  
+        sh_interfaces           : "{{ output.stdout[3]  | parse_cli('/etc/ansible/ios_show_interface_parser.yml') }}"
+        sh_interface_summary    : "{{ output.stdout[4]  | parse_cli('/etc/ansible/ios_show_interface_summary_parser.yml') }}"  
+        sh_vlan_switch          : "{{ output.stdout[5]  | parse_cli('/etc/ansible/ios_show_vlan_switch_parser.yml') }}"
+        sh_interface_switching  : "{{ output.stdout[6]  | parse_cli('/etc/ansible/ios_show_interface_switching_parser.yml') }}"
+        sh_interface_switchport : "{{ output.stdout[7]  | parse_cli('/etc/ansible/ios_show_interface_switchport_parser.yml') }}"
+        sh_users                : "{{ output.stdout[8]  | parse_cli('/etc/ansible/ios_show_users_all_parser.yml') }}"
+        sh_ssh                  : "{{ output.stdout[9]  | parse_cli('/etc/ansible/ios_show_ssh_parser.yml') }}"        
+        sh_line                 : "{{ output.stdout[10] | parse_cli('/etc/ansible/ios_show_line_parser.yml') }}" #seems to be an issues
+        sh_cdp_nei              : "{{ output.stdout[11] | parse_cli('/etc/ansible/ios_show_cdp_neighbors_parser.yml') }}"
+        # - name: "save show run config"
+        #   copy: 
+        #     content: "{{ sh_run_config | to_nice_json }}"
+        #     dest: "{{playbook_dir}}/files/{{hostname}}_sh_run_config.json"
+        # - name: "save show run config section user"
+        #   copy: 
+        #     content: "{{ sh_run_config_user | to_nice_json }}"
+        #     dest: "{{playbook_dir}}/files/{{hostname}}_sh_run_config_user.json"
+        # - name: "save show run config section dhcp"
+        #   copy: 
+        #     content: "{{ sh_run_config_dhcp | to_nice_json }}"
+        #     dest: "{{playbook_dir}}/files/{{hostname}}_sh_run_config_dhcp.json"
+        # - name: "save show run config section dhcp excluded"
+        #   copy: 
+        #     content: "{{ sh_run_config_dhcp_ex | to_nice_json }}"
+        #     dest: "{{playbook_dir}}/files/{{hostname}}_sh_run_config_dhcp_ex.json"
+        # - name: "save show run config section vlan"
+        #   copy: 
+        #     content: "{{ sh_run_config_vlan | to_nice_json }}"
+        #     dest: "{{playbook_dir}}/files/{{hostname}}_sh_run_config_vlan.json"
+        # - name: "save show run config section interfaces"
+        #   copy: 
+        #     content: "{{ sh_run_config_interface | to_nice_json }}"
+        #     dest: "{{playbook_dir}}/files/{{hostname}}_sh_run_config_interface.json" 
+        # - name: "save show run config section line"
+        #   copy: 
+        #     content: "{{ sh_run_config_line | to_nice_json }}"
+        #     dest: "{{playbook_dir}}/files/{{hostname}}_sh_run_config_line.json"
+        # - name: "save show interface status"
+        #   copy: 
+        #     content: "{{ sh_interface_status | to_nice_json }}"
+        #     dest: "{{playbook_dir}}/files/{{hostname}}_sh_interface_status.json"
+        # - name: "save show interface stats"
+        #   copy: 
+        #     content: "{{sh_run_config_line | to_nice_json }}"
+        #     dest: "{{playbook_dir}}/files/{{hostname}}_sh_interface_stats.json"
+        # - name: "save show interfaces"
+        #   copy: 
+        #     content: "{{ sh_interfaces | to_nice_json }}"
+        #     dest: "{{playbook_dir}}/files/{{hostname}}_sh_interfaces.json"
+        # - name: "save show interface summary"
+        #   copy: 
+        #     content: "{{ sh_interface_summary | to_nice_json }}"
+        #     dest: "{{playbook_dir}}/files/{{hostname}}_sh_interface_summary.json"
+        # - name: "save show vlan-switch"
+        #   copy: 
+        #     content: "{{ sh_vlan_switch | to_nice_json }}"
+        #     dest: "{{playbook_dir}}/files/{{hostname}}_sh_vlan_switch.json"
+        # - name: "save show interface switchport"
+        #   copy: 
+        #     content: "{{ sh_interface_switchport | to_nice_json }}"
+        #     dest: "{{playbook_dir}}/files/{{hostname}}_sh_interface_switchport.json"
+        # - name: "save show interface switching"
+        #   copy: 
+        #     content: "{{ sh_interface_switching | to_nice_json }}"
+        #     dest: "{{playbook_dir}}/files/{{hostname}}_sh_interface_switching.json"
+        # - name: "save show users"
+        #   copy: 
+        #     content: "{{ sh_users| to_nice_json }}"
+        #     dest: "{{playbook_dir}}/files/{{hostname}}_sh_users.json"
+        # - name: "save show ssh"
+        #   copy: 
+        #     content: "{{ sh_ssh| to_nice_json }}"
+        #     dest: "{{playbook_dir}}/files/{{hostname}}_sh_ssh.json"
+        # - name: "save show line"
+        #   copy: 
+        #     content: "{{ sh_line| to_nice_json }}"
+        #     dest: "{{playbook_dir}}/files/{{hostname}}_sh_line.json"
+        # - name: "save show cdp neighbors"
+        #   copy: 
+        #     content: "{{ sh_cdp_nei| to_nice_json }}"
+        #     dest: "{{playbook_dir}}/files/{{hostname}}_sh_cdp_nei.json"
 
 
-# - name: ios gather fact
-#   ios_facts:
-#     gather_subset: interfaces 
-#   register: output
-# - copy: 
-#     content: "{{ output.ansible_facts.ansible_net_interfaces | to_nice_json }}"
-#     dest: "{{playbook_dir}}/files/{{hostname}}_gather_fact_interfaces.json"
+    # - name: ios gather fact
+    #   ios_facts:
+    #     gather_subset: interfaces 
+    #   register: output
+    # - copy: 
+    #     content: "{{ output.ansible_facts.ansible_net_interfaces | to_nice_json }}"
+    #     dest: "{{playbook_dir}}/files/{{hostname}}_gather_fact_interfaces.json"
 
-
+  delegate_to: localhost
 
 
 
