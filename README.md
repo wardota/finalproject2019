@@ -10,8 +10,31 @@ this is the topology on GNS3
 - centos: 3.10.0-957.1.3.el7.x86_64
 
 ## PROGRESS 
-[ ] Ansible
-   [ ] 1.
+- [ ] Ansible
+    - [x] Installation
+        - [ ] 
+    - [ ] playbook
+    
+        - [ ] basic and deployment
+        
+        - [ ] 
+        - [ ] migration
+        - [ ] network features
+        - [ ] backup-restore
+        - [ ] automate logstash/ELK
+    - [ ]
+    - 
+- [ ] ELK
+    - [ ] Logstash 
+        - [ ]
+        - [ ]
+        - [ ]
+        - [ ]
+    - [ ] Kibana
+        - [ ]
+        - [ ]
+        - [ ]
+        - [ ]
 
 
 ## Ansible
