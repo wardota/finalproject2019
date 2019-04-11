@@ -1,0 +1,44 @@
+- block: 
+  - name: Firstly allow all vlan 
+    ios_config:
+      parents: "interface {{tmp_n_allowed[index].0}}"
+      lines: switchport trunk allowed vlan all
+    loop: "{{ tmp_n_allowed }}"
+    loop_control:
+      index_var: index
+  - name: Then remove the not allowed 
+    ios_l2_interface:
+      name : "{{ tmp_n_allowed[index].0 }} "
+      trunk_vlans : "{{ tmp_n_allowed[index].1 }}"
+      state : absent
+      mode  : trunk
+    loop: "{{ tmp_n_allowed }}"
+    loop_control:
+      index_var: index
+    when: tmp_n_allowed[index].1 != ""
+  when: tmp_n_allowed is defined #when: mgmnt.changes.sw_port and (tmp_n_allowed is defined)
+  # - name: whitelist 
+  #   debug:
+  #     msg: "{{ tmp_allowed[index].0 }} => {{ tmp_allowed[index].1 }}"
+  #   loop: "{{tmp_allowed }}"
+  #   loop_control:
+  #     index_var: index
+  # - pause:
+  #     prompt: ""  
+
+  # - ios_l2_interface:
+  #     name  : "{{item.name}}"
+  #     trunk_vlans : "{{item.allowed}},{{default_vlan}}"
+  #     state : present
+  #     mode  : trunk
+  #   loop: "{{mgmnt.sw_port}}"
+  #   when: mgmnt.changes.sw_port == true
+  #   register: mgmnt_sw_port_changed
+  # - ios_l2_interface:
+  #     name                : "{{item.name}}"
+  #     trunk_vlans : "{{item.allowed}}"
+  #     state : absent
+  #     mode  : trunk
+  #   loop: "{{mgmnt.sw_port}}"
+  #   when: mgmnt.changes.sw_port == true
+  #   register: mgmnt_sw_port_changed

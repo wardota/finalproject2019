@@ -1,0 +1,67 @@
+  
+- block:
+  - ios_ping:
+      dest: 10.240.192.1
+    delay: "{{ delay }}"
+    retries: "{{ retries }}"
+    register: test_ping
+    
+  - lineinfile:
+      path: "{{inventory_dir}}/ansible.cfg"
+      regexp: '^command_timeout'
+      line: 'command_timeout = 59'
+    delegate_to: localhost
+  - ios_l3_interface:  # NEED to change timeout value
+      name: "{{ item.name }}"
+      state: present
+      ipv4: "{{ item.ip | ipv4('host/prefix') }}"
+      timeout: 5
+    loop: "{{ intended_cfg_main_int_vlan }}"
+    when: mgmnt.changes.ip or mgmnt.changes.prefix or mgmnt.changes.vlan_id
+    # register: mgmnt_ip
+    ignore_unreachable: yes
+    ignore_errors: yes
+  - lineinfile:
+      path: "{{inventory_dir}}/ansible.cfg"
+      regexp: '^command_timeout'
+      line: 'command_timeout = 60'
+    delegate_to: localhost
+      # set IP / PREFIX , if IP/PREFIX/VLAN_ID is changed
+      # ketika ip address berubah(true) atau vlan id berubah(true)
+      # maka rubah interface name jika berubah dan ip address jika berubah
+
+  # set new connection  by the changes ip 
+  - set_fact:
+      ansible_host_backup: "{{ ansible_host }}"
+      ansible_host: "{{ intended_cfg_main_int_vlan[0].ip| ipv4('address') }}"
+    when: (mgmnt.changes.ip or mgmnt.changes.prefix) and not mgmnt.changes.vlan_id
+    delegate_to: localhost
+
+  # do test new connection, it should be connected
+  # - ios_ping:
+  #     dest: 10.240.192.1
+  #   delay: "{{ delay }}"
+  #   retries: "{{ retries }}"
+  #   register: test_ping
+  - name: Ping test, from Ansible server to host  # if it fail , wrong ip or blocked (e.g. because firewall,diffrent vlan,acl, or other)
+    ping:
+      data: pong
+    register: test 
+    failed_when: test.ping != 'pong'
+    ignore_errors: yes
+    delegate_to: localhost
+
+  - name: Connectivity test, from host itself to host itself 
+    ios_ping:
+        dest: "{{ansible_host}}"     
+        state: present
+    register: ping
+    failed_when: ping.failed == true
+  - set_fact:
+      ansible_host: "{{ ansible_host_backup }}"
+    when: ping.failed or test.ping != 'pong'
+  - lineinfile:
+      path: "{{inventory_dir}}/host_vars/{{inventory_hostname}}.yml"
+      regexp: '^ansible_host'
+      line: 'ansible_host: {{ansible_host}}'
+    delegate_to: localhost

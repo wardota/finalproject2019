@@ -1,6 +1,5 @@
-ansible_host: 10.240.192.173
+ansible_host: 10.240.192.10
 hostname: SW.KU3.01.ZONA-A
-hierarchy_layer: access
 vtp_mode: transparent # server/cliet/transparent
 alias:
   - access: &a access
@@ -13,19 +12,17 @@ vty:
     - vty515
 user:
   master: cisco2     
-  # master hanya berjumlah satu, apa perlu backup user??
   whitelist:
     - sisfo
     - widi
     - diazzaid
     - cuman
     - sakti
-  # level privilege user bebas sesuai di userdb
   blocked:
     - baba
     - abu
     - caca
-vlan:       # if vtp_mode=transparent, variable bellow will be ignored
+vlan:      
   by_name:  # Maximum number of 32 vlan(s) in the database.
     - RFID-LT1A               #901
     - CAMERA-LT1A             #902
@@ -39,51 +36,23 @@ vlan:       # if vtp_mode=transparent, variable bellow will be ignored
 interface:
   - name: FastEthernet0/0    #reserved
   - name: FastEthernet0/1    #reserved
-    duplex: full
-    speed: 100
-    mtu: 1500
-    description: 
   - name: FastEthernet1/0    #901
     mode: *a
-    duplex: full
-    speed: 100
-    mtu: 1500
-    description: 
     access_vlan: &RFID-LT1A   "{{ vlan_db | json_query('[?name==`RFID-LT1A`].vlan_id') | join ()| default(901, true) }}"
   - name: FastEthernet1/1    #901
     mode: *a
-    duplex: full
-    speed: 100
-    mtu: 1500
-    description: 
     access_vlan: *RFID-LT1A
   - name: FastEthernet1/2    #901
     mode: *a
-    duplex: full
-    speed: 100
-    mtu: 1500
-    description: 
     access_vlan: *RFID-LT1A
   - name: FastEthernet1/3    #901
     mode:  *a 
-    duplex: full
-    speed: 100
-    mtu: 1500
-    description:
     access_vlan: *RFID-LT1A
   - name: FastEthernet1/4    #901
     mode:  *a 
-    duplex: full
-    speed: 100
-    mtu: 1500
-    description:
     access_vlan: *RFID-LT1A
   - name: FastEthernet1/5    #3104 bpduguard spanning tree, protected
     mode:  *a 
-    duplex: full
-    speed: 100
-    mtu: 1500
-    description:
     access_vlan: &VLANNAME3104   "{{ vlan_db | json_query('[?name==`VLANNAME3104`].vlan_id') | join ()| default(3104, true) }}"
   - name: FastEthernet1/6    #3104 bpduguard spanning tree, protected
     mode:  *a 
@@ -148,21 +117,17 @@ interface:
     mtu: 1500
     description: uplink
     allowed: 1094-1098,1957,3101-3102,3104,3151-3152,3152,3154,10
-  # - name: FastEthernet1/15   #mode trunk
-  #   mode:  *t 
-  #   duplex: full
-  #   speed: 100
-  #   mtu: 1500
-  #   description: uplink
-  #   allowed: 1095,1957,3101-3102,3104,3151-3152
-  #   add: 3152,3154
-  - name: vlan 1             #value is 'vlan + VLANID'   , dont fill it with 'VLANNAME'
+  - name: FastEthernet1/15   #mode trunk to gkultd 
+    mode:  *t 
+    allowed: 1095,1097,1957,3101-3102,3104,3151,3152,3154
+  - name: vlan 1             
     ip: no
-  - name: vlan 1097          #value is 'vlan + VLANID'   , dont fill it with 'VLANNAME'
-    ip: 10.240.192.183
-    subnet: 255.255.0.0
-    prefix: 15
-    main: yes
+  - name: vlan 1097          
+    ip: 10.240.192.10/16
+  - name: vlan 250         
+    ip: 10.250.250.10/16
+  # - name: vlan 300        
+  #   ip: 10.150.150.10/16
 services_on:
   - no service pad
   - service timestamps debug datetime msec localtime

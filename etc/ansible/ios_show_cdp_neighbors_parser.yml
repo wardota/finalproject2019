@@ -24,6 +24,6 @@ vars:
     platform          : "{{ item.e }}"
     port_id           : "{{ item.f | replace('Fas','FastEthernet')| replace('Gig','GigabitEthernet')| replace('Ten','Ten-GigabitEthernet')}}"
 keys:
-  show_cdp_neighbors:
+  show_nei:
     value: "{{ status }}"
     items: "^(?P<a>\\S*)\\s+(?P<b>\\S*\\s\\S*)\\s+(?P<c>\\d{1,})\\s+(?P<d>(?:[RSDTHCBIMPr ]?){1,5})\\s+(?P<e>\\S*\\s\\S*)\\s+(?P<f>\\S*\\s\\S*)$"

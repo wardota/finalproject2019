@@ -15,6 +15,6 @@ vars:
     int       : "{{ item.l }}"
   
 keys:
-  interface_status:
+  values:
     value: "{{ status }}"
     items: "(?P<a>\\d*) (?P<b>[A-Z]{3})   (?P<c>[/\\d]*\\s*)  (?P<d>[-\\S]*)\\s*(?P<e>[-\\S]*)\\s*(?P<f>[-\\S]*)\\s*(?P<g>[-\\S]*)\\s*(?P<h>[-\\S]*)\\s*(?P<i>[-\\S]*)\\s*(?P<j>[-\\S]*)\\s*(?P<k>[-/\\S]*)\\s*(?P<l>[-/\\S]*)"

@@ -1,0 +1,36 @@
+
+[1] NAME: change vlan and ip mgmn
+    SCENARIO: 
+    target :myall
+    limit: gkultd,sisfo,ku3_a1
+    vlan db 1097 -> 1098
+    ip address : declared
+    switchport:
+    gku     : 14:yes, 11,yes
+    sisfo   : 0:all  , 15:yes
+    ku3_a1  : 15:no
+
+    RESULT:
+    sw_gkultd                  : ok=39   changed=4    unreachable=0    failed=0
+    sw_ku3_a1                  : ok=37   changed=2    unreachable=0    failed=0
+    sw_sisfo                   : ok=39   changed=3    unreachable=0    failed=0
+
+    TIME: 5m48.632s
+
+[2] NAME: re:play [1]
+
+    RESULT:
+    sw_gkultd                  : ok=39   changed=1    unreachable=0    failed=0
+    sw_ku3_a1                  : ok=37   changed=1    unreachable=0    failed=0
+    sw_sisfo                   : ok=39   changed=1    unreachable=0    failed=0
+    TIME: 5m12.377s
+
+[2] NAME: 
+
+    RESULT:
+    sw_gkultd                  : ok=39   changed=1    unreachable=0    failed=0
+sw_ku3_a1                  : ok=37   changed=1    unreachable=0    failed=0
+sw_sisfo                   : ok=39   changed=0    unreachable=0    failed=0
+
+    
+    TIME:  5m35.113s

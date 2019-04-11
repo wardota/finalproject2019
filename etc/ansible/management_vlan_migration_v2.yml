@@ -1,0 +1,85 @@
+---
+- name: Managament migration phase 1 - add vlan
+  hosts: myall
+  gather_facts: no
+  # serial: 1
+  gather_timeout: 60
+  connection: network_cli
+  ignore_errors: no
+  vars_files:
+    - vars/common.yml 
+  roles:
+    # - name: "First role"
+    #   role: network_inspect
+    # - name: "Second role"
+    #   role: variable_inspect
+    - name: "network_mgmn role"
+      role: network_mgmn
+      vars:
+        phase: one
+  tasks:
+    - debug:
+        msg: "access - imported success {{inventory_hostname}} -  {{hostname}}"
+- name: Managament migration phase 2 - add switchport
+  hosts: myall
+  gather_facts: no
+  # serial: 1
+  gather_timeout: 60
+  connection: network_cli
+  ignore_errors: no
+  vars_files:
+    - vars/common.yml 
+  roles:
+    # - name: "First role"
+    #   role: network_inspect
+    # - name: "Second role"
+    #   role: variable_inspect
+    - name: "network_mgmn role"
+      role: network_mgmn
+      vars:
+        phase: two
+  tasks:
+    - debug:
+        msg: "distribution - imported success {{inventory_hostname}} -  {{hostname}}"
+- name: Managament migration phase 3 - add ip address 
+  hosts: myall
+  gather_facts: no
+  # serial: 1
+  gather_timeout: 60
+  connection: network_cli
+  ignore_errors: no
+  vars_files:
+    - vars/common.yml 
+  roles:
+    # - name: "First role"
+    #   role: network_inspect
+    # - name: "Second role"
+    #   role: variable_inspect
+    - name: "network_mgmn role"
+      role: network_mgmn
+      vars:
+        phase: three
+  tasks:
+    - debug:
+        msg: "core - imported success {{inventory_hostname}} -  {{hostname}}"
+- name: Managament migration phase 4 - delete old 
+  hosts: myall
+  gather_facts: no
+  # serial: 1
+  gather_timeout: 60
+  connection: network_cli
+  ignore_errors: no
+  vars_files:
+    - vars/common.yml 
+  roles:
+    - name: Inspect again
+      role: network_inspect
+    # - name: "Second role"
+    #   role: variable_inspect
+    - name: "network_mgmn role"
+      role: network_mgmn
+      vars:
+        phase: four
+  tasks:
+    - debug:
+        msg: "core - imported success {{inventory_hostname}} -  {{hostname}}"

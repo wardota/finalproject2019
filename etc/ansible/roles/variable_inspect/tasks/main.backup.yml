@@ -30,15 +30,16 @@
         running_cfg_main_int_sw_port2:  "{{ (sh_interface_switchport| to_json | from_json | json_query(\"[?contains(trunk_active.to_string(@),'\"+intended_cfg_main_vlan[0].id+\"')]\"))  | replace('ALL','1-4094')  }}"
         myrunning_mgmt_ip              : "{{ ansible_host }}"                                                                              
         myrunning_mgmt_id              : "{{ sh_interfaces | to_json | from_json | json_query(\"[?ipv4 == '\" + ansible_host + \"'].name | [0]\") | replace('vlan ','')}}"
-        interfaces_have_neighbors: "{{ (sh_cdp_nei.show_nei | to_json | from_json | json_query(\"[?contains(device_id.to_string(@),'\"+sh_run_config[0].ip_domain_name+\"')].local_interface\"))  | replace(' ','') }}" #find neighbors with in our domain name,  then it is means the port is essential and shold only use method add all then remove the unnecessary . Instead of method remove all then add the necessary
+        interfaces_have_neighbors: "{{ (sh_cdp_nei.show_cdp_neighbors | to_json | from_json | json_query(\"[?contains(device_id.to_string(@),'\"+sh_run_config[0].ip_domain_name+\"')].local_interface\"))  | replace(' ','') }}" #find neighbors with in our domain name,  then it is means the port is essential and shold only use method add all then remove the unnecessary . Instead of method remove all then add the necessary
 
     - set_fact:
         mgmnt:
           changes:
             vlan_id   : "{{         intended_cfg_main_vlan[0].id != running_cfg_main_vlan[0].id         }}" 
             vlan_name : "{{       intended_cfg_main_vlan[0].name != running_cfg_main_vlan[0].name       }}" 
-            ip        : "{{ intended_cfg_main_int_vlan[0].ip | ipv4('address') != running_cfg_main_int_vlan[0].ip     }}" 
+            ip        : "{{ intended_cfg_main_int_vlan[0].ip| ipv4('address') != running_cfg_main_int_vlan[0].ip     }}" 
             prefix    : "{{ intended_cfg_main_int_vlan[0].ip | ipv4('prefix') != running_cfg_main_int_vlan[0].prefix }}" 
+
     #----------------------------------------------------------------------------------------
     - name: helper loop
       include_tasks: "{{role_path}}/tasks/helper_loop.yml"
@@ -79,166 +80,160 @@
 
 #----------------------------------------------------------------------------------------------------------------------
 
-# - block:
-#   - when: mgmnt.changes.vlan_id == true and mgmnt.changes.vlan_name == false  
-#     name: ganti nama vlan jadi old
-#     ios_vlan:
-#       vlan_id: "{{ item.id }}"
-#       name: "{{ item.name }}_old"
-#       state: present
-#     loop: "{{ running_cfg_main_vlan }}"
-#     register: output
-#     # failed_when: false # what condition it might fail ???
+- block:
+  - when: mgmnt.changes.vlan_id == true and mgmnt.changes.vlan_name == false  
+    name: ganti nama vlan jadi old
+    ios_vlan:
+      vlan_id: "{{ item.id }}"
+      name: "{{ item.name }}_old"
+      state: present
+    loop: "{{ running_cfg_main_vlan }}"
+    register: output
+    # failed_when: false # what condition it might fail ???
 
-#   - ios_vlan:
-#       vlan_id: "{{ item.id }}"
-#       name: "{{ item.name }}"
-#       state: present
-#     loop: "{{ intended_cfg_main_vlan }}"
-#     when: mgmnt.changes.vlan_name == true
-#     register: output2
-#     name: add/change vlan
+  - ios_vlan:
+      vlan_id: "{{ item.id }}"
+      name: "{{ item.name }}"
+      state: present
+    loop: "{{ intended_cfg_main_vlan }}"
+    when: mgmnt.changes.vlan_name == true
+    register: output2
+    name: add/change vlan
 
-# #----------------------------------------------------------------------------------------------------------------------
-# - block: 
-#   - name: Firstly allow all vlan 
-#     ios_config:
-#       parents: "interface {{tmp_n_allowed[index].0}}"
-#       lines: switchport trunk allowed vlan all
-#     loop: "{{ tmp_n_allowed }}"
-#     loop_control:
-#       index_var: index
-#   - name: Then remove the not allowed 
-#     ios_l2_interface:
-#       name : "{{ tmp_n_allowed[index].0 }} "
-#       trunk_vlans : "{{ tmp_n_allowed[index].1 }}"
-#       state : absent
-#       mode  : trunk
-#     loop: "{{ tmp_n_allowed }}"
-#     loop_control:
-#       index_var: index
-#     when: tmp_n_allowed[index].1 != ""
-#   when: tmp_n_allowed is defined #when: mgmnt.changes.sw_port and (tmp_n_allowed is defined)
-#   # - name: whitelist 
-#   #   debug:
-#   #     msg: "{{ tmp_allowed[index].0 }} => {{ tmp_allowed[index].1 }}"
-#   #   loop: "{{tmp_allowed }}"
-#   #   loop_control:
-#   #     index_var: index
-#   # - pause:
-#   #     prompt: ""  
+#----------------------------------------------------------------------------------------------------------------------
+- block: 
+  - name: Firstly allow all vlan 
+    ios_config:
+      parents: "interface {{tmp_n_allowed[index].0}}"
+      lines: switchport trunk allowed vlan all
+    loop: "{{ tmp_n_allowed }}"
+    loop_control:
+      index_var: index
+  - name: Then remove the not allowed 
+    ios_l2_interface:
+      name : "{{ tmp_n_allowed[index].0 }} "
+      trunk_vlans : "{{ tmp_n_allowed[index].1 }}"
+      state : absent
+      mode  : trunk
+    loop: "{{ tmp_n_allowed }}"
+    loop_control:
+      index_var: index
+    when: tmp_n_allowed[index].1 != ""
+  when: tmp_n_allowed is defined #when: mgmnt.changes.sw_port and (tmp_n_allowed is defined)
+  # - name: whitelist 
+  #   debug:
+  #     msg: "{{ tmp_allowed[index].0 }} => {{ tmp_allowed[index].1 }}"
+  #   loop: "{{tmp_allowed }}"
+  #   loop_control:
+  #     index_var: index
+  # - pause:
+  #     prompt: ""  
 
-#   # - ios_l2_interface:
-#   #     name  : "{{item.name}}"
-#   #     trunk_vlans : "{{item.allowed}},{{default_vlan}}"
-#   #     state : present
-#   #     mode  : trunk
-#   #   loop: "{{mgmnt.sw_port}}"
-#   #   when: mgmnt.changes.sw_port == true
-#   #   register: mgmnt_sw_port_changed
-#   # - ios_l2_interface:
-#   #     name                : "{{item.name}}"
-#   #     trunk_vlans : "{{item.allowed}}"
-#   #     state : absent
-#   #     mode  : trunk
-#   #   loop: "{{mgmnt.sw_port}}"
-#   #   when: mgmnt.changes.sw_port == true
-#   #   register: mgmnt_sw_port_changed
+  # - ios_l2_interface:
+  #     name  : "{{item.name}}"
+  #     trunk_vlans : "{{item.allowed}},{{default_vlan}}"
+  #     state : present
+  #     mode  : trunk
+  #   loop: "{{mgmnt.sw_port}}"
+  #   when: mgmnt.changes.sw_port == true
+  #   register: mgmnt_sw_port_changed
+  # - ios_l2_interface:
+  #     name                : "{{item.name}}"
+  #     trunk_vlans : "{{item.allowed}}"
+  #     state : absent
+  #     mode  : trunk
+  #   loop: "{{mgmnt.sw_port}}"
+  #   when: mgmnt.changes.sw_port == true
+  #   register: mgmnt_sw_port_changed
 
-# #----------------------------------------------------------------------------------------------------------------------
-
-  
-# - block:
-#   - ios_ping:
-#       dest: 10.240.192.1
-#     delay: "{{ delay }}"
-#     retries: "{{ retries }}"
-#     register: test_ping
-    
-#   - lineinfile:
-#       path: "{{inventory_dir}}/ansible.cfg"
-#       regexp: '^command_timeout'
-#       line: 'command_timeout = 5'
-#     delegate_to: localhost
-#   - ios_l3_interface:  # NEED to change timeout value
-#       name: "{{ item.name }}"
-#       state: present
-#       ipv4: "{{ item.ip | ipv4('host/prefix') }}"
-#       timeout: 5
-#     loop: "{{ intended_cfg_main_int_vlan }}"
-#     when: mgmnt.changes.ip or mgmnt.changes.prefix or mgmnt.changes.vlan_id
-#     register: mgmnt_ip
-#     ignore_unreachable: yes
-#     ignore_errors: yes
-#   - lineinfile:
-#       path: "{{inventory_dir}}/ansible.cfg"
-#       regexp: '^command_timeout'
-#       line: 'command_timeout = 60'
-#     delegate_to: localhost
-#       # set IP / PREFIX , if IP/PREFIX/VLAN_ID is changed
-#       # ketika ip address berubah(true) atau vlan id berubah(true)
-#       # maka rubah interface name jika berubah dan ip address jika berubah
-
-#   # set new connection  by the changes ip 
-#   - set_fact:
-#       ansible_host: "{{ intended_cfg_main_int_vlan[0].ip| ipv4('address') }}"
-#     when: mgmnt.changes.ip or mgmnt.changes.prefix or mgmnt.changes.vlan_id
-#     delegate_to: localhost
-
-#   # do test new connection, it should be connected
-#   - ios_ping:
-#       dest: 10.240.192.1
-#     delay: "{{ delay }}"
-#     retries: "{{ retries }}"
-#     register: test_ping
-
-#   - lineinfile:
-#       path: "{{inventory_dir}}/host_vars/{{inventory_hostname}}.yml"
-#       regexp: '^ansible_host'
-#       line: 'ansible_host: {{ansible_host}}'
-# - block: 
-#   # delete old ip address if  vlan id was changed
+#----------------------------------------------------------------------------------------------------------------------
 
   
-#   - name: delete old ip
-#     ios_l3_interface:
-#       name: "{{ item.name }}"
-#       state: absent 
-#       ipv4: "{{ item.ip | ipv4('host/prefix') }}"
-#     loop: "{{ old_saved_cfg_main_int_vlan }}"
-#     when: not test_ping.failed and mgmnt.changes.ip
-#     register: delete_mgmnt_old_int_vlan
+- block:
+  - ios_ping:
+      dest: 10.240.192.1
+    delay: "{{ delay }}"
+    retries: "{{ retries }}"
+    register: test_ping
     
-#   - lineinfile:
-#       path: "{{inventory_dir}}/host_vars/old_{{inventory_hostname}}.yml"
-#       regexp: '^ansible_host'
-#       line: 'ansible_host: {{ansible_host}}'
+  - lineinfile:
+      path: "{{inventory_dir}}/ansible.cfg"
+      regexp: '^command_timeout'
+      line: 'command_timeout = 5'
+    delegate_to: localhost
+  - ios_l3_interface:  # NEED to change timeout value
+      name: "{{ item.name }}"
+      state: present
+      ipv4: "{{ item.ip | ipv4('host/prefix') }}"
+      timeout: 5
+    loop: "{{ intended_cfg_main_int_vlan }}"
+    when: mgmnt.changes.ip or mgmnt.changes.prefix or mgmnt.changes.vlan_id
+    register: mgmnt_ip
+    ignore_unreachable: yes
+    ignore_errors: yes
+  - lineinfile:
+      path: "{{inventory_dir}}/ansible.cfg"
+      regexp: '^command_timeout'
+      line: 'command_timeout = 60'
+    delegate_to: localhost
+      # set IP / PREFIX , if IP/PREFIX/VLAN_ID is changed
+      # ketika ip address berubah(true) atau vlan id berubah(true)
+      # maka rubah interface name jika berubah dan ip address jika berubah
 
-#   - set_fact:
-#       ansible_host: "{{ item.ip  | ipv4('address')}}"
-#     loop: "{{ old_saved_cfg_main_int_vlan }}"
-#     when: test_ping.failed
-#     delegate_to: localhost
-#     notify:
-#   - name: test old ping
-#     ios_ping:
-#       dest: 10.240.192.1
-#     delay: "{{ delay }}"
-#     retries: "{{ retries }}"
-#     when: test_ping.failed
-#     register: test_old_ping
-#   - debug:
-#       msg: "ping new ip failed, do warning failed ip address dont delete old vlan"
-#     when: test_ping.failed
-#   - debug:
-#       msg: "ping old_ip failed, do emergency we are screwed"
-#     when: test_old_ping.failed is undefined
+  # set new connection  by the changes ip 
+  - set_fact:
+      ansible_host: "{{ intended_cfg_main_int_vlan[0].ip| ipv4('address') }}"
+    when: mgmnt.changes.ip or mgmnt.changes.prefix or mgmnt.changes.vlan_id
+    delegate_to: localhost
 
+  # do test new connection, it should be connected
+  - ios_ping:
+      dest: 10.240.192.1
+    delay: "{{ delay }}"
+    retries: "{{ retries }}"
+    register: test_ping
 
+  - lineinfile:
+      path: "{{inventory_dir}}/host_vars/{{inventory_hostname}}.yml"
+      regexp: '^ansible_host'
+      line: 'ansible_host: {{ansible_host}}'
+- block: 
+  # delete old ip address if  vlan id was changed
 
+  
+  - name: delete old ip
+    ios_l3_interface:
+      name: "{{ item.name }}"
+      state: absent 
+      ipv4: "{{ item.ip | ipv4('host/prefix') }}"
+    loop: "{{ old_saved_cfg_main_int_vlan }}"
+    when: not test_ping.failed and mgmnt.changes.ip
+    register: delete_mgmnt_old_int_vlan
+    
+  - lineinfile:
+      path: "{{inventory_dir}}/host_vars/old_{{inventory_hostname}}.yml"
+      regexp: '^ansible_host'
+      line: 'ansible_host: {{ansible_host}}'
 
-
-
+  - set_fact:
+      ansible_host: "{{ item.ip  | ipv4('address')}}"
+    loop: "{{ old_saved_cfg_main_int_vlan }}"
+    when: test_ping.failed
+    delegate_to: localhost
+    notify:
+  - name: test old ping
+    ios_ping:
+      dest: 10.240.192.1
+    delay: "{{ delay }}"
+    retries: "{{ retries }}"
+    when: test_ping.failed
+    register: test_old_ping
+  - debug:
+      msg: "ping new ip failed, do warning failed ip address dont delete old vlan"
+    when: test_ping.failed
+  - debug:
+      msg: "ping old_ip failed, do emergency we are screwed"
+    when: test_old_ping.failed is undefined
 
 
     # delete old int phy if int was changed

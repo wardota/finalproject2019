@@ -1,7 +1,7 @@
 ---
 - name: include experimental_playbook
   import_playbook: experimental_playbooks.yml
-  when: true
+  when: false
 
 - name: Automation Project
   hosts: myall
@@ -21,6 +21,7 @@
           register: test 
           failed_when: test.ping != 'pong'
           ignore_errors: yes
+          delegate_to: localhost
 
         - name: Connectivity test, from host itself to host itself 
           ios_ping:
@@ -28,12 +29,12 @@
               state: present
           register: ping
           failed_when: ping.failed == true
-    - name: pre task
-      include_tasks: pre_task.yml
-      when: true
-    - name: pre task experimental
-      include_tasks: experimental_tasks.yml
-      when: true
+    # - name: pre task
+    #   include_tasks: pre_task.yml
+    #   when: true
+    # - name: pre task experimental
+    #   include_tasks: experimental_tasks.yml
+    #   when: true
   roles: 
     - name: The first role  
       role: "{{roles_1st | default('')}}"
@@ -45,13 +46,13 @@
       vars:
         example: "second"
       when: true
-    - "{{roles_3rd | default('')}}"
-    - "{{roles_4th | default('')}}"
-    - "{{roles_5th | default('')}}"
-    - "{{roles_6th | default('')}}"
-    - "{{roles_7th | default('')}}"
-    - "{{roles_8th | default('')}}"
-    - "{{roles_9th | default('')}}"
+    - "{{roles_3rd  | default('')}}"
+    - "{{roles_4th  | default('')}}"
+    - "{{roles_5th  | default('')}}"
+    - "{{roles_6th  | default('')}}"
+    - "{{roles_7th  | default('')}}"
+    - "{{roles_8th  | default('')}}"
+    - "{{roles_9th  | default('')}}"
     - "{{roles_10th | default('')}}"
     - "{{roles_11th | default('')}}"
     - "{{roles_12th | default('')}}"
@@ -61,7 +62,7 @@
   post_tasks:
 
 - name: Management migration playbook
-  import_playbook: management_vlan_migration.yml
+  import_playbook: management_vlan_migration_v2.yml
   when: not hostvars[inventory_hostname].ping.failed  # conditional ?? (conditional masih salah , sementara ini dulu)
 
 - name: Finishing playbook

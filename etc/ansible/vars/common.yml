@@ -1,6 +1,6 @@
 pre_tasks: 
-# roles_1st: network_inspect
-# roles_2nd: variable_inspect
+roles_1st: network_inspect
+roles_2nd: variable_inspect
 # roles_4th: network_dhcp
 # roles_5th: network_user
 # roles_6th: network_line
@@ -11,8 +11,14 @@ pre_tasks:
 # roles_11th: network_crypto
 # roles_12th: network_mgmn
 # roles_last:
-tasks:
-post_tasks:
+
+
+major_group_name: myall
+# expected_length: 1 # how many device should be expected which has vlan mgmnt configured
+# expected_length2: 1 # how many device should be expected which has ip mgmnt configured
+ip_network_rgxed: "10.250" #"{{intended_cfg_main_int_vlan[0].ip | ipv4('network') | replace('.0','')}}"
+# tasks:
+# post_tasks:
 set_case: deploy # deploy|monitor|maintance
 verbosity: 4
 delay: 3
@@ -20,24 +26,22 @@ retries: 3
 dns1: 8.8.8.8
 dns2: 4.4.4.4
 cisco: 
-  message:
-    lvl:
-      emergency: 0      # eq with v:0
-      alert: 1          # eq with v:0
-      critical: 2       # eq with v:1
-      error: 3          # eq with v:1
-      warning: 4        # eq with v:2
-      notification: 5   # eq with v:3
-      informational: 6  # eq with v:3
-      debugging: 7      # eq with v:4
+  verbosity:
+    emergency: 0      # eq with v:0
+    alert: 1          # eq with v:0
+    critical: 2       # eq with v:1
+    error: 3          # eq with v:1
+    warning: 4        # eq with v:2
+    notification: 5   # eq with v:3
+    informational: 6  # eq with v:3
+    debugging: 7      # eq with v:4
 ansible:
-  debugging:
-    verbosity:
-      no_v: 0  # eq with lvl 0 , 1
-      v: 1     # eq with lvl 2 , 3
-      vv: 2    # eq with lvl 4
-      vvv: 3   # eq with lvl 5, 6
-      vvvv: 4  # eq with lvl 7
+  verbosity:
+    no_v: 0  # eq with lvl 0 , 1
+    v: 1     # eq with lvl 2 , 3
+    vv: 2    # eq with lvl 4
+    vvv: 3   # eq with lvl 5, 6
+    vvvv: 4  # eq with lvl 7
 
 
 

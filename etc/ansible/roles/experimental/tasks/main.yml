@@ -1,0 +1,49 @@
+
+- name: a 
+  block: 
+  - name: one
+    block:                                    
+    - set_fact:                             
+        kk: "{{inventory_hostname_short}}"  #"kk": "sw_gkultd" another i.e "kk": "localhost" 
+    - set_fact:
+        kk: "{{inventory_hostname}}"       #"kk": "sw_gkultd" another i.e "kk": "localhost"
+  - name: two
+    block:    
+    - set_fact:
+        kk: "{{inventory_dir}}"           #"kk": "/etc/ansible"
+    - set_fact:
+        kk: "{{inventory_file}}"         # "kk": "/etc/ansible/hosts"
+    - set_fact:
+        kk: "{{playbook_dir}}"               #"kk": "/etc/ansible"
+    - set_fact:
+        kk: "{{role_path}}"                # "kk": "/etc/ansible/roles/experimental" 
+
+- name: b
+  block:    
+  - name: three
+    block:    
+    - set_fact:
+        kk: "{{ansible_check_mode}}"      #"kk": false
+    - set_fact:
+        kk: "{{inventory_hostname_short}}" #"kk": "sw_gkultd"
+    - set_fact:
+        kk: "{{ansible_play_batch }}"     #"kk": ["sw_lc","sw_ku3_b2","sw_ku3_a1","sw_ku3_b3","sw_sisfo","sw_ku3_a2","sw_gkultd"]
+    - set_fact:
+        kk: "{{ansible_play_hosts}}"      #"kk": ["sw_lc","sw_ku3_b2","sw_ku3_a1","sw_ku3_b3","sw_sisfo","sw_ku3_a2","sw_gkultd"]
+  - name: four
+    block:  
+    - set_fact: 
+        kk: "{{ansible_host}}"            #"kk": "10.240.192.31"
+    - set_fact: 
+        kk: "{{group_names }}"         # "kk": [ "distribution","gkultd","ios4500","myall","myall2","mydist"]
+    - set_fact:
+        kk: "{{ansible_version}}"     #"kk": {"full": "2.7.7","major": 2, "minor": 7, "revision": 7, "string": "2.7.7"}
+    - set_fact:
+        #kk: "{{role_names}}"          #"kk": ["experimental" ]
+                                        # "kk": ["experimental","network_inspect"]
+        # roles:
+        #   - role: experimental
+        #   - role: network_inspect
+    - pause:
+        prompt: ""
+  delegate_to: localhost

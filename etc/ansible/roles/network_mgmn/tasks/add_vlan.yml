@@ -1,0 +1,20 @@
+
+- block:
+  - when: mgmnt.changes.vlan_id == true and mgmnt.changes.vlan_name == false  
+    name: ganti nama vlan jadi old
+    ios_vlan:
+      vlan_id: "{{ item.id }}"
+      name: "{{ item.name }}_old"
+      state: present
+    loop: "{{ running_cfg_main_vlan }}"
+    register: ganti_nama_vlan_jadi_old
+    # failed_when: false # what condition it might fail ??
+
+  - ios_vlan:
+      vlan_id: "{{ item.id }}"
+      name: "{{ item.name }}"
+      state: present
+    loop: "{{ intended_cfg_main_vlan }}"
+    when: mgmnt.changes.vlan_name == true
+    register: output
+    name: ganti atau tambah vlan 

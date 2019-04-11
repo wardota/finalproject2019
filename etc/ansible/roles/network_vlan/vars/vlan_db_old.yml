@@ -10,7 +10,6 @@
     - vlan_id: "1097"
       name: vlan-mgmn-dev
       main: yes
-      description: "vlan for management_old"
     - vlan_id: "3154"       
       name: network-chrome
       description:

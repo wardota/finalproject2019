@@ -13,6 +13,6 @@ vars:
     trtl: "{{ item.trtl }}"
   
 keys:
-  interface_summary:
+  values:
     value: "{{ interface_summary }}"
     items: "(?P<name>\\w+.*/\\d+|Vlan\\w+).*(?P<ihq>\\d+).*(?P<iqd>\\d+).*(?P<ohq>\\d+).*(?P<oqd>\\d+).*(?P<rxbs>\\d+).*(?P<rxps>\\d+).*(?P<txbs>\\d+).*(?P<txps>\\d+).*(?P<trtl>\\d+)"

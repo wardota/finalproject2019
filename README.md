@@ -9,6 +9,11 @@ this is the topology on GNS3
     - switch: C3725-ADVENTERPRISEK9-M ios v.12.4 as etherswitch 
 - centos: 3.10.0-957.1.3.el7.x86_64
 
+## PROGRESS 
+[ ] Ansible
+   [ ] 1.
+
+
 ## Ansible
 TBD
 
