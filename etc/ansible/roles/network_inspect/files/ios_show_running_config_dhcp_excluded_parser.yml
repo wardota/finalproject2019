@@ -1,0 +1,8 @@
+#
+vars:
+  user:
+    range: "{{ item.ip_addr1 }} - {{ item.ip_addr2 }}"
+keys:
+  values:
+    value: "{{ user }}"
+    items: "ip dhcp excluded-address (?P<ip_addr1>\\d*.\\d*.\\d*.\\d*)( (?P<ip_addr2>\\d*.\\d*.\\d*.\\d*)|)"

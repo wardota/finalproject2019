@@ -1,0 +1,38 @@
+#
+vars:  
+  int:
+    int_name              : "{{item[0].int_name}}"
+    ip_addr               : "{{item[1].ip_addr}}"
+    subnet                : "{{item[1].subnet}}"
+    ip_route_cache_stats  : "{{item[2].ip_route_cache_stats}}"
+    ip_route_cache_value  : "{{item[2].ip_route_cache_value}}"
+    mode                  : "{{item[4].mode2 | default(item[3].mode) }}"
+    vlan_id               : "{{item[4].vlan}}"
+    trunk_allowed_vlan_id : "{{item[5].trunk_vlan}},{{item[6].trunk_vlan_add}}"
+    st_bpduguard          : "{{item[7].st_bpduguard}}"
+    desc                  : "{{item[8].desc}}"
+    speed                 : "{{item[10].speed}}"
+    duplex                : "{{item[9].duplex}}"
+
+keys: 
+  interfaces:
+    value: "{{ int }}"
+    start_block: "(interface (?P<int_name>Serial.*|\\w*Ethernet.*|Vlan.*))" 
+    end_block: "!" # BAD
+    items:
+      - "interface (?P<int_name>Serial.*|\\w*Ethernet.*|Vlan.*)"
+      - "ip address (?P<ip_addr>\\d*.\\d*.\\d*.\\d*) (?P<subnet>\\d*.\\d*.\\d*.\\d*)"
+      - "(?P<ip_route_cache_stats>\\sno |\\s)ip route-cache( (?P<ip_route_cache_value>).*|)"
+      - "switchport mode (?P<mode>.*)"
+      - "switchport (\\w*|\\w* )(?P<mode2>\\w{6}) vlan (?P<vlan>.*)"
+      - "switchport trunk allowed vlan (?P<trunk_vlan>\\d.*)"
+      - "switchport trunk allowed vlan add (?P<trunk_vlan_add>\\d.*)"
+      - "spanning-tree bpduguard (?P<st_bpduguard>.*)"
+      - "description (?P<desc>.*)"
+      - "duplex (?P<duplex>.*)"
+      - "speed (?P<speed>.*)"
+
+
+ 
+
+

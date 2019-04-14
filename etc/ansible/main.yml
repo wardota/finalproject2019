@@ -1,7 +1,7 @@
 ---
 - name: include experimental_playbook
   import_playbook: experimental_playbooks.yml
-  when: true
+  when: false
 
 - name: Automation Project
   hosts: myall
@@ -23,13 +23,21 @@
           ignore_errors: yes
           delegate_to: localhost
 
+      rescue:
+        - include_vars: 
+            file: "../../host_vars/old_{{inventory_hostname}}.yml"
+            name: old2
+        - set_fact:
+            ansible_host: "{{old2.ansible_host}}"
+            
+    - name: Connectivity test
+      block: 
         - name: Connectivity test, from host itself to host itself 
           ios_ping:
               dest: "{{ansible_host}}"     
               state: present
           register: ping
           failed_when: ping.failed == true
-        
     # - name: pre task
     #   include_tasks: pre_task.yml
     #   when: true

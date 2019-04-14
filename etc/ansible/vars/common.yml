@@ -5,7 +5,7 @@ roles_2nd: variable_inspect
 # roles_5th: network_user
 # roles_6th: network_line
 # roles_7th: network_service
-roles_8th: network_vlan
+# roles_8th: network_vlan
 # roles_9th: network_interface
 # roles_10th: network_inspect
 # roles_11th: network_crypto

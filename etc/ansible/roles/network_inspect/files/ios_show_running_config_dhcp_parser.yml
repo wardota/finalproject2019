@@ -1,0 +1,27 @@
+#
+vars:  
+  pool:
+    pool_name     : "{{item[0].pool_name}}"
+    clock_timezone: "{{item[1].clock_timezone}}"
+    dns_server1   : "{{item[2].dns_server1}}"
+    dns_server2   : "{{item[2].dns_server2}}"
+    default_router: "{{item[3].default_router}}"
+    domain_name   : "{{item[4].domain_name}}"
+    leaseday      : "{{item[5].leaseday}}"
+    leasehour     : "{{item[5].leasehour}}"
+    network       : "{{item[6].net_id}}"
+    subnet        : "{{item[6].subnet}}"
+
+keys: 
+  config_dhcp_pools:
+    value : "{{ pool }}"
+    start_block: "^ip dhcp pool.*" 
+    end_block: ".+lease.*$" #".*end$"
+    items:
+      - "ip dhcp pool (?P<pool_name>.*)"
+      - "network (?P<clock_timezone>.*)"
+      - "dns-server (?P<dns_server1>\\d*.\\d*.\\d*.\\d*)( (?P<dns_server2>\\d*.\\d*.\\d*.\\d*)|)"
+      - "default-router (?P<default_router>.*)"
+      - "domain-name (?P<domain_name>.*)"
+      - "lease (?P<leaseday>\\d*) (?P<leasehour>\\d*)"
+      - "network (?P<net_id>\\d*.\\d*.\\d*.\\d*)( (?P<subnet>\\d*.\\d*.\\d*.\\d*)|)"

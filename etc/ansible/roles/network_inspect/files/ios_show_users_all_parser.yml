@@ -1,0 +1,15 @@
+#
+vars:
+  status:
+    tty       : "{{ item.a }}"
+    line      : "{{ item.b }}"
+    number    : "{{ item.c }}"
+    user      : "{{ item.d | replace(' ','') | replace('*','') }}"
+    hosts     : "{{ item.e }}"
+    idle      : "{{ item.f }}"
+    location  : "{{ item.g }}"
+  
+keys:
+  values:
+    value: "{{ status }}"
+    items: "(?P<a>\\d*) (?P<b>[a-z]{3}) (?P<c>\\d*)    \\s?(?P<d>[\\S]*\\s?) \\s*\\s?(?P<e>[a-zA-Z]*\\s?) \\s*(?P<f>\\S*)\\s?(?P<g>\\S*)"

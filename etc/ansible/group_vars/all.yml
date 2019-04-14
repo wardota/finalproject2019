@@ -1,9 +1,8 @@
 ansible_python_interpreter: /usr/bin/env python
-dest_output_fact: etc/ansible/files/
-inventory_hostname: "{{inventory_hostname}}"
-inventory_dir: "{{inventory_dir}}"
+# dest_output_fact: etc/ansible/files/
+# inventory_hostname: "{{inventory_hostname}}"
+# inventory_dir: "{{inventory_dir}}"
 
-# network_cli param
 ansible_user: cisco2
 ansible_password: cisco
 ansible_network_os: ios

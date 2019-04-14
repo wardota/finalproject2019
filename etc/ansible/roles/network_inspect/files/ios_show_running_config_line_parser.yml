@@ -1,0 +1,26 @@
+#
+vars:  
+  line:
+    line_type         : "{{item[0].line_type}}"
+    line_number       : "{{item[0].line_first_number}} {{item[0].line_last_number | default('')}}"
+    login             : "{{item[1].login_opt}}"
+    transport_input   : "{{item[2].transport_ingoing_protocol}}"
+    transport_output  : "{{item[3].transport_outgoing_protocol}}"
+    timeout           : "{{item[4].timeout_line}}"
+    privilege_lvl     : "{{item[5].priv_lvl}}"
+    logging           : "{{item[6].log}}"
+    exec_timeout      : "{{item[7].exec_timeout}}"
+keys: 
+  lines:
+    value: "{{ line }}"
+    start_block: "^line.*" 
+    end_block: "^ [logtranspi]{6}" #BAD
+    items:
+      - "line (?P<line_type>\\w*)\\s*(?P<line_first_number>\\d*)\\s*(?P<line_last_number>\\d*)"
+      - "login (?P<login_opt>\\w*)"
+      - "transport input (?P<transport_ingoing_protocol>\\w*)"
+      - "transport output (?P<transport_outgoing_protocol>\\w*)"
+      - "timeout login response (?P<timeout_line>\\w*)"
+      - "privilege level (?P<priv_lvl>.*)"
+      - "logging (?P<log>.*)"
+      - "exec-timeout (?P<exec_timeout>.*)"

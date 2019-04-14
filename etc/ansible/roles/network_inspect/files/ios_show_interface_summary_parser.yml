@@ -1,0 +1,18 @@
+#
+vars:
+  interface_summary:
+    name: "{{ item.name }}"
+    ihq : "{{ item.ihq }}"
+    iqd : "{{ item.iqd }}"
+    ohq : "{{ item.ohq }}"
+    oqd : "{{ item.oqd }}"
+    rxbs: "{{ item.rxbs }}"
+    rxps: "{{ item.rxps }}"
+    txbs: "{{ item.txbs }}"
+    txps: "{{ item.txps }}"
+    trtl: "{{ item.trtl }}"
+  
+keys:
+  values:
+    value: "{{ interface_summary }}"
+    items: "(?P<name>\\w+.*/\\d+|Vlan\\w+).*(?P<ihq>\\d+).*(?P<iqd>\\d+).*(?P<ohq>\\d+).*(?P<oqd>\\d+).*(?P<rxbs>\\d+).*(?P<rxps>\\d+).*(?P<txbs>\\d+).*(?P<txps>\\d+).*(?P<trtl>\\d+)"
