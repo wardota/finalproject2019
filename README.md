@@ -14,27 +14,27 @@ this is the topology on GNS3
     - [x] Installation
         - [ ] 
     - [ ] playbook
-    
         - [ ] basic and deployment
-        
-        - [ ] 
+        - [x] network and variable inspect 
         - [ ] migration
         - [ ] network features
         - [ ] backup-restore
         - [ ] automate logstash/ELK
-    - [ ]
-    - 
+        - [ ] ...
+    - [ ] misc
+        - [ ] ...
 - [ ] ELK
     - [ ] Logstash 
-        - [ ]
-        - [ ]
-        - [ ]
-        - [ ]
+        - [ ] ..
+        - [ ] ...
     - [ ] Kibana
-        - [ ]
-        - [ ]
-        - [ ]
-        - [ ]
+        - [ ] ...
+        - [ ] ...
+- [ ] Scenario test
+    - [ ] deploy
+    - [ ] ...
+    - [ ] all 
+    
 
 
 ## Ansible

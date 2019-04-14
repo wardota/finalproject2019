@@ -157,7 +157,7 @@
     register: test_ping
     
   - lineinfile:
-      path: "{{inventory_dir}}/ansible.cfg"
+      path: "{{playbook_dir}}/ansible.cfg"
       regexp: '^command_timeout'
       line: 'command_timeout = 5'
     delegate_to: localhost
@@ -172,7 +172,7 @@
     ignore_unreachable: yes
     ignore_errors: yes
   - lineinfile:
-      path: "{{inventory_dir}}/ansible.cfg"
+      path: "{{playbook_dir}}/ansible.cfg"
       regexp: '^command_timeout'
       line: 'command_timeout = 60'
     delegate_to: localhost
@@ -194,7 +194,7 @@
     register: test_ping
 
   - lineinfile:
-      path: "{{inventory_dir}}/host_vars/{{inventory_hostname}}.yml"
+      path: "{{playbook_dir}}/host_vars/{{inventory_hostname}}.yml"
       regexp: '^ansible_host'
       line: 'ansible_host: {{ansible_host}}'
 - block: 
@@ -211,7 +211,7 @@
     register: delete_mgmnt_old_int_vlan
     
   - lineinfile:
-      path: "{{inventory_dir}}/host_vars/old_{{inventory_hostname}}.yml"
+      path: "{{playbook_dir}}/host_vars/old_{{inventory_hostname}}.yml"
       regexp: '^ansible_host'
       line: 'ansible_host: {{ansible_host}}'
 

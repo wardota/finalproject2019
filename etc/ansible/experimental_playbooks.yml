@@ -6408,8 +6408,14 @@
     numbers:  [ 1, 2, 3, 4, 5, 7,8,10 ]
     number2:  [ [ [rrdrr, ssss], [tttt, uuuu, v]],[[eeee, ffff],[ gggg, kkkk, llll]],[[mmmm, oooo, pppp], [qqqq, rrrr]],[[ssss, tttt], [uuuu, vvvv, wwww]] ]
     number:  [ [rrrr, ssss, tttt, uuuu, v],[eeee, ffff, gggg, kkkk, llll],[mmmm, oooo, pppp, qqqq, rrrr],[ssss, tttt, uuuu, vvvv, wwww] ]
-
+    run_test_number: 124
   pre_tasks:
+    - lineinfile:
+        path: "{{playbook_dir}}/vars/common.yml"
+        regexp: '^run_test_number'
+        line: 'run_test_number: {{run_test_number|int + 1}}'
+    - pause:
+        prompt: ""   
     - name: remove old ip
       ios_l3_interface:
         name: "vlan 1097"

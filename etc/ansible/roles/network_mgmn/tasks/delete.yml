@@ -11,7 +11,7 @@
         ansible_host: "{{ intended_cfg_main_int_vlan[0].ip | ipv4('address') }}"
       when: ip_configured 
     - lineinfile:
-        path: "{{inventory_dir}}/host_vars/{{inventory_hostname}}.yml"
+        path: "{{playbook_dir}}/host_vars/{{inventory_hostname}}.yml"
         regexp: '^ansible_host'
         line: 'ansible_host: {{ansible_host}}'
       when: ip_configured 

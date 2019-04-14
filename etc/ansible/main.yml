@@ -1,7 +1,7 @@
 ---
 - name: include experimental_playbook
   import_playbook: experimental_playbooks.yml
-  when: false
+  when: true
 
 - name: Automation Project
   hosts: myall
@@ -29,6 +29,7 @@
               state: present
           register: ping
           failed_when: ping.failed == true
+        
     # - name: pre task
     #   include_tasks: pre_task.yml
     #   when: true

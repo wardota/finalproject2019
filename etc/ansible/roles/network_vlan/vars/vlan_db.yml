@@ -1,10 +1,5 @@
-#    T I P S 
-## 1. if its already configured , then dont configure it
-## 2. if it need to be changed the name, no name first then????(it always have default name VLANNAMEXXX)
-## 3. if it need to be delte then doit at last
-
-###############################################
-# vlan_db
+# vlan_db 
+  all_id: 1-4094 
   default_vlan: 1,1002-1005
   vlan_db: 
   # mgm
@@ -26,8 +21,6 @@
       used_count:
     - vlan_id: "1098"     
       name: vlan-mgmn-ap
-      description:
-      # main: yes
     - vlan_id: "902"     
       name: CAMERA-LT1A
       description:

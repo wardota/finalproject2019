@@ -34,3 +34,38 @@ sw_sisfo                   : ok=39   changed=0    unreachable=0    failed=0
 
     
     TIME:  5m35.113s
+
+
+[ ] NAME: change vlan and ip mgmn
+    SCENARIO: 
+    target :all
+    limit: gkultd,sisfo,ku3_a1
+
+PLAY RECAP ******************************************************************************************************************************
+sw_gkultd                  : ok=73   changed=6    unreachable=0    failed=1
+sw_ku3_a1                  : ok=64   changed=6    unreachable=0    failed=1
+sw_sisfo                   : ok=66   changed=6    unreachable=0    failed=1
+real    29m23.431s
+user    9m57.577s
+sys     1m26.587s
+
+
+PLAY RECAP ******************************************************************************************************************************
+sw_gkultd                  : ok=74   changed=2    unreachable=0    failed=0
+sw_ku3_a1                  : ok=73   changed=6    unreachable=0    failed=0
+sw_sisfo                   : ok=74   changed=2    unreachable=0    failed=0
+real    11m44.646s
+user    8m50.610s
+sys     0m55.439s
+
+
+
+
+- beralih dari ide access/dist/core ke paralel bertahap
+- berhasil memigrasi vlan mgmnt dan ip address mgmnt , untuk migrasi vlan tinggal menyusul karena yang penting ada di bagian vlan/ip/switchport mgmnt
+- sebagian besar role berjalan dengan baik, tetapi inputan yang belum di duga menyebabkan fail/buggy , masih bisa di perbaiki,
+- permasalahan ssh, solusinya menggunakan network cli.
+- butuh mengenkrip password untuk autentikasi, masih plaintext.
+- telah menjalankan migrasi vlan/ip mgmnt dan feature (dhcp,vlan,linevty,user,service)
+- logstash masih cuman bisa berjalan dengan satu inputan dengan baik tapi untuk beberapa inputan masih di ujicoba.
+[?] di elasticserach informasi apa yang kira2 butuh ditampilkan dalam bentuk grafik ,sedangkan data yang didpat berasal dari output show command, dan log

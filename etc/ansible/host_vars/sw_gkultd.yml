@@ -138,8 +138,8 @@ interface:
     allowed: 1,901,1095,1097,1098,1957,3101,3102,3104,3151
   - name: vlan 1             #no-ip
     ip: no
-  - name: vlan 1097          
-    ip: 10.240.192.4/16
+  # - name: vlan 1097          
+  #   ip: 10.240.192.4/16
   - name: vlan 250        
     ip: 10.250.192.4/16
   # - name: vlan 150        

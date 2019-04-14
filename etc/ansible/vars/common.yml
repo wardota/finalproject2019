@@ -5,7 +5,7 @@ roles_2nd: variable_inspect
 # roles_5th: network_user
 # roles_6th: network_line
 # roles_7th: network_service
-# roles_8th: network_vlan
+roles_8th: network_vlan
 # roles_9th: network_interface
 # roles_10th: network_inspect
 # roles_11th: network_crypto
@@ -19,6 +19,9 @@ major_group_name: myall
 ip_network_rgxed: "10.250" #"{{intended_cfg_main_int_vlan[0].ip | ipv4('network') | replace('.0','')}}"
 # tasks:
 # post_tasks:
+ansible_case: deploy
+set_verbosity: 4
+set_timeout: 60
 set_case: deploy # deploy|monitor|maintance
 verbosity: 4
 delay: 3
@@ -42,6 +45,8 @@ ansible:
     vv: 2    # eq with lvl 4
     vvv: 3   # eq with lvl 5, 6
     vvvv: 4  # eq with lvl 7
+
+test_run_number: 43
 
 
 

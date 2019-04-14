@@ -14,7 +14,7 @@
       verbosity: "{{ set_verbosity }}"
   - name: set fact variable ios_vlans 
     set_fact: 
-      ios_vlans: "{{ vlan_output.stdout[0] | parse_cli('ios_show_vlan_parser.yml') | json_query('vlans[*].{vlan_id:id,name:name}') }}"
+      ios_vlans: "{{ vlan_output.stdout[0] | parse_cli('/etc/ansible/files/ios_show_vlan_parser.yml') | json_query('vlans[*].{vlan_id:id,name:name}') }}"
         #   ios_vlans: '{{ ((vlan_output.stdout[0] | parse_cli("ios_show_vlan_parser.yml") | json_query("vlans[*].id")) | join(" ")).split(" ") }}'
         # vlan_output.stdout[0] from register |
         # ios_show_vlan_parser.yml from a file

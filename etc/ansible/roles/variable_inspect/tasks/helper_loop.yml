@@ -10,6 +10,15 @@
     # (running_cfg_main_int_sw_port | to_json | from_json | json_query('[?name == `FastEthernet1/11`].trunk_enabled')|default())+\"
     # asdas: "{{running_cfg_main_int_sw_port |to_json |from_json | json_query(\"[?name == '\"+intended_cfg_main_int_sw_port[outer_item].name+\"'].trunk_enabled\")|join('')}}"
     # asdas2: "{{ sh_interfaces |to_json |from_json | json_query('[?contains(name, `vlan`)] | [?ipv4 != null].name')| join(',')| replace('vlan ','')   }}"
+# - set_fact:
+#     asdfwef: "{{intended_cfg_main_int_sw_port[outer_item].name}}"
+# - set_fact:
+#     asdfwe234f: "{{running_cfg_main_int_sw_port}}"
+# - set_fact:
+#     asdfw234f: "{{intended_cfg_main_int_sw_port[outer_item].allowed}}"
+# - set_fact:
+#     asdfw234fasd: "{{intended_cfg_main_vlan[0].id}}"
+
 - set_fact:
     # found: "{{ (intended_cfg_main_vlan[0].id|int) in ((intended_cfg_main_int_sw_port[outer_item].allowed +\",\"+ default_vlan) |dash2inrange_int |unique)}}"
     identic: "{{ (running_cfg_main_int_sw_port |to_json |from_json | json_query(\"[?name == '\"+intended_cfg_main_int_sw_port[outer_item].name+\"'].trunk_enabled\")|join('') |dash2inrange_int |unique |inrange_int2dash) == ((intended_cfg_main_int_sw_port[outer_item].allowed| replace('all', all_id) +\",\"+ intended_cfg_main_vlan[0].id +\",\"+ default_vlan) |dash2inrange_int |unique |inrange_int2dash) }}"

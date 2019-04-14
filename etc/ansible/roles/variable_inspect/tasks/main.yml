@@ -7,7 +7,6 @@
         file: "../../host_vars/old_{{inventory_hostname}}.yml"
         name: old2
     - set_fact:
-        all_id: 1-4094 
         intended_cfg_main_vlan         : "{{ vlan_db        | json_query('[?main==`true`].{name:name, id:vlan_id}')    | mandatory }}"
         old_saved_cfg_main_vlan        : "{{ old.vlan_db    | json_query('[?main==`true`].{name:name, id:vlan_id}')    | mandatory }}"
         # running_cfg_main_vlan          : "{{ sh_vlan_switch | json_query('vlans[?status==`active`].{id:id,name:name,ports:ports}') }}"
@@ -40,6 +39,9 @@
             ip        : "{{ intended_cfg_main_int_vlan[0].ip | ipv4('address') != running_cfg_main_int_vlan[0].ip     }}" 
             prefix    : "{{ intended_cfg_main_int_vlan[0].ip | ipv4('prefix') != running_cfg_main_int_vlan[0].prefix }}" 
     #----------------------------------------------------------------------------------------
+    
+    - set_fact:
+        as234dfwef: "{{default_vlan}}"
     - name: helper loop
       include_tasks: "{{role_path}}/tasks/helper_loop.yml"
       loop: "{{ range(0|int,intended_cfg_main_int_sw_port|length|int)|list}}"
