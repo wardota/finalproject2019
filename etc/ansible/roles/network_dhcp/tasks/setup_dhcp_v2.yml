@@ -21,9 +21,9 @@
     ignore_errors: yes
     register: result_excluded
     until: result_excluded.changed == false  
-  - debug:
-      var: result_excluded #variable , ugh i should get status for reporting not from my variable
-      verbosity: "{{ set_verbosity }}"
+  # - debug:
+  #     var: result_excluded #variable , ugh i should get status for reporting not from my variable
+  #     verbosity: "{{ set_verbosity }}"
   - name: "setup dhcp pool for {{hostname}}"
     ios_config:
       lines:
@@ -43,8 +43,8 @@
     ignore_errors: yes
     register: result_dhcp
     until: result_dhcp.changed == true 
-  - debug:
-      var: result_dhcp #variable , ugh i should get status for reporting not from my variable
-      verbosity: "{{ set_verbosity }}"
+  # - debug:
+  #     var: result_dhcp #variable , ugh i should get status for reporting not from my variable
+  #     verbosity: "{{ set_verbosity }}"
       
     

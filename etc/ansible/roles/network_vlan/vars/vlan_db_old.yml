@@ -1,12 +1,8 @@
-#    T I P S 
-## 1. if its already configured , then dont configure it
-## 2. if it need to be changed the name, no name first then????(it always have default name VLANNAMEXXX)
-## 3. if it need to be delte then doit at last
 
-###############################################
-# vlan_db
+  all_id: 1-4094 
+  default_vlan: 1,1002-1005
   vlan_db: 
-  # mgm
+  ## mgm#
     - vlan_id: "1097"
       name: vlan-mgmn-dev
       main: yes

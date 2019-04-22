@@ -6,7 +6,7 @@
     ios_command:
       commands:
         - "show vlan-switch"
-      timeout: "{{ set_timeout }}"
+     # timeout: "{{ set_timeout }}"
     register: vlan_output
   - name: debug    variable value of vlan_output
     debug: 
@@ -89,7 +89,7 @@
       name: "{{item.name  |string}}"
       state: present
       provider:
-        timeout: "{{ set_timeout }}"
+       # timeout: "{{ set_timeout }}"
     loop: "{{ match_vlan_db_host_db }}"
     loop_control:
        label: "{{ item.name }} {{ item.vlan_id }}"
@@ -106,7 +106,7 @@
       vlan_id: "{{ item.vlan_id }}"
       name: "{{ item.name}}"
       state: present
-      timeout: "{{ set_timeout }}"
+     # timeout: "{{ set_timeout }}"
     loop: "{{ vlan_db }}"  
     loop_control:
        label: "{{ item.name }} {{ item.vlan_id }} "
@@ -178,7 +178,7 @@
     ios_vlan:
       vlan_id: "{{ item }}"
       state: absent
-      timeout: "{{ set_timeout }}"
+     # timeout: "{{ set_timeout }}"
     loop: "{{ios_vlans_not_match }}"
     register: delete_vlan
     retries: 3
@@ -193,7 +193,7 @@
     #       interfaces:
     #         - FastEthernet1/1
     #         - FastEthernet1/2
-    #       timeout: "{{ set_timeout }}"
+    #      # timeout: "{{ set_timeout }}"
     #     # loop: subelement / nested
     #     # when: interface is set as vlan access is defined
 
@@ -203,7 +203,7 @@
     #       associated_interfaces:
     #         - FastEthernet1/1
     #         - FastEthernet1/2
-    #       timeout: "{{ set_timeout }}"
+    #      # timeout: "{{ set_timeout }}"
     #     ignore_errors: yes
     #     register: check_assign_vlan_in_interface
     #   - name:

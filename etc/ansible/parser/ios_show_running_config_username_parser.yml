@@ -1,0 +1,11 @@
+##
+vars:
+  user:
+    username    : "{{ item.username }}"
+    privilege   : "{{ item.priv }}"
+    secret_value: "{{ item.secret_value }}"
+    fingerprint : "{{ item.fingerprint_value }}"
+keys:
+  config_users:
+    value: "{{ user }}"
+    items: "username (?P<username>\\w*)(| privilege (?P<priv>\\w*)) secret (?P<secret_value>\\d*) (?P<fingerprint_value>.*)"

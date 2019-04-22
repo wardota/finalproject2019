@@ -1,0 +1,14 @@
+##
+vars:  
+  vlan:
+    vlan_id   : "{{item[0].vlan_id}}"
+    vlan_name : "{{item[1].vlan_name}}"
+
+keys: 
+  vlans:
+    value: "{{ vlan }}"
+    start_block: "^vlan \\d+" 
+    end_block: "^ name.*"
+    items:
+      - "vlan (?P<vlan_id>\\d*)\\n"
+      - " name (?P<vlan_name>.*)"

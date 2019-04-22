@@ -1,5 +1,5 @@
 
-#
+
 vars:
   interface:
     name                : "{{ item[0].name | replace('Vlan','vlan ')}}"
@@ -18,7 +18,8 @@ vars:
     input_rate_packets  : "{{ item[8].match[1] }}"
     output_rate_packets : "{{ item[9].match[1] }}"
     link_protocol_state : "{{ item[10].lineproto }}"
-    bandwidth           : "{{ item[11].bw}} {{item[11].bwunit }}"
+    bandwidth           : "{{ item[11].bw}}"
+    bandwidth_unit      : "{{ item[11].bwunit }}"
     mediatype           : "{{ item[12].medtype }}"
     linktype            : "{{ item[13].linktype }}"
     type                : "{{ item[14].type }}"

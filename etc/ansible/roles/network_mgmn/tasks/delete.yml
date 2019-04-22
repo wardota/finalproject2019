@@ -1,42 +1,119 @@
-# re inspect
-- block: 
-    - set_fact:    
-        ip_new   : "{{ sh_interfaces  | to_json | from_json | json_query(\"[?contains(name,'vlan \"+intended_cfg_main_vlan[0].id+\"')] | [?contains(ipv4,'\"+intended_cfg_main_int_vlan[0].ip | ipv4('address')+\"')].ipv4|[0].starts_with(to_string(@),'\"+ip_network_rgxed+\"') \") }}"        
+#phase two
+##part1 reconnect
+# - when: mgmnt.changes.ip and mgmnt.changes.vlan_id
+#   block:
+#     - delegate_to: localhost
+#       block:
+#         - set_fact:
+#             ansible_host_backup: "{{ ansible_host }}"
+#             ansible_host: "{{ intended_cfg_main_int_vlan[0].ip| ipv4('address') }}"
+#         - name: Ping test, from Ansible server to host  
+#           register: test 
+#           failed_when: test.ping != 'pong'
+#           ignore_errors: yes
+#           ping:
+#             data: pong
+#     - block:
+#         - name: Connectivity test, from host itself to host itself 
+#           register: ping
+#           ignore_errors: yes
+#           failed_when: ping.failed == true
+#           ios_ping:
+#             dest: "{{ansible_host}}"     
+#             state: present
+#       rescue:
+#         - delegate_to: localhost
+#           set_fact:
+#             ansible_host: "{{ ansible_host_backup }}"
+##part2 reinspect
+# - block:
+#     - name: get show 
+#       ios_command:
+#         commands: 
+#           - "show interface"
+#           - "show vlan-switch"
+#       register: output
+- delegate_to: localhost
+  ignore_errors: yes
+  block:
+    # - set_fact: 
+    #     sh_interfaces   : "{{ output.stdout[0]  | parse_cli(\"\"+ role_path +\"/files/ios_show_interface_parser.yml\") }}"
+    #     sh_vlan_switch  : "{{ output.stdout[1]  | parse_cli(\"\"+ role_path +\"/files/ios_show_vlan_switch_parser.yml\")}}"
+        
+    # - name: save show 
+    #   copy: 
+    #     content: "{{item.content }}"
+    #     dest: "{{item.dest}}"
+    #   with_items:
+    #     - { content: "{{ sh_interfaces | to_nice_json }}", dest: "{{playbook_dir}}/files/{{hostname}}_sh_interfaces.json" }
+    #     - { content: "{{ sh_vlan_switch| to_nice_json }}", dest: "{{playbook_dir}}/files/{{hostname}}_sh_vlan_switch.json" }
+           
     - set_fact:
-        # ip_configured_count  : "{{ hostvars | json_query('*|[?ip_new == `true`].ip_new|length(@)') }}" 
+        ip_configured_count   : "{{ hostvars | json_query('*|[?ip_new == `true`].ip_new|length(@)') }}" 
         ip_configured         : "{{ hostvars | json_query('*|[?ip_new == `true`].ip_new|length(@)')|int ==  (ansible_play_hosts|length|int ) }}" 
-        # vlan_configured_count: "{{ hostvars | json_query(\"*|[?contains(group_names,'\"+major_group_name+\"')]|[?contains(sh_vlan_switch.vlans[*].id||group_names,'\"+intended_cfg_main_vlan[0].id|string +\"' ) == `true`]|length(@)\")}}" #vlan is valid to delete if value is equal to expected_length
+        vlan_configured_count: "{{ hostvars | json_query(\"*|[?contains(group_names,'\"+major_group_name+\"')]|[?contains(sh_vlan_switch.vlans[*].id||group_names,'\"+intended_cfg_main_vlan[0].id|string +\"' ) == `true`]|length(@)\")}}" #vlan is valid to delete if value is equal to expected_length
         vlan_configured      : "{{ hostvars | json_query(\"*|[?contains(group_names,'\"+major_group_name+\"')]|[?contains(sh_vlan_switch.vlans[*].id||group_names,'\"+intended_cfg_main_vlan[0].id|string +\"' ) == `true`]|length(@)\")|int ==  (ansible_play_hosts|length|int )}}" #true then old_vlan valid to delete 
     - set_fact:
-        ansible_host: "{{ intended_cfg_main_int_vlan[0].ip | ipv4('address') }}"
-      when: ip_configured 
-    - lineinfile:
-        path: "{{playbook_dir}}/host_vars/{{inventory_hostname}}.yml"
-        regexp: '^ansible_host'
-        line: 'ansible_host: {{ansible_host}}'
-      when: ip_configured 
-  delegate_to: localhost
-  ignore_errors: yes
-- block: #delete part
+        ip_configured: "{{ip_configured}}"
+        vlan_configured: "{{vlan_configured}}"
+        mgmnt_change_vlan_id: "{{mgmnt.changes.vlan_id}}"
+        oscfm_vlan_id : "{{old_saved_cfg_main_vlan[0].id}}"
+        oscfm_vlan_name : "{{ old_saved_cfg_main_int_vlan[0].name }}"
+        ansible_play_hosts: "{{ansible_play_hosts}}"
+    # - set_fact:
+    #     ansible_host: "{{ intended_cfg_main_int_vlan[0].ip | ipv4('address') }}"
+    #   when: ip_configured 
+
+- when: ip_configured
+  block:
+    - delegate_to: localhost
+      block:
+        - set_fact:
+            ansible_host_backup: "{{ ansible_host }}"
+            ansible_host: "{{ intended_cfg_main_int_vlan[0].ip| ipv4('address') }}"
+        - name: Ping test, from Ansible server to host  
+          register: test 
+          failed_when: test.ping != 'pong'
+          ignore_errors: yes
+          ping:
+            data: pong
+    - block:
+        - name: Connectivity test, from host itself to host itself 
+          register: ping
+          ignore_errors: yes
+          failed_when: ping.failed == true
+          ios_ping:
+            dest: "{{ansible_host}}"     
+            state: present
+      rescue:
+        - delegate_to: localhost
+          set_fact:
+            ansible_host: "{{ ansible_host_backup }}"
+
+
+    # - lineinfile:
+    #     path: "{{playbook_dir}}/host_vars/{{inventory_hostname}}.yml"
+    #     regexp: '^ansible_host'
+    #     line: 'ansible_host: {{ansible_host}}'
+    #   when: ip_configured 
+
+##part3 delete old one
+- when: ip_configured and vlan_configured and mgmnt.changes.vlan_id
+  block: 
     - name: remove old vlan
       ios_vlan:
         vlan_id: "{{old_saved_cfg_main_vlan[0].id}}"
         state: absent
       register: mgmnt_vlan_changed
-      when: ip_configured and vlan_configured and mgmnt.changes.vlan_id
-      
-    - name: Firstly allow all vlan 
+    - name: remove old ip 
       ios_config:
-        parents: "interface {{ old_saved_cfg_main_int_vlan[0].name }}"
-        lines: "no ip address"
-      when: ip_configured and vlan_configured and mgmnt.changes.vlan_id
-
-    - name: remove the not allowed 
-      ios_l2_interface:
-        name : "{{ item }} "
-        trunk_vlans : "{{ old_saved_cfg_main_vlan[0].id }}"
-        state : absent
-        mode  : trunk
-      loop: "{{ interfaces_have_neighbors }}"
-      when: ip_configured and vlan_configured and mgmnt.changes.vlan_id
+        # parents: "no interface {{ old_saved_cfg_main_int_vlan[0].name }}"
+        lines: "no interface {{ old_saved_cfg_main_int_vlan[0].name }}"
+    # - name: remove the not allowed 
+    #   ios_l2_interface:
+    #     name : "{{ item }} "
+    #     trunk_vlans : "{{ old_saved_cfg_main_vlan[0].id }}"
+    #     state : absent
+    #     mode  : trunk
+    #   loop: "{{ interfaces_have_neighbors }}"
 

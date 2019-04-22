@@ -4,7 +4,7 @@
       ios_user:
         name: "{{userdb2[item].username}}"
         state: present
-        timeout: "{{ set_timeout }}"
+       # timeout: "{{ set_timeout }}"
       loop: "{{range(0, (userdb2 | length), 1)| list}}" # we just know the item , BAD OUTPUT FORMAT
       loop_control:
         label: "{{ userdb2[item].username }}"
@@ -18,7 +18,7 @@
         name: "{{userdb2[item].username}}"
         privilege: "{{userdb2[item].privilege }}"
         state: present
-        timeout: "{{ set_timeout }}"
+       # timeout: "{{ set_timeout }}"
       loop:  "{{range(0, (userdb2 | length), 1)| list}}"  # we just know the item , BAD OUTPUT FORMAT
       loop_control:
         label: "{{ userdb2[item].username }}"
@@ -30,7 +30,7 @@
         name: "{{userdb2[item].username}}"
         nopassword: True
         state: present
-        timeout: "{{ set_timeout }}"
+       # timeout: "{{ set_timeout }}"
       loop: "{{range(0, (userdb2 | length), 1)| list}}"  # we just know the item , BAD OUTPUT FORMAT
       loop_control:
         label: "{{ userdb2[item].username }}" 
@@ -43,7 +43,7 @@
         configured_password: "{{userdb2[item].secret }}"
         update_password: always
         state: present
-        timeout: "{{ set_timeout }}"
+       # timeout: "{{ set_timeout }}"
       loop: "{{range(0, (userdb2 | length), 1)| list}}"  # we just know the item , BAD OUTPUT FORMAT
       loop_control:
         label: "{{ userdb2[item].username }}"
@@ -54,7 +54,7 @@
       ios_user:
         name: "{{userdb2[item].username}}"
         state: absent
-        timeout: "{{ set_timeout }}"
+       # timeout: "{{ set_timeout }}"
       loop: "{{range(0, (userdb2 | length), 1)| list}}"  # we just know the item , BAD OUTPUT FORMAT
       loop_control:
         label: "{{ userdb2[item].username }}"
@@ -66,7 +66,7 @@
         name: "{{userdb2[item].username}"
         view: "{{userdb2[item].view }}"
         state: present
-        timeout: "{{ set_timeout }}"
+       # timeout: "{{ set_timeout }}"
       loop:  "{{range(0, (userdb2 | length), 1)| list}}"  # we just know the item , BAD OUTPUT FORMAT
       loop_control:
         label: "{{ userdb2[item].username }}"

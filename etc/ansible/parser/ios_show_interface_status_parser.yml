@@ -1,0 +1,15 @@
+# 
+vars:
+  status:
+    port  : "{{ item.ports }}"
+    vlan  : "{{ item.vlan }}"
+    status: "{{ item.status }}"
+    deplex: "{{ item.duplex }}"
+    speed : "{{ item.speed }}"
+    type  : "{{ item.type }}"
+  
+keys:
+  values:
+    value: "{{ status }}"
+    items: "^(?P<ports>\\w+/\\d+)\\s+(?P<status>\\w+)\\s+(?P<vlan>\\w+(|,\\w+))\\s+(?P<duplex>[a-zA-Z-]+)\\s+(?P<speed>\\w+)\\s+(?P<type>\\w+/\\w+)?"  
+    #(?P<ports>\w+/\d+)\s+(?P<status>\w+)\s+(?P<vlan>\w+)\s+(?P<duplex>\w+)\s+(?P<speed>\w+)\s+(?P<type>\w+/\w+)

@@ -6,8 +6,7 @@
           - "login {{ line.vty[item].login}}"
           - "transport {{ line.vty[item].option }} {{ line.vty[item].protocol }}"
         parents:
-          - "line vty {{ line.vty[item].start}}  {{line.vty[item].end}}"
-        timeout: "{{ set_timeout }}"         
+          - "line vty {{ line.vty[item].start}}  {{line.vty[item].end}}"        
       loop: "{{vty}}"
       when: item in line.vty.keys()
     # - name: debug raw config line 

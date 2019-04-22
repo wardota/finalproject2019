@@ -1,0 +1,47 @@
+---
+- name: Managament migration play phase one
+  hosts: myall
+  gather_facts: no
+  serial: 4
+  connection: network_cli
+  ignore_errors: no
+  vars_files:
+    - vars/common.yml 
+  roles:
+    - name: Inspect The Network using show command
+      role: network_inspect
+      when: network_inspect_was_done is undefined
+    - name: Inspect The Variable 
+      role: variable_inspect
+      when: variable_inspect_was_done is undefined
+    - name: Managament migration - add new mgmn 
+      role: network_mgmn
+      vars:
+        phase: one
+- name: Managament migration play phase two
+  hosts: myall
+  gather_facts: no
+  serial: 4
+  connection: network_cli
+  ignore_errors: no
+  vars_files:
+    - vars/common.yml 
+  roles:
+    - name: Managament migration - delete old mgmn
+      role: network_mgmn
+      vars:
+        phase: two
+- name: Managament migration play phase three
+  hosts: myall
+  gather_facts: no
+  serial: 10
+  connection: network_cli
+  ignore_errors: no
+  roles:
+    - name: Managament migration - delete old mgmn switchport
+      role: network_mgmn
+      vars:
+        phase: three
+
+- name: Finishing playbook
+  import_playbook: finished.yml 

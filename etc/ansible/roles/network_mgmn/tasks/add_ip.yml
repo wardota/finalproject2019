@@ -6,10 +6,13 @@
     retries: "{{ retries }}"
     register: test_ping
     
+  - set_fact:
+      command_timeout: "{{ lookup('ini', 'command_timeout section=persistent_connection file=ansible.cfg') }}"
+    delegate_to: localhost
   - lineinfile:
       path: "{{playbook_dir}}/ansible.cfg"
       regexp: '^command_timeout'
-      line: 'command_timeout = 59'
+      line: 'command_timeout = 5'
     delegate_to: localhost
   - ios_l3_interface:  # NEED to change timeout value
       name: "{{ item.name }}"
@@ -24,7 +27,7 @@
   - lineinfile:
       path: "{{playbook_dir}}/ansible.cfg"
       regexp: '^command_timeout'
-      line: 'command_timeout = 60'
+      line: "command_timeout = {{command_timeout}}"
     delegate_to: localhost
       # set IP / PREFIX , if IP/PREFIX/VLAN_ID is changed
       # ketika ip address berubah(true) atau vlan id berubah(true)

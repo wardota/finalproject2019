@@ -8,36 +8,46 @@
   vars_files:
     - vars/common.yml 
   pre_tasks:  
-    - name:  copying variable file in host_vars as old_file
-      copy:
-        src : "{{playbook_dir}}/host_vars/{{inventory_hostname}}.yml"
-        dest: "{{playbook_dir}}/host_vars/old2_{{inventory_hostname}}.yml"
-        backup: yes 
-      when: true
-    - name:  copying variable file in vlan_db to vlan_db_old
-      copy:
-        src : "{{playbook_dir}}/roles/network_vlan/vars/vlan_db.yml"
-        dest: "{{playbook_dir}}/roles/network_vlan/vars/vlan_db_old.yml"
-        backup: yes 
-      when: true
-        
-    # - lineinfile:
-    #     path: "{{playbook_dir}}/vars/common.yml"
-    #     regexp: '^test_run_number'
-    #     line: 'test_run_number: {{test_run_number|int + 1}}'
-    # - name: Sending an e-mail using Gmail SMTP servers
-    #   mail:
-    #     host: smtp.gmail.com
-    #     port: 587
-    #     username: samidatodraw@student.telkomuniversity.ac.id
-    #     password: bnuesdqz
-    #     to: Dimas bayu <wardota8@gmail.com>
-    #     subject: Ansible-report
-    #     body: "On {{lookup('pipe', 'date')}}\n System has been provisioned\n Test number {{test_run_number |int + 1}}\n"
-    #     attach: 
-    #       - dump/gns_topology.PNG
-    #     subtype: plain
-    #     headers:
-    #       - Reply-To=foobar@example.com
-    #       - X-Special="Foo bar"
-    #       - Feedback-To="@wardota8"
+    - delegate_to: localhost
+      block: 
+        - when: true   # temporarely set to false, due to testing purpose
+          lineinfile:
+            path: "{{playbook_dir}}/host_vars/{{inventory_hostname}}.yml"
+            regexp: '^ansible_host'
+            line: 'ansible_host: {{ansible_host}}'
+        - name:  copying variable file in host_vars as old_file
+          when: true   # temporarely set to false, due to testing purpose
+          copy:
+            src : "{{playbook_dir}}/host_vars/{{inventory_hostname}}.yml"
+            dest: "{{playbook_dir}}/host_vars/old2_{{inventory_hostname}}.yml"
+            backup: yes 
+        - name:  copying variable file in vlan_db to vlan_db_old
+          when: true   # temporarely set to false, due to testing purpose
+          copy:
+            src : "{{playbook_dir}}/roles/network_vlan/vars/vlan_db.yml"
+            dest: "{{playbook_dir}}/roles/network_vlan/vars/vlan_db_old.yml"
+            backup: yes    
+        - lineinfile:
+            path: "{{playbook_dir}}/vars/common.yml"
+            regexp: '^test_run_number'
+            line: 'test_run_number: {{test_run_number|int + 1}}'
+          when: false  # temporarely set to false, due to testing purpose
+        - name: Sending an e-mail using Gmail SMTP servers
+          when: false  # temporarely set to false, due to testing purpose
+          mail:
+            host: smtp.gmail.com
+            port: 587
+            username: samidatodraw@student.telkomuniversity.ac.id
+            password: bnuesdqz
+            to: Dimas bayu <wardota8@gmail.com>
+            subject: "Ansible-report - Device {{hostname}}"
+            body: "On {{lookup('pipe', 'date')}}\n System has been provisioned\n Test number {{test_run_number |int + 1}}\n Device {{hostname}}\n Ansible_host {{ansible_host}}"
+            attach: 
+              - dump/gns_topology.PNG
+            subtype: plain
+            headers:
+              - Reply-To=foobar@example.com
+              - X-Special="Foo bar"
+              - Feedback-To="@wardota8"
+        - set_fact:
+            finishing_task_was_done: yes

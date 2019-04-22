@@ -1,0 +1,100 @@
+- name: include  variable from file vlan_db.yml
+  include_vars: vlan_db.yml
+- name: include  variable from file interface_db.yml 
+  include_vars: roles/network_interface/vars/interface_db.yml     
+
+
+- name: set fact variable vlan_output from get show vlan  
+  ios_command:
+    commands:
+      - "show vlan-switch"
+   # timeout: "{{ set_timeout }}"
+  register: vlan_output
+- name: set fact variable ios_vlans 
+  set_fact: 
+    ios_vlans: "{{ vlan_output.stdout[0] | parse_cli('/etc/ansible/files/ios_show_vlan_parser.yml') | json_query('vlans[*].{vlan_id:id,name:name}') }}"
+      #   ios_vlans: '{{ ((vlan_output.stdout[0] | parse_cli("ios_show_vlan_parser.yml") | json_query("vlans[*].id")) | join(" ")).split(" ") }}'
+      # vlan_output.stdout[0] from register |
+      # ios_show_vlan_parser.yml from a file
+      # vlans[*].id from structure  inside vlan_output.stdout[0] from register     
+- name: set fact variable vlan_db_pair
+  set_fact: 
+    vlan_db_pair: "{{ vlan_db | json_query('[*].{vlan_id:vlan_id, name:name}')}}"                                                   
+- name: set variable vlan_db_diff_host_db
+  debug:
+    var: item.name
+  loop: "{{ vlan_db_pair }}"
+  when: item.name in  vlan.by_name
+  register: vlan_db_diff_host_db
+    # - debug:
+    #     var: vlan_db_pair | json_query('[*].name[]')
+- name: set      variable host_db_diff_vlan_db
+  debug:
+    var: "{{ item }}"
+    verbosity: 4
+  loop: "{{  vlan.by_name}}"
+  when: item in (vlan_db_pair | json_query('[*].name'))
+  register: host_db_diff_vlan_db  
+- name: set fact variable match_vlan_db_host_db
+  set_fact: 
+    match_vlan_db_host_db: "{{vlan_db_diff_host_db.results | json_query('[?!skipped].item')}}"
+- name: set fact variable vlan_db_not_match_to_host_db
+  set_fact: 
+    vlan_db_not_match_to_host_db: "{{vlan_db_diff_host_db.results | json_query('[?skipped].item')}}"
+- name: set fact variable match2_vlan_db_host_db
+  set_fact: 
+    match2_vlan_db_host_db: "{{host_db_diff_vlan_db.results | json_query('[?!skipped].item')}}"
+- name: set fact variable host_db_not_match_to_vlan_db
+  set_fact: 
+    host_db_not_match_to_vlan_db: "{{host_db_diff_vlan_db.results | json_query('[?skipped].item')}}"
+      # ? shpuld we add them but we dont know the id
+
+- name: ios vlan variable match_vlan_db_host_db [present] and set variable set_vlan
+  ios_vlan:
+    vlan_id: "{{item.vlan_id |string}}"
+    name: "{{item.name  |string}}"
+    state: present
+    provider:
+     # timeout: "{{ set_timeout }}"
+  loop: "{{ match_vlan_db_host_db }}"
+  loop_control:
+      label: "{{ item.name }} {{ item.vlan_id }}"
+    # ignore_errors: yes
+  register: set_vlan
+  delay: 60
+
+  ## | setup vlan just the based on interface_db acces_vlan and native_vlan  
+- name: ios vlan variable interface_db if exist in vlan_db [present] and set variable create_vlan
+  ios_vlan:
+    vlan_id: "{{ item.vlan_id }}"
+    name: "{{ item.name}}"
+    state: present
+   # timeout: "{{ set_timeout }}"
+  loop: "{{ vlan_db }}"  
+  loop_control:
+      label: "{{ item.name }} {{ item.vlan_id }} "
+  when: item.vlan_id in interface| json_query("[*].[access_vlan,native_vlan][]") | unique 
+  register: create_vlan    
+  delay: 30
+  retries: 3      
+- name: set fact variable is_ios_vlans_in in match_vlan_db_host_db or vlan_db_not_match_to_host_db
+  debug:
+    var: "{{ item }}"
+    verbosity: 4
+  loop: "{{ (ios_vlans | json_query('[*].[vlan_id][]') | join (' ')).split(' ')  }}"
+  when: (item in (match_vlan_db_host_db | json_query('[*].[vlan_id][]') | join (' ')).split(' ')) or (item in (vlan_db_not_match_to_host_db | json_query('[*].[vlan_id][]') | join (' ')).split(' '))
+  register: is_ios_vlans_in
+- name: set fact variable ios_vlans_not_match
+  set_fact: 
+    ios_vlans_not_match: "{{is_ios_vlans_in.results | json_query('[?skipped].item')}}"
+- name: set fact variable ios_vlans_match
+  set_fact:
+    ios_vlans_match: "{{is_ios_vlans_in.results | json_query('[?!skipped].item')}}" 
+- name: ios vlan variable ios_vlans_not_match [absent]
+  ios_vlan:
+    vlan_id: "{{ item }}"
+    state: absent
+   # timeout: "{{ set_timeout }}"
+  loop: "{{ios_vlans_not_match }}"
+  register: delete_vlan
+  retries: 3

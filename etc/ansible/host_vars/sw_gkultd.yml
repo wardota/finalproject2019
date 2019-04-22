@@ -24,7 +24,7 @@ user:
     - abu
     - caca
 vlan:
-  by_name:  # Vlan can not be added. Maximum number of 32 vlan(s) in the database.
+  by_name:  # Vlan can not be added. Maximum number of 32 vlan(s) in the database.a
     - vlan-mgmn-dev            #1097
     - vlan-mgmn-ap             #1098
     - scn-superVlan-Wirele     #1099
@@ -141,7 +141,7 @@ interface:
   # - name: vlan 1097          
   #   ip: 10.240.192.4/16
   - name: vlan 250        
-    ip: 10.250.192.4/16
+    ip: 10.250.250.4/16
   # - name: vlan 150        
   #   ip: 10.150.150.4/16
 services_on:
@@ -168,8 +168,6 @@ services_on:
   - snmp-server location GKU-LTD
   - snmp-server contact NOC_Tel-U
   - ntp server 192.252.252.121
-
 services_off:
 crypto:
-
-
+##

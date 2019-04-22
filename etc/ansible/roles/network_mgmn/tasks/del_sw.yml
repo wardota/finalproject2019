@@ -1,0 +1,11 @@
+
+- when: ip_configured and vlan_configured and mgmnt.changes.vlan_id
+  block: 
+    - name: remove the not allowed 
+      ios_l2_interface:
+        name : "{{ item }} "
+        trunk_vlans : "{{ old_saved_cfg_main_vlan[0].id }}"
+        state : absent
+        mode  : trunk
+      loop: "{{ interfaces_have_neighbrs }}"
+

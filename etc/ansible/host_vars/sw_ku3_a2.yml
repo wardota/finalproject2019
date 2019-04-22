@@ -188,11 +188,9 @@ services_on:
   - snmp-server community oraora RO
   - snmp-server location GKU-LT2A
   - snmp-server contact NOC_Tel-U
-
-
 services_off:
 crypto:
-
+##
 
       # // karena interface terbatas dari fa1/0 hingga fa1/15 total ada 16 tapi saya gunakan 14 saja dan menadi sebagai berikut//
       # 901=IntFa1/0-4 access
@@ -212,8 +210,8 @@ crypto:
       # IntVlan1097= 192.240.192.20/24
       # IntF0/0=192.168.1.1/24
 
-##
-  ###############################################a
+###
+  ################################################a
   # sw_ku3_s2 :: HOSTNAME_DB
   # provider:
   #   host: "{{ ansible_host }}"

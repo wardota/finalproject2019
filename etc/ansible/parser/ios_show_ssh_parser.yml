@@ -1,0 +1,14 @@
+##
+vars:
+  status:
+    connection    : "{{ item.a }}"
+    version       : "{{ item.b }}"
+    mode          : "{{ item.c }}"
+    encryption    : "{{ item.d }}"
+    hmac          : "{{ item.e }}"
+    state         : "{{ item.f }} {{ item.g }}"
+    username      : "{{ item.h | replace('2','') | replace('********','master_admin')}}"
+keys:
+  values:
+    value: "{{ status }}"
+    items: "^(?P<a>\\d+)\\s*(?P<b>\\S*)\\s*(?P<c>\\S*)\\s*(?P<d>\\S*)\\s*(?P<e>\\S*)\\s*(?P<f>\\S*)\\s*(?P<g>\\S*)\\s*(?P<h>\\S*)"

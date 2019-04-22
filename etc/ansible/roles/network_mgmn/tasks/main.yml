@@ -1,13 +1,24 @@
+# for v2
+# - name: Include - add vlan task
+#   include_tasks: add_vlan.yml
+#   when: phase|default(omit) == "one" 
+# - name: Include - add switchport task
+#   include_tasks: add_switchport.yml
+#   when: phase|default(omit) == "two" 
+# - name: Include - add ip task
+#   include_tasks: add_ip.yml
+#   when: phase|default(omit) == "three" 
+# - name: Include - delete old and use new connection
+#   include_tasks: delete.yml
+#   when: phase|default(omit) == "four" 
 
+# for v3 
 - name: Include - add vlan task
-  include_tasks: add_vlan.yml
-  when: phase == "one" 
-- name: Include - add switchport task
-  include_tasks: add_switchport.yml
-  when: phase == "two" 
-- name: Include - add ip task
-  include_tasks: add_ip.yml
-  when: phase == "three" 
+  include_tasks: add.yml
+  when: phase|default(omit) == "one" 
 - name: Include - delete old and use new connection
   include_tasks: delete.yml
-  when: phase == "four" 
+  when: phase|default(omit) == "two"
+- name: Include - delete old switchport
+  include_tasks: del_sw.yml
+  when: phase|default(omit) == "three"

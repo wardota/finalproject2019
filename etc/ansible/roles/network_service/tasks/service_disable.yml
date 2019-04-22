@@ -3,6 +3,6 @@
       ios_config:
         lines:
           -  no {{ item }}
-        timeout: "{{ set_timeout }}"
+        # timeout: "{{ set_timeout }}"
       loop: "{{ services_off }}"
 

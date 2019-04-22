@@ -1,13 +1,13 @@
 ---
-- name: include experimental_playbook
-  import_playbook: experimental_playbooks.yml
-  when: false
+# - name: include experimental_playbook
+#   import_playbook: experimental_playbooks.yml
+#   when: false
 
 - name: Automation Project
   hosts: myall
   gather_facts: no
-  # serial: 1
-  gather_timeout: 60
+  serial: 8
+  # gather_timeout: 60
   connection: network_cli
   ignore_errors: no
   vars_files:
@@ -15,21 +15,19 @@
   pre_tasks:  
     - name: ping test
       block: 
-        - name: Ping test, from Ansible server to host  # if it fail , wrong ip or blocked (e.g. because firewall,diffrent vlan,acl, or other)
+        - name: Ping test, from Ansible server to host  # fail due to , wrong ip or blocked or firewall,diffrent vlan,acl, or other)
           ping:
             data: pong
           register: test 
           failed_when: test.ping != 'pong'
           ignore_errors: yes
           delegate_to: localhost
-
       rescue:
         - include_vars: 
             file: "../../host_vars/old_{{inventory_hostname}}.yml"
             name: old2
         - set_fact:
-            ansible_host: "{{old2.ansible_host}}"
-            
+            ansible_host: "{{old2.ansible_host}}"  
     - name: Connectivity test
       block: 
         - name: Connectivity test, from host itself to host itself 
@@ -71,7 +69,7 @@
   post_tasks:
 
 - name: Management migration playbook
-  import_playbook: management_vlan_migration_v2.yml
+  import_playbook: management_vlan_migration_v3.yml
   when: not hostvars[inventory_hostname].ping.failed  # conditional ?? (conditional masih salah , sementara ini dulu)
 
 - name: Finishing playbook

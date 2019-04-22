@@ -4,7 +4,7 @@
       ios_user:
         name: "{{item}}"
         state: present
-        timeout: "{{ set_timeout }}"
+       # timeout: "{{ set_timeout }}"
       loop: "{{ user.whitelist}}"
       when: userdb[item].privilege is not defined               
       retries: 3 
@@ -14,7 +14,7 @@
         name: "{{item}}"
         privilege: "{{userdb[item].privilege }}"
         state: present
-        timeout: "{{ set_timeout }}"
+       # timeout: "{{ set_timeout }}"
       loop: "{{ user.whitelist}}"
       when: userdb[item].privilege is defined                  
       retries: 3 
@@ -24,7 +24,7 @@
         name: "{{item}}"
         view: "{{userdb[item].view }}"
         state: present
-        timeout: "{{ set_timeout }}"
+       # timeout: "{{ set_timeout }}"
       loop: "{{ user.whitelist}}"
       when: userdb[item].view is defined                  
       retries: 3 
@@ -34,7 +34,7 @@
         name: "{{item}}"
         nopassword: True
         state: present
-        timeout: "{{ set_timeout }}"
+       # timeout: "{{ set_timeout }}"
       loop: "{{ user.whitelist}}"
       when: userdb[item].secret is not defined               
       retries: 3 
@@ -45,7 +45,7 @@
         configured_password: "{{userdb[item].secret }}"
         update_password: always
         state: present
-        timeout: "{{ set_timeout }}"
+       # timeout: "{{ set_timeout }}"
       loop: "{{ user.whitelist}}"
       when: userdb[item].secret is defined                  
       retries: 3 
@@ -54,7 +54,7 @@
       ios_user:
         name: "{{item}}"
         state: absent
-        timeout: "{{ set_timeout }}"
+       # timeout: "{{ set_timeout }}"
       loop: "{{ user.blocked}}"                     
       retries: 3 
   

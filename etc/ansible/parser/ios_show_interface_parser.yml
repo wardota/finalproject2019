@@ -1,0 +1,57 @@
+#
+vars:
+  interface:
+    name                : "{{ item[0].name | replace('Vlan','vlan ')}}"
+    operstatus          : "{{ item[0].oper }}"
+    ipv4                : "{{ item[1].ipv4 }}"
+    prefix              : "{{ item[1].prefix }}"
+    port_mode           : "{{ item[3].match[0] }}"
+    mtu                 : "{{ item[2].match[0] }}"
+    duplex              : "{{ item[4].duplex }}"
+    admin_state         : "{{ item[5].admin }}"
+    description         : "{{ item[6].match[0] }}"
+    mac                 : "{{ item[7].match[0] }}"
+    speed               : "{{ item[4].speed }}"
+    input_rate_bits     : "{{ item[8].match[0] }}"
+    output_rate_bits    : "{{ item[9].match[0] }}"
+    input_rate_packets  : "{{ item[8].match[1] }}"
+    output_rate_packets : "{{ item[9].match[1] }}"
+    link_protocol_state : "{{ item[10].lineproto }}"
+    bandwidth           : "{{ item[11].bw}}"
+    bandwidth_unit      : "{{ item[11].bwunit }}"
+    mediatype           : "{{ item[12].medtype }}"
+    linktype            : "{{ item[13].linktype }}"
+    type                : "{{ item[14].type }}"
+
+keys:
+  interfaces:
+    value: "{{ interface }}"
+    start_block: "\\w{0,20}?((Serial|Ethernet).*[/]\\d+|Vlan\\d*)" # for Serial or X-Ethernet
+                # "(\w{0,20}?(Serial|Ethernet)\d[/]\d+|Vlan)" # all
+                #  "^\w+Ethernet.+$"    #for X-Ethernet only
+                #  "^FastEthernet.+$"   #for fastethernet only
+                #  "^Ethernet.+$"   #for ethernet only
+                #  "^Serial.+$"   #for serial only
+    end_block: ".+interface reset"
+                #"(\\w? buffers swapped out|\\w? CTS=\\w*)"  # for Serial or X-Ethernet
+                #  ".+interface reset" #all 
+                # "(\w? buffers swapped out|\w? CTS=\w*)\v(\w+Ethernet\w+/|Vlan1 |Serial0/0)"  #for X-Ethernet only
+                # "(\w? buffers swapped out|\w? CTS=\w*)\v(Ethernet\w+/|Vlan1 |Serial0/0)"  #for Ethernet only
+                # "(\w? buffers swapped out|\w? CTS=\w*)\v(FastEthernet\w+/|Vlan1 |Serial0/0)"  #for fastethernet only
+                # "\w? CTS=\w*"  #for serial only
+    items:
+      - "(?P<name>\\w+.*/\\d+|Vlan\\w+) is (?P<oper>[a-zA-Z ]*),"
+      - "\\s+Internet address is (?P<ipv4>.+)/(?P<prefix>\\d*)"
+      - "\\s+ MTU (\\d+)"
+      - "\\s+Port mode is (\\w+)"
+      - "  (?P<duplex>[a-zA-Z- ]+plex), (?P<speed>[0-9a-zA-Z-]+)"
+      - "admin state is (?P<admin>\\w+)"
+      - "Description: (.+)"
+      - "is (\\w+\\.\\w+\\.\\w+)"
+      - "input rate (\\d+) bits/sec, (\\d+) packets/sec"
+      - "output rate (\\d+) bits/sec, (\\d+) packets/sec"
+      - "line protocol is (?P<lineproto>\\w*)"
+      - "BW (?P<bw>\\d*) (?P<bwunit>[a-zA-Z/]*)"
+      - "media type is (?P<medtype>\\w*)"
+      - "link type is (?P<linktype>\\w*)"
+      - "Hardware is (?P<type>[a-zA-Z0-9 ]*)"

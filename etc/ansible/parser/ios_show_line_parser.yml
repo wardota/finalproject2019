@@ -1,0 +1,20 @@
+#
+vars:
+  status:
+    tty       : "{{ item.a }}"
+    typ       : "{{ item.b }}"
+    txrx      : "{{ item.c | replace(' ','') | replace('','n/a')}}"
+    a         : "{{ item.d }}"
+    modem     : "{{ item.e }}"
+    roty      : "{{ item.f }}"
+    accO      : "{{ item.g }}"
+    acc1      : "{{ item.h }}"
+    uses      : "{{ item.i }}"
+    noise     : "{{ item.j }}"
+    overruns  : "{{ item.k }}"
+    int       : "{{ item.l }}"
+  
+keys:
+  values:
+    value: "{{ status }}"
+    items: "(?P<a>\\d*) (?P<b>[A-Z]{3})   (?P<c>[/\\d]*\\s*)  (?P<d>[-\\S]*)\\s*(?P<e>[-\\S]*)\\s*(?P<f>[-\\S]*)\\s*(?P<g>[-\\S]*)\\s*(?P<h>[-\\S]*)\\s*(?P<i>[-\\S]*)\\s*(?P<j>[-\\S]*)\\s*(?P<k>[-/\\S]*)\\s*(?P<l>[-/\\S]*)"

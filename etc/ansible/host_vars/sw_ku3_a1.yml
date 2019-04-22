@@ -1,6 +1,6 @@
 ansible_host: 10.240.192.10
 hostname: SW.KU3.01.ZONA-A #a
-vtp_mode: transparent # server/cliet/transparents
+vtp_mode: transparent # server/cliet/transparentsa
 alias:
   - access: &a access
   - trunk: &t trunk
@@ -151,6 +151,6 @@ services_on:
   - snmp-server community oraora RO
   - snmp-server location GKU-LT1A
   - snmp-server contact NOC_Tel-U
-
 services_off:
 crypto:
+#

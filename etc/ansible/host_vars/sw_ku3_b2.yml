@@ -146,7 +146,6 @@ services_on:
   - snmp-server location GKU-LT1B
   - snmp-server contact NOC_Tel-U
   - ntp server 10.252.252.121
-
-
 services_off:
 crypto:
+##

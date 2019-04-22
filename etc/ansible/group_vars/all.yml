@@ -1,3 +1,5 @@
+##
+
 ansible_python_interpreter: /usr/bin/env python
 # dest_output_fact: etc/ansible/files/
 # inventory_hostname: "{{inventory_hostname}}"
@@ -11,7 +13,7 @@ ansible_ssh_pass: cisco
 timeout: 40
 
 #ansible_become: no          # default
-#ansible_become_method: sudo # defaulta
+#ansible_become_method: sudo # default
 #ansible_become_method: enable
 #ansible_become_pass: cisco
 #remote_port: 22             # default
@@ -21,3 +23,5 @@ timeout: 40
 #ansible_connect_timeout: 30  # default
 #snmp_ro_community: public
 #snmp_rw_community: private
+###
+#####

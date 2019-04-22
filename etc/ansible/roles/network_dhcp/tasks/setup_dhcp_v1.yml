@@ -1,11 +1,11 @@
 ---
   - name: Include var
     include_vars: pooldb1.yml
-  - name: debb
-    debug :  
-      var: item
-      verbosity: "{{ set_verbosity }}"
-    loop: "{{ pooldb[outer_item].excluded }}"  
+  # - name: debb
+  #   debug :  
+  #     var: item
+  #     verbosity: "{{ set_verbosity }}"
+  #   loop: "{{ pooldb[outer_item].excluded }}"  
     # loop_control:
     #   label: "{{ item.0.name}}"
   - name: set ip dhcp excluded {{ outer_item }}
@@ -18,9 +18,9 @@
     ignore_errors: yes
     register: result_excluded
     until: result_excluded.changed == false  
-  - debug:
-      var: result_excluded #variable , ugh i should get status for reporting not from my variable
-      verbosity: "{{ set_verbosity }}"
+  # - debug:
+  #     var: result_excluded #variable , ugh i should get status for reporting not from my variable
+  #     verbosity: "{{ set_verbosity }}"
 
 
 
@@ -41,9 +41,9 @@
     ignore_errors: yes
     register: result_dhcp
     until: result_dhcp.changed == true 
-  - debug:
-      var: result_dhcp #variable , ugh i should get status for reporting not from my variable
-      verbosity: "{{ set_verbosity }}"
+  # - debug:
+  #     var: result_dhcp #variable , ugh i should get status for reporting not from my variable
+  #     verbosity: "{{ set_verbosity }}"
 
 #######################################################
 #USING poolname variable one by one

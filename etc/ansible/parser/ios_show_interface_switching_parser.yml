@@ -1,0 +1,35 @@
+#
+vars:
+  interface_switching:
+    name              : "{{ item[0].match[0] }}"
+    protocol          : "{{ item[1].match[0] }}"
+    process_pktin     : "{{ item[2].pktin }}"
+    process_charin    : "{{ item[2].charin }}"
+    process_pktout    : "{{ item[2].pktout }}"
+    process_charout   : "{{ item[2].charout }}"
+    cachemiss_pktin   : "{{ item[3].pktin }}"
+    cachemiss_charin  : "{{ item[3].charin }}"
+    cachemiss_pktout  : "{{ item[3].pktout }}"
+    cachemiss_charout : "{{ item[3].charout }}"
+    fast_pktin        : "{{ item[4].pktin }}"
+    fast_charin       : "{{ item[4].charin }}"
+    fast_pktout       : "{{ item[4].pktout }}"
+    fast_charout      : "{{ item[4].charout }}"
+    sse_pktin         : "{{ item[5].pktin }}"
+    sse_charin        : "{{ item[5].charin }}"
+    sse_pktout        : "{{ item[5].pktout }}"
+    sse_charout       : "{{ item[5].charout }}"
+
+
+keys:
+  interface_switching:
+    value: "{{ interface_switching }}"
+    start_block: "^\\w{0,20}?((Serial|Ethernet).*[/]\\d+|Vlan\\d*)" 
+    end_block: ".+on/SSE.*|.+disabled"
+    items:
+      - "(\\w{0,20}?((Serial|Ethernet).*[/]\\d+|Vlan\\d*))"
+      - "Protocol  (.*)"
+      - "Process\\s*(?P<pktin>[-\\d]+)\\s*(?P<charin>[-\\d]+)\\s*(?P<pktout>[-\\d]+)\\s*(?P<charout>[-\\d]+)"
+      - "Cache misses\\s*(?P<pktin>[-\\d]+)\\s*(?P<charin>[-\\d]+)\\s*(?P<pktout>[-\\d]+)\\s*(?P<charout>[-\\d]+)"
+      - "Fast\\s*(?P<pktin>[-\\d]+)\\s*(?P<charin>[-\\d]+)\\s*(?P<pktout>[-\\d]+)\\s*(?P<charout>[-\\d]+)"
+      - "SSE\\s*(?P<pktin>[-\\d]+)\\s*(?P<charin>[-\\d]+)\\s*(?P<pktout>[-\\d]+)\\s*(?P<charout>[-\\d]+)"

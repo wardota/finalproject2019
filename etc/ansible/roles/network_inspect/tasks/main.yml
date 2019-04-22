@@ -35,6 +35,9 @@
         sh_ssh                  : "{{ output.stdout[9]  | parse_cli(\"\"+ role_path +\"/files/ios_show_ssh_parser.yml\")}}"        
         sh_line                 : "{{ output.stdout[10] | parse_cli(\"\"+ role_path +\"/files/ios_show_line_parser.yml\")}}" #seems to be an issues
         sh_cdp_nei              : "{{ output.stdout[11] | parse_cli(\"\"+ role_path +\"/files/ios_show_cdp_neighbors_parser.yml\") }}"
+    - file:
+        path: "{{playbook_dir}}/files/"
+        state: directory
     - name: "save show run config"
       copy: 
         content: "{{item.content }}"
@@ -69,15 +72,12 @@
     content: "{{ output.ansible_facts.ansible_net_interfaces | to_nice_json }}"
     dest: "{{playbook_dir}}/files/{{hostname}}_gather_fact_interfaces.json"
   delegate_to: localhost
+
 - set_fact:
     output: # reset to null
+    network_inspect_was_done: yes
   delegate_to: localhost
 
-
-
-
-
-        
     # - name: "save show run config"
     #   copy: 
     #     content: "{{ sh_run_config | to_nice_json }}"
