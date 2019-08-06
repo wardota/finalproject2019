@@ -11,7 +11,7 @@ roles_2nd: variable_inspect
 # roles_11th: network_crypto
 # roles_12th: network_mgmn
 # roles_last:
-
+#
 
 major_group_name: myall
 # expected_length: 1 # how many device should be expected which has vlan mgmnt configured
