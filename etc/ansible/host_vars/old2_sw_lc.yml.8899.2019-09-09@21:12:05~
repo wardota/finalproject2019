@@ -1,0 +1,202 @@
+ansible_host: 10.250.250.3
+hostname: SW.LC
+hierarchy_layer: access
+alias:
+  - access: &a access
+  - trunk: &t trunk
+dhcp_pool:
+  - WIFI_B_LT3A
+vty:
+  - vty04
+  - vty515
+user:
+  master: cisco2     
+  # master hanya berjumlah satu, apa perlu backup user?
+  whitelist:
+    - sisfo
+    - widi
+    - diazzaid
+    - cuman
+    - sakti
+  # level privilege user bebas sesuai di userdba
+  blocked:
+    - baba
+    - abu
+    - caca
+vlan:
+  by_name:  # Vlan can not be added. Maximum number of 32 vlan(s) in the database.
+  # mgm 
+    - scn-superVlan-Wirele    #1099
+    - vlan-mgmn-ap            #1098
+    - vlan-mgmn-dev           #1097
+    - network-chrome          #3154
+interface:
+  - name: FastEthernet0/0   #reserved
+  - name: FastEthernet0/1   #reserved
+    duplex: full
+    speed: 100
+    mtu: 1500
+    description: 
+  - name: FastEthernet1/0   #mode trunk
+    mode:  *t 
+    duplex: full
+    speed: 100
+    mtu: 1500
+    description:
+    allowed: 1,901,1095,1097,1098,1957,3101,3102,3104,3151
+    
+  - name: FastEthernet1/1   #mode trunk
+    mode:  *t 
+    duplex: full
+    speed: 100
+    mtu: 1500
+    description:
+    allowed: 1,901,1095,1097,1098,1957,3101,3102,3104,3151
+    
+  - name: FastEthernet1/2   #mode trunk
+    mode:  *t 
+    duplex: full
+    speed: 100
+    mtu: 1500
+    description:
+    allowed: 1,901,1095,1097,1098,1957,3101,3102,3104,3151
+    
+  - name: FastEthernet1/3   #mode trunk
+    mode:  *t 
+    duplex: full
+    speed: 100
+    mtu: 1500
+    description:
+    allowed: 1,901,1095,1097,1098,1957,3101,3102,3104,3151
+    
+  - name: FastEthernet1/4   #mode trunk
+    mode:  *t 
+    duplex: full
+    speed: 100
+    mtu: 1500
+    description:
+    allowed: 1,901,1095,1097,1098,1957,3101,3102,3104,3151
+    
+  - name: FastEthernet1/5   #mode trunk
+    mode:  *t 
+    duplex: full
+    speed: 100
+    mtu: 1500
+    description:
+    allowed: 1,901,1095,1097,1098,1957,3101,3102,3104,3151
+    
+  - name: FastEthernet1/6   #mode trunk
+    mode:  *t 
+    duplex: full
+    speed: 100
+    mtu: 1500
+    description:
+    allowed: 1,901,1095,1097,1098,1957,3101,3102,3104,3151
+    
+  - name: FastEthernet1/7   #mode trunk
+    mode:  *t 
+    duplex: full
+    speed: 100
+    mtu: 1500
+    description:
+    allowed: 1,901,1095,1097,1098,1957,3101,3102,3104,3151
+    
+  - name: FastEthernet1/8   #mode trunk
+    mode:  *t 
+    duplex: full
+    speed: 100
+    mtu: 1500
+    description:
+    allowed: 1,901,1095,1097,1098,1957,3101,3102,3104,3151
+    
+  - name: FastEthernet1/9   #mode trunk
+    mode:  *t 
+    duplex: full
+    speed: 100
+    mtu: 1500
+    description:
+    allowed: 1,901,1095,1097,1098,1957,3101,3102,3104,3151
+    
+  - name: FastEthernet1/10  #mode trunk
+    mode:  *t 
+    duplex: full
+    speed: 100
+    mtu: 1500
+    description:
+    allowed: 1,901,1095,1097,1098,1957,3101,3102,3104,3151
+    
+  - name: FastEthernet1/11  #mode trunk
+    mode:  *t 
+    duplex: full
+    speed: 100
+    mtu: 1500
+    description:
+    allowed: 1,901,1095,1097,1098,1957,3101,3102,3104,3151
+    
+  - name: FastEthernet1/12  #mode trunk
+    mode:  *t 
+    duplex: full
+    speed: 100
+    mtu: 1500
+    description:
+    allowed: 1,901,1095,1097,1098,1957,3101,3102,3104,3151
+    
+  - name: FastEthernet1/13  #mode trunk
+    mode:  *t 
+    duplex: full
+    speed: 100
+    mtu: 1500
+    description:
+    allowed: 1,901,1095,1097,1098,1957,3101,3102,3104,3151
+    
+  - name: FastEthernet1/14  #mode trunk
+    mode:  *t 
+    duplex: full
+    speed: 100
+    mtu: 1500
+    description:
+    allowed: 1,901,1095,1097,1098,1957,3101,3102,3104,3151
+    
+  - name: FastEthernet1/15  #mode trunk
+    mode:  *t 
+    duplex: full
+    speed: 100
+    mtu: 1500
+    description:
+    allowed: 1,901,1095,1097,1098,1957,3101,3102,3104,3151
+    
+  - name: vlan 1             #no-ip
+    ip: no
+  # - name: vlan 1097          
+    # ip: 10.240.192.3/16
+  - name: vlan 250         
+    ip: 10.250.250.3/16
+  # - name: vlan 150        
+  #   ip: 10.150.150.3/16
+services_on:
+  - no service pad
+  - service timestamps debug datetime msec localtime
+  - service timestamps log datetime localtime
+  - no service password-encryption
+  - hostname "{{hostname}}"
+  - boot-start-marker
+  - boot-end-marker
+  - no aaa new-model
+  - clock timezone UTC 7 0
+  - vtp mode transparent
+  - no spanning-tree vlan 901
+  - errdisable detect cause bpduguard 
+  - errdisable recovery cause bpduguard
+  - ip default-gateway 192.240.0.1
+  - no ip http server
+  - no ip http secure-server
+  - logging trap debugging
+  - logging facility syslog
+  - logging host 192.168.101.3 #10.13.10.30
+  - snmp-server community oraora RO
+  - snmp-server location GKU-LTD
+  - snmp-server contact NOC_Tel-U
+  - ntp server 192.252.252.121
+services_off:
+crypto:
+##

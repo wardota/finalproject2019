@@ -7,5 +7,5 @@
         trunk_vlans : "{{ old_saved_cfg_main_vlan[0].id }}"
         state : absent
         mode  : trunk
-      loop: "{{ interfaces_have_neighbrs }}"
+      loop: "{{ interfaces_have_neighbors }}"
 

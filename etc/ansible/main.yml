@@ -22,6 +22,10 @@
           failed_when: test.ping != 'pong'
           ignore_errors: yes
           delegate_to: localhost
+          
+        - name: Test reachability to 10.10.10.10 using default vrf
+          ios_ping:
+            dest: 10.240.192.2
       rescue:
         - include_vars: 
             file: "../../host_vars/old_{{inventory_hostname}}.yml"
@@ -70,7 +74,7 @@
 
 - name: Management migration playbook
   import_playbook: management_vlan_migration_v3.yml
-  when: not hostvars[inventory_hostname].ping.failed  # conditional ?? (conditional masih salah , sementara ini dulu)
+  #when: not hostvars[inventory_hostname].ping.failed  # conditional ?? (conditional masih salah , sementara ini dulu)
 
 - name: Finishing playbook
   import_playbook: finished.yml  # the conditional is processed inside the playbook

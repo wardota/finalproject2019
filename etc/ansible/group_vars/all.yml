@@ -10,12 +10,13 @@ ansible_password: cisco
 ansible_network_os: ios
 ansible_ssh_user: cisco2
 ansible_ssh_pass: cisco
+# become: yes
 timeout: 40
 
-#ansible_become: no          # default
+# ansible_become: yes
 #ansible_become_method: sudo # default
-#ansible_become_method: enable
-#ansible_become_pass: cisco
+# ansible_become_method: enable
+# ansible_become_pass: cisco
 #remote_port: 22             # default
 #ansible_private_key_file  : null  # default
 #ansible_buffer_read_timeout: 0.1  # default

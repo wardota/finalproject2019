@@ -1,0 +1,156 @@
+ansible_host: 10.250.250.10
+hostname: SW.KU3.01.ZONA-A #a
+vtp_mode: transparent # server/cliet/transparentsa
+alias:
+  - access: &a access
+  - trunk: &t trunk
+dhcp_pool:
+  - WIFI_A_LT0A
+  - WIFI_B_LT0A
+vty:
+    - vty04
+    - vty515
+user:
+  master: cisco2     
+  whitelist:
+    - sisfo
+    - widi
+    - diazzaid
+    - cuman
+    - sakti
+  blocked:
+    - baba
+    - abu
+    - caca
+vlan:      
+  by_name:  # Maximum number of 32 vlan(s) in the database.
+    - RFID-LT1A               #901
+    - CAMERA-LT1A             #902
+    - LAN-PPDU-BAA           #903
+    - WIFI-A-LT1A             #904
+    - WIFI-B-LT1A             #908
+    - vlan-mgmn-dev           #1097
+    - vlan-mgmn-ap            #1098
+    - scn-superVlan-Wirele    #1099
+    - network-chrome          #3154         
+interface:
+  - name: FastEthernet0/0    #reserved
+  - name: FastEthernet0/1    #reserved
+  - name: FastEthernet1/0    #901
+    mode: *a
+    access_vlan: &RFID-LT1A   "{{ vlan_db | json_query('[?name==`RFID-LT1A`].vlan_id') | join ()| default(901, true) }}"
+  - name: FastEthernet1/1    #901
+    mode: *a
+    access_vlan: *RFID-LT1A
+  - name: FastEthernet1/2    #901
+    mode: *a
+    access_vlan: *RFID-LT1A
+  - name: FastEthernet1/3    #901
+    mode:  *a 
+    access_vlan: *RFID-LT1A
+  - name: FastEthernet1/4    #901
+    mode:  *a 
+    access_vlan: *RFID-LT1A
+  - name: FastEthernet1/5    #3104 bpduguard spanning tree, protected
+    mode:  *a 
+    access_vlan: &VLANNAME3104   "{{ vlan_db | json_query('[?name==`VLANNAME3104`].vlan_id') | join ()| default(3104, true) }}"
+  - name: FastEthernet1/6    #3104 bpduguard spanning tree, protected
+    mode:  *a 
+    duplex: full
+    speed: 100
+    mtu: 1500
+    description:
+    access_vlan: *VLANNAME3104
+  - name: FastEthernet1/7    #3104 bpduguard spanning tree, protected
+    mode:  *a 
+    duplex: full
+    speed: 100
+    mtu: 1500
+    description: BAA
+    access_vlan: *VLANNAME3104
+  - name: FastEthernet1/8    #902
+    mode:  *a 
+    duplex: full
+    speed: 100
+    mtu: 1500
+    description:
+    access_vlan: &CAMERA-LT1A   "{{ vlan_db | json_query('[?name==`CAMERA-LT1A`].vlan_id') | join ()| default(902, true) }}"
+  - name: FastEthernet1/9    #902
+    mode:  *a 
+    duplex: full
+    speed: 100
+    mtu: 1500
+    description:
+    access_vlan: *CAMERA-LT1A
+  - name: FastEthernet1/10   #1098 
+    mode:  *t 
+    duplex: full
+    speed: 100
+    mtu: 1500
+    description: PPDU
+    trunk_vlan: &vlan-mgmn-ap   "{{ vlan_db | json_query('[?name==`vlan-mgmn-ap`].vlan_id') | join ()| default(1098, true) }}"
+  - name: FastEthernet1/11   #1098 
+    mode:  *t 
+    duplex: full
+    speed: 100
+    mtu: 1500
+    description: uplink
+    allowed: 1094-1098,1957,3101-3102,3104,3151-3152,3152,3151,7
+  - name: FastEthernet1/12   #1098 
+    mode:  *t 
+    duplex: full
+    speed: 100
+    mtu: 1500
+    description: uplink
+    allowed: 1094-1098,1957,3101-3102,3104,3151-3152,3152,3152,8
+  - name: FastEthernet1/13   #test  
+    mode:  *t 
+    duplex: full
+    speed: 100
+    mtu: 1500
+    description: uplink
+    allowed: 1094-1096,1957,3101-3102,3104,3151-3152,3152,3153,9
+  - name: FastEthernet1/14   #mode trunk
+    mode:  *t 
+    duplex: full
+    speed: 100
+    mtu: 1500
+    description: uplink
+    allowed: 1094-1098,1957,3101-3102,3104,3151-3152,3152,3154,10
+  - name: FastEthernet1/15   #mode trunk to gkultd 
+    mode:  *t 
+    allowed: 1095,1097,1957,3101-3102,3104,3151,3152,3154
+  - name: vlan 1             
+    ip: no
+  # - name: vlan 1097          
+  #   ip: 10.240.192.10/16
+  - name: vlan 250         
+    ip: 10.250.250.10/16
+  # - name: vlan 150      
+  #   ip: 10.150.150.10/16
+services_on:
+  - no service pad
+  - service timestamps debug datetime msec localtime
+  - service timestamps log datetime localtime
+  - no service password-encryption
+  - hostname "{{hostname}}"
+  - boot-start-marker
+  - boot-end-marker
+  - no aaa new-model
+  - clock timezone UTC 7 0
+  - vtp mode transparent
+  - no spanning-tree vlan 901
+  - errdisable detect cause bpduguard 
+  - errdisable recovery cause bpduguard
+  - ip default-gateway 192.240.0.1
+  - no ip http server
+  - no ip http secure-server
+  - logging trap debugging
+  - logging facility syslog
+  - logging host 192.168.101.3 
+  - snmp-server community oraora RO
+  - snmp-server location GKU-LT1A
+  - snmp-server contact NOC_Tel-U
+services_off:
+crypto:
+#

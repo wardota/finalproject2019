@@ -1,0 +1,85 @@
+<!doctype html>
+<html>
+  <head>
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+
+    <script src="20643470.js">
+    </script>
+  </head>
+  <body>
+    <select>
+      <optgroup label="Pick a color:">
+        <option onclick="" >green</option>
+        <option>blue</option>
+        <option>yellow</option>
+        <option>orange</option>
+      </optgroup>
+    </select>
+    <input type="button" onclick="popup()" value="Click Me!">
+
+
+    <br>
+    <br>
+    <button type="button">01 - addroutestatic</button>
+    <button type="button">02 - start elasticsearch</button>
+    <button type="button">02 - stop elasticsearch</button>
+    <button type="button">03 - start kibana</button>
+    <button type="button">04 - stop kibana</button>
+    <button type="button">05 - start gns server</button>
+    <button type="button">05 - stop gns server</button>
+
+    <br>
+    <br>
+    <button type="button">status elasticsearch</button>
+    <button type="button">status kibana</button>
+    <button type="button">status gns server</button>
+    <button type="button">status ansible</button>
+
+    <br>
+    <br>
+    <button type="button">get all port</button>
+    <button type="button">check port status</button>
+    <button type="button">get all ip</button>
+    <button type="button">ping all ip</button>
+
+
+    <br>
+    <br>
+    <button type="button">open project gns3</button>
+    <button type="button">start project gns3</button>
+    <button type="button">stop project gns3</button>
+    <button type="button">start node device gns3</button>
+    <button type="button">stop node device gns3</button>
+
+    <br>
+    <br>
+    <button type="button">export gns3 device</button>
+    <button type="button">import gns3 device</button>
+
+    <br>
+    <br>
+    <button type="button">open terminal</button>
+
+    <br>
+    <br>
+    <p> Ansible</p>
+
+    <button type="button">check ansible version</button>
+    <button type="button">edit ansible folder</button>
+    <button type="button">show inventory</button>
+    <button type="button">edit inventory</button>
+    <button type="button">delete inventory</button>
+    <button type="button">edit roles</button>
+    <button type="button">edit host</button>
+    <button type="button">edit ansible hostvar</button>
+    <button type="button">edit file</button>
+    <button type="button">edit file ansible.cfg</button>
+
+     
+    <script>
+      $('select').on('change', function() {
+        $.get('/colorsRequest', { color : $(this).val() });
+      });   
+    </script>
+  </body>
+</html>

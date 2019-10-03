@@ -1,0 +1,268 @@
+
+ansible_host: 10.250.250.20
+hostname: SW.KU3.02.ZONA-A
+alias:
+  - access: &a access
+  - trunk: &t trunk
+dhcp_pool:
+  - WIFI_A_LT1A
+  - WIFI_B_LT1A
+  - WIFI_PPDU_BAA
+vty:
+  - vty04
+  - vty515
+user:
+  master: cisco2     
+  # master hanya berjumlah satu, apa perlu backup user?
+  whitelist:
+    - sisfo
+    - widi
+    - diazzaid
+    - cuman
+    - sakti
+  # level privilege user bebas sesuai di userdb
+  blocked:
+    - baba
+    - abu
+    - caca
+vlan:
+  by_name:  # Vlan can not be added. Maximum number of 32 vlan(s) in the database.
+    - scn-superVlan-Wirele    #1099
+    - RFID-LT1A               #901
+    - vlan-mgmn-ap            #1098
+    - CAMERA-LT1A             #902
+    - LAN-PPDU-BAA            #903
+    - WIFI-A-LT1A             #904
+    - WIFI-B-LT1              #908
+    - vlan-mgmn-dev           #1097
+    - network-chrome          #3154
+interface:
+  - name: FastEthernet0/0    #ip
+    ip: 192.168.1.1
+    subnet: 255.255.255.0
+    prefix: 24
+    duplex: full
+    speed: 100
+    mtu: 1500
+    description: 
+  - name: FastEthernet0/1    #reserved
+    duplex: full
+    speed: 100
+    mtu: 1500
+    description: 
+  - name: FastEthernet1/0    #901
+    mode: *a
+    duplex: full
+    speed: 100
+    mtu: 1500
+    description: 
+    access_vlan: &RFID-LT1A-test   "{{ vlan_db | json_query('[?name==`RFID-LT1A`].vlan_id') | join ()| default(901, true) }}"
+  - name: FastEthernet1/1    #901
+    mode: *a
+    duplex: full
+    speed: 100
+    mtu: 1500
+    description: 
+    access_vlan: *RFID-LT1A-test
+  - name: FastEthernet1/2    #901
+    mode: *a
+    duplex: full
+    speed: 100
+    mtu: 1500
+    description: 
+    access_vlan: *RFID-LT1A-test
+  - name: FastEthernet1/3    #901
+    mode:  *a 
+    duplex: full
+    speed: 100
+    mtu: 1500
+    description:
+    access_vlan: *RFID-LT1A-test
+  - name: FastEthernet1/4    #901
+    mode:  *a 
+    duplex: full
+    speed: 100
+    mtu: 1500
+    description:
+    access_vlan: *RFID-LT1A-test
+  - name: FastEthernet1/5    #3104 no service bpduguard spanning tree, protected
+    mode:  *a 
+    duplex: full
+    speed: 100
+    mtu: 1500
+    description:
+    access_vlan: &VLANNAME3104-test   "{{ vlan_db | json_query('[?name==`VLANNAME3104`].vlan_id') | join ()| default(3104, true) }}"
+  - name: FastEthernet1/6    #3104 no service bpduguard spanning tree, protected
+    mode:  *a 
+    duplex: full
+    speed: 100
+    mtu: 1500
+    description:
+    access_vlan: *VLANNAME3104-test
+  - name: FastEthernet1/7    #3104 no service bpduguard spanning tree, protected
+    mode:  *a 
+    duplex: full
+    speed: 100
+    mtu: 1500
+    description: BAA
+    access_vlan: *VLANNAME3104-test
+  - name: FastEthernet1/8    #902
+    mode:  *a 
+    duplex: full
+    speed: 100
+    mtu: 1500
+    description:
+    access_vlan: &CAMERA-LT1A-test   "{{ vlan_db | json_query('[?name==`CAMERA-LT1A`].vlan_id') | join ()| default(902, true) }}"
+  - name: FastEthernet1/9    #902
+    mode:  *a 
+    duplex: full
+    speed: 100
+    mtu: 1500
+    description:
+    access_vlan: *CAMERA-LT1A-test
+  - name: FastEthernet1/10   #1098 
+    mode:  *t 
+    duplex: full
+    speed: 100
+    mtu: 1500
+    description: PPDU
+    native_vlan: &vlan-mgmn-ap   "{{ vlan_db | json_query('[?name==`vlan-mgmn-ap`].vlan_id') | join ()| default(1098, true) }}"
+  - name: FastEthernet1/11   #1098 
+    mode:  *t 
+    duplex: full
+    speed: 100
+    mtu: 1500
+    description:
+    native_vlan: *vlan-mgmn-ap
+  - name: FastEthernet1/12   #reserved
+  - name: FastEthernet1/13   #mode trunk
+    mode:  *t 
+    duplex: full
+    speed: 100
+    mtu: 1500
+    description:
+    allowed: 1,901,1095,1097,1098,1957,3101,3102,3104,3151
+  - name: FastEthernet1/14   #mode trunk
+    mode:  *t 
+    duplex: full
+    speed: 100
+    mtu: 1500
+    description:
+    allowed: 1,901,1095,1097,1098,1957,3101,3102,3104,3151
+  - name: FastEthernet1/15   #mode trunk
+    mode:  *t 
+    duplex: full
+    speed: 100
+    mtu: 1500
+    description:
+    allowed: 1,901,1095,1097,1098,1957,3101,3102,3104,3151
+  - name: vlan 1             #no-ip
+    ip: no
+
+  # - name: vlan 1097          
+  #   ip: 10.240.192.20/16
+  - name: vlan 250         
+    ip: 10.250.250.20/16
+  # - name: vlan 150        
+  #   ip: 10.150.150.20/16
+services_on:
+  - no service pad
+  - service timestamps debug datetime msec localtime
+  - service timestamps log datetime localtime
+  - no service password-encryption
+  - hostname {{hostname}}
+  - boot-start-marker
+  - boot-end-marker
+  - no aaa new-model
+  - clock timezone UTC 7 0
+  - vtp mode transparent
+  - no spanning-tree vlan 901
+  - errdisable detect cause bpduguard 
+  - errdisable recovery cause bpduguard
+  - ip default-gateway 192.240.0.1
+  - no ip http server
+  - no ip http secure-server
+  - logging trap debugging
+  - logging facility syslog
+  - logging host 192.168.101.3 
+  - snmp-server community oraora RO
+  - snmp-server location GKU-LT2A
+  - snmp-server contact NOC_Tel-U
+services_off:
+crypto:
+##
+
+      # // karena interface terbatas dari fa1/0 hingga fa1/15 total ada 16 tapi saya gunakan 14 saja dan menadi sebagai berikut//
+      # 901=IntFa1/0-4 access
+
+      # switchport protected
+      # spanning-tree bpduguard enable
+      # 3104=IntFa1/5-7 access protected bpduguard
+      
+      # 902=IntFa1/8-9 access
+      # 1098=IntFa1/10-12 trunk native
+
+      # ip dhcp snooping trust
+      # trunk allow 1,901,1095,1097,1098,1957,3101,3102,3104,3151,
+      # vlan add  3152,3154 = intFa1/15
+
+      # IntVlan1=no ip
+      # IntVlan1097= 192.240.192.20/24
+      # IntF0/0=192.168.1.1/24
+
+###
+  ################################################a
+  # sw_ku3_s2 :: HOSTNAME_DB
+  # provider:
+  #   host: "{{ ansible_host }}"
+  #   username: cisco2
+  #   password: cisco
+  #   auth_pass: cisco
+  #   authorize: no
+  #   port: 22
+  #   timeout: 15
+  # l2_interfaces:
+  #   - interface_type: FastEthernet
+  #     interface_id: 1/15
+  #     description: Vlan Management
+  #     ip_address: 10.240.192.20
+  #     subnet_mask: 255.255.0.0
+  #     prefix: 16
+  # provider:
+  #   host: "{{ ansible_host }}"
+  #   username: cisco
+  #   password: cisco
+  #   auth_pass: cisco
+  #   authorize: no
+  #   port: 22
+  #   timeout: 15
+  # l3_interfaces:
+  #   - interface_type: Loopback
+  #     interface_id: 0
+  #     description: Default Loopback
+  #     ip_address: 192.168.0.2
+  #     subnet_mask: 255.255.255.255
+  #     prefix: 32
+  #     area: 0
+  #   - interface_type: Ethernet
+  #     interface_id: 1/6
+  #     description: L3 Link to core2
+  #     ip_address: 172.16.0.10
+  #     subnet_mask: 255.255.255.252
+  #     prefix: 30
+  #     area: 0
+  # ospf_router_id: 192.168.1.1
+  # ospf_networks:
+  #     - network: 172.16.0.0
+  #       mask: 0.0.0.3
+  #       area: 0
+  #     - network: 172.16.0.4
+  #       mask: 0.0.0.3
+  #       area: 0
+  #     - network: 172.16.0.16
+  #       mask: 0.0.0.3
+  #       area: 0
+  #     - network: 192.168.1.1
+  #       mask: 0.0.0.0
+  #       area: 0
+

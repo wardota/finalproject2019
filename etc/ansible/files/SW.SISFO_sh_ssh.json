@@ -1,0 +1,1 @@
+{"values": [{"username": "cisco", "encryption": "aes128-cbc", "connection": 0, "state": "Session started", "version": 2.0, "mode": "IN", "hmac": "hmac-sha1"}, {"username": "cisco", "encryption": "aes128-cbc", "connection": 0, "state": "Session started", "version": 2.0, "mode": "OUT", "hmac": "hmac-sha1"}]}

@@ -1,0 +1,45 @@
+cisco command
+
+
+
+(config mode)
+
+#dont reverse order
+enable secret 5 cisco
+username cisco2 privilege 15 secret cisco
+
+
+line vty 0 4
+ login local
+ transport input ssh
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+do copy run start
+do write
+
+
+
+
+
+
+
+
+

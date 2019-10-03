@@ -39,8 +39,8 @@
             ip        : "{{ intended_cfg_main_int_vlan[0].ip | ipv4('address') != running_cfg_main_int_vlan[0].ip     }}" 
             prefix    : "{{ intended_cfg_main_int_vlan[0].ip | ipv4('prefix') != running_cfg_main_int_vlan[0].prefix }}" 
         variable_inspect_was_done: yes
-    - pause:
-        prompt: ""
+    # - pause:
+    #     prompt: ""
     - name: helper loop
       include_tasks: "{{role_path}}/tasks/helper_loop.yml"
       loop: "{{ range(0|int,intended_cfg_main_int_sw_port|length|int)|list}}"
