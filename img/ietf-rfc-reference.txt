@@ -1,0 +1,10 @@
+Netconf
+https://tools.ietf.org/html/rfc8526
+https://tools.ietf.org/html/rfc7803
+https://tools.ietf.org/html/rfc6241
+https://tools.ietf.org/html/rfc7589
+https://tools.ietf.org/html/rfc4741#page-66
+
+Yang
+https://tools.ietf.org/html/rfc3780
+https://tools.ietf.org/html/rfc7950  Updated by:8342, 8526  

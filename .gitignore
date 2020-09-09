@@ -1,3 +1,6 @@
 .vscode/
 nodejs-master-class/
-node/node_modules/ 
+node/node_modules/
+github-references/
+semaphore-develop/
+semaphore-master/

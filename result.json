@@ -1,0 +1,149 @@
+{
+    "took": 121,
+    "timed_out": false,
+    "_shards": {
+        "total": 1,
+        "successful": 1,
+        "skipped": 0,
+        "failed": 0
+    },
+    "hits": {
+        "total": {
+            "value": 1162,
+            "relation": "eq"
+        },
+        "max_score": 0,
+        "hits": [
+            {
+                "_index": "amazon_products",
+                "_type": "_doc",
+                "_id": "nuiPRmwB0Y4MK221cSb6",
+                "_score": 0,
+                "_source": {
+                    "description": "brand new full retail box",
+                    "price": "474.99",
+                    "title": "scansoft paperport 11 - 5 user license",
+                    "manufacturer": "nuance communications inc.",
+                    "id": "b000fqvxfk"
+                }
+            },
+            {
+                "_index": "amazon_products",
+                "_type": "_doc",
+                "_id": "HOiPRmwB0Y4MK221cSf8",
+                "_score": 0,
+                "_source": {
+                    "description": null,
+                    "price": "0",
+                    "title": "clickart 950 000 - premier image pack (dvd-rom)",
+                    "manufacturer": "broderbund",
+                    "id": "b000jz4hqo"
+                }
+            },
+            {
+                "_index": "amazon_products",
+                "_type": "_doc",
+                "_id": "n-iPRmwB0Y4MK221cSb6",
+                "_score": 0,
+                "_source": {
+                    "description": "adobe after effects 7.0 win pb software sets new standards for motion graphics and visual effects.",
+                    "price": "999",
+                    "title": "adobe after effects professional 7.0",
+                    "manufacturer": "adobe",
+                    "id": "b000e8jl80"
+                }
+            },
+            {
+                "_index": "amazon_products",
+                "_type": "_doc",
+                "_id": "oOiPRmwB0Y4MK221cSb6",
+                "_score": 0,
+                "_source": {
+                    "description": "model- ms-cd08016wi vendor- microsoft corporation features- microsoft dynamics crm 3.0 sb edition- 20 license pack user cal this edition is designed to run on the microsoft windows small business server 2003 premium edition a complete single-server solution for small businesses that have limited it staff and resources. the microsoft crm small business edition is easy to install and maintain and offers: - new marketing automation modules for sales marketing and customer service that help a business track and record every customer contact. - advanced reporting services that help qualify leads cross-sell products and maximize sales opportunities without the need for expensive third-party reporting tools. - improved customization that enables any user to get the information he or she needs without any programming. the microsoft crm 3.0 small business edition is designed to operate on the microsoft windows small business server. it can be installed in just 10 mouse clicks and configured through an easy-to-use wizard. this edition also offers easy migration of customer information stored in microsoft office outlook with business contact manager. business moves at light speed today requiring that every company continuously reexamine direction strategies suppliers partners-- literally every variable and relationship that might lead to complacency. the intensified search for competitive advantage may mean that some of your best customers pick up and leave without you ever knowing that there was a problem. how well can you react to-- and even predict--ever-shi",
+                    "price": "9929",
+                    "title": "microsoft crm small business ed cal 3.0 license pack user cal",
+                    "manufacturer": "microsoft software",
+                    "id": "b000bta4kg"
+                }
+            },
+            {
+                "_index": "amazon_products",
+                "_type": "_doc",
+                "_id": "m-iPRmwB0Y4MK221cicD",
+                "_score": 0,
+                "_source": {
+                    "description": "model- gps206 vendor- pantone features- pantone reference library pantone reference library is the perfect tool for design firms print shops corporate communications or anyone who requires a complete source for graphic color choices. the latest library has been designed with a bold new look to display the most innovative collection of pantone guides and books ever offered: - formula guides (coated uncoated matte) - color bridge coated - solid in hexachrome guide coated - metallic formula guide + chips - pastel formula guide + chips - tints four-guide set - 4-color process guides (coated uncoated) - solid chips three-book set manufacturer warranty:andnbsp;andnbsp;90 days",
+                    "price": "1623.06",
+                    "title": "pantone reference library",
+                    "manufacturer": "pantone inc.",
+                    "id": "b000e6q3em"
+                }
+            },
+            {
+                "_index": "amazon_products",
+                "_type": "_doc",
+                "_id": "nOiPRmwB0Y4MK221cicD",
+                "_score": 0,
+                "_source": {
+                    "description": "procurve vpn client unlimited license",
+                    "price": "0",
+                    "title": "procurve vpn client software unlimited client licenses",
+                    "manufacturer": "hewlett packard",
+                    "id": "b0009hmx36"
+                }
+            },
+            {
+                "_index": "amazon_products",
+                "_type": "_doc",
+                "_id": "IuiPRmwB0Y4MK221cSf8",
+                "_score": 0,
+                "_source": {
+                    "description": "upgrade only; installation of after effects standard new disk caching tools speed up your interactive work save any combination of animation parameters as presets -- create transformations masks expressions effects and text tighter integration with other adobe tools - import photoshop cs and illustrator cs files with preserved layers and other attributes output to firewire for easier previewing on ntsc and pal video monitors",
+                    "price": "499.99",
+                    "title": "adobe after effects professional 6.5 upgrade from standard to professional",
+                    "manufacturer": "adobe",
+                    "id": "b00021xhzw"
+                }
+            },
+            {
+                "_index": "amazon_products",
+                "_type": "_doc",
+                "_id": "I-iPRmwB0Y4MK221cSf8",
+                "_score": 0,
+                "_source": {
+                    "description": "- marketing information: dragon naturallyspeakingprofessional 9 will saveyou and your organizationmoney because itempowers anyone tocreate documents overthree times faster thantyping. it also protectsagainst repetitive stressinjuries that result in lostproductivity higher workers compensationpremiums and higher temporary labor costs.the accuracy performance and ease-of-use indragon naturallyspeaking professional 9make it the ideal solution for busy corporateprofessionals. you and your employees canuse dragon naturallyspeaking professionalto create documents and email messages write reports and complete forms all by voice. product information - software sub type: voice recognition - software name: dragon naturallyspeaking v.9.0 professional - upgrade - features and benefits: - the most accurate ever - faster and safer than typing - section 508 certified - easy to use - no special user training required - support for citrix thin-client environments - enterprise ready - ease of administration - mobility - bluetooth support - robust customization - natural language capabilities - text to speech - language support: english - platform support: pc miscellaneous - compatibility: - microsoft office applications: word excel outlook andpowerpoint - corel wordperfect",
+                    "price": "399.54",
+                    "title": "acad upgrade dragon naturallyspeaking pro solution 9.0 (a289a-fd7-9.0)",
+                    "manufacturer": "nuance academic",
+                    "id": "b000gzwjgc"
+                }
+            },
+            {
+                "_index": "amazon_products",
+                "_type": "_doc",
+                "_id": "peiPRmwB0Y4MK221cSb6",
+                "_score": 0,
+                "_source": {
+                    "description": "hallmark card studio deluxe 2005 makes it easy to create your own one-of-a-kind hallmark cards for anyone on any occasion within minutes! capture life's special moments in beautiful photo frames to commemorate any event. enhance your cards and envelopes with dozens of exclusive images. import your own photos and use them as artwork for your cards and projects -- it's fast easy and fun! browse through 5 000 exclusive clip art pieces to find the perfect image work with 1 000 new designs and exclusive hallmark fonts - it's fast easy and fun",
+                    "price": "49.99",
+                    "title": "hallmark card studio 2005 deluxe",
+                    "manufacturer": "sierra home",
+                    "id": "b0001h5w9g"
+                }
+            },
+            {
+                "_index": "amazon_products",
+                "_type": "_doc",
+                "_id": "puiPRmwB0Y4MK221cSb6",
+                "_score": 0,
+                "_source": {
+                    "description": "upg arcserve bkup r11.5 linux ent opt advntg ingrs prod only",
+                    "price": "0",
+                    "title": "ca brightstor arcserve backup r11.5 for enterprise option for advantage ingres for",
+                    "manufacturer": "computer associates",
+                    "id": "b000bgj09k"
+                }
+            }
+        ]
+    }
+}

@@ -1,4 +1,4 @@
-#localhost 
+127.0.0.1
 
 [sisfo]
 sw_sisfo
@@ -29,8 +29,6 @@ ku3_b3
 gkultd
 sisfo
 lc
-
-
 
 [myall2:children]
 myaccess
@@ -66,7 +64,7 @@ access
 core
 distribution
 
-##ACCESS --------------------
+
 [access:children]
 gku_zona_a
 gku_zona_b
@@ -74,80 +72,16 @@ gku_zona_b
 [gku_zona_a:children]
 ku3_a1
 ku3_a2
-#ku3_a3
-#ku3_a4
-#ku3_a5
-#ku3_a6
-#ku3_a7
-#ku3_a8
-#ku3_a9
-#ku3_a10
 
 [gku_zona_b:children]
 ku3_b2
 ku3_b3
-#ku3_b4
-#ku3_b5
-#ku3_b6
-#ku3_b7
-#ku3_b8
-#ku3_b9
 
-##DISTRIBUTION --------------------
 [distribution:children]
 gkultd
 lc
 
-##CORE ----------------------------
 [core:children]
 sisfo
 
-
-
-##SITE ----------------------------
-
-
-#[ku3_a3]
-#10.240.192.30
-#
-#[ku3_a4]
-#10.240.192.40
-
-#[ku3_a5]
-#10.240.192.50
-
-#[ku3_a6]
-#10.240.192.60
-
-#[ku3_a7]
-#10.240.192.70
-
-#[ku3_a8]
-#10.240.192.80
-
-#[ku3_a9]
-#10.240.192.90
-
-#[ku3_a10]
-#10.240.192.100
-
-
-
-#[ku3_b4] 
-#10.240.192.41
-
-#[ku3_b5]
-#10.240.192.51
-
-#[ku3_b6]
-#10.240.192.61
-
-#[ku3_b7] 
-#10.240.192.71
-
-#[ku3_b8]
-#10.240.192.81
-
-#[ku3_b9]
-#10.240.192.91
 

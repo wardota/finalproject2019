@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html>
+   <head>
+      <title>Demo</title>
+      <meta charset="utf-8">
+      <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+
+   </head>
+   <body>
+    
+    <h1>GNS3 Web UI</h1>
+    <iframe width="100%" height="1000" ng-src="http://127.0.0.1:4200/"></iframe>
+    <p id="buttonCount">The button has been clicked 0 times.</p>
+		<button onclick="buttonClicked()">Click me</button>    
+    <select>
+      <optgroup label="Pick a color:">
+        <option>green</option>
+        <option>blue</option>
+        <option>yellow</option>
+        <option>orange</option>
+      </optgroup>
+    </select>
+    <input type="button" onclick="popup()" value="Click Me!">
+    <p id="clock">aaa </p>
+    <button onclick="buttonClicked1()" id='buttonTriggered'> buttonTriggered </button>
+    <div class="container">    
+      <button onclick="buttonClicked2()" type="button" class="buttonTriggered2">CLICK CLASS</button>
+    </div>
+    <button onclick="buttonClicked3()" type="button" id="buttonTriggered3">CLICK ID</button>
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+      // var socket = io.connect('http://your-socket-io-server');
+      var socket = io.connect(); // assuming at the same server
+      // Emit Event to Server
+      function buttonClicked(){
+        socket.emit('clicked');
+      };
+      function buttonClicked1(){
+        socket.emit('clicked1');
+      };
+      function buttonClicked2(){
+        socket.emit('clicked2');
+      };
+      function buttonClicked3(){
+        socket.emit('clicked3');
+      };
+
+      // Recieve response from server
+      //when we receive numClients, do this
+      socket.on('buttonUpdate', function(data){
+        document.getElementById("buttonCount").innerHTML = 'The button has been clicked ' + data + ' times.';
+      });
+      socket.on('buttonUpdate1', function(){
+        document.getElementById("buttonTriggered").innerHTML = 'Clicked';
+        alert(1);
+      });
+      socket.on('buttonUpdate2', function(data){
+        document.getElementsByClassName("buttonTriggered2")[0].innerHTML = 'Clicked ' + data + ' OK';
+        alert(1);
+      });
+      socket.on('buttonUpdate3', function(data){
+        document.getElementById("buttonTriggered3").innerHTML = 'Clicked ' + data + ' OK';
+        alert(1);
+      });
+
+      
+      socket.on('datetime', function (data) {
+        // console.log(new Date(data));  
+        $("#clock").text(new Date(data));
+        // document.getElementById("clock").innerHTML = 'Time : ' + new Date(data) + ' UTC+7';
+        // console.log(data);
+      });
+   </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      <!-- 
+      <script>
+        $('#button1').click(function(){
+            console.log('button clicked');
+            $.ajax({url: 'test1', success:function(res){
+                console.log('server response is', res);
+            }});
+        });
+        $('select').on('change', function() {
+          $.get('/colorsRequest', { color : $(this).val() });
+        });   
+        $('button#addid').on('click', function() {
+          $.get('/clickId', { color : $(this).val() });
+          alert(1);
+        });   
+        $("div.container").on('click', 'button.addclass', function() {
+          $.get('/clickClass', { color : $(this).val() });
+          alert(1);
+        });
+      </script> -->
+    
+
+  </body>
+</html>
+
+
+
+<!-- <br>
+<br>
+
+<button type="button">02 - start elasticsearch</button>
+<button type="button">02 - stop elasticsearch</button>
+<button type="button">03 - start kibana</button>
+<button type="button">04 - stop kibana</button>
+<button type="button">05 - start gns server</button>
+<button type="button">05 - stop gns server</button>
+
+<br>
+<br>
+<button type="button">status elasticsearch</button>
+<button type="button">status kibana</button>
+<button type="button">status gns server</button>
+<button type="button">status ansible</button>
+
+<br>
+<br>
+<button type="button">get all port</button>
+<button type="button">check port status</button>
+<button type="button">get all ip</button>
+<button type="button">ping all ip</button>
+
+
+<br>
+<br>
+<button type="button">open project gns3</button>
+<button type="button">start project gns3</button>
+<button type="button">stop project gns3</button>
+<button type="button">start node device gns3</button>
+<button type="button">stop node device gns3</button>
+
+<br>
+<br>
+<button type="button">export gns3 device</button>
+<button type="button">import gns3 device</button>
+
+<br>
+<br>
+<button type="button">open terminal</button>
+
+<br>
+<br>
+<p> Ansible</p>
+
+<button type="button">check ansible version</button>
+<button type="button">edit ansible folder</button>
+<button type="button">show inventory</button>
+<button type="button">edit inventory</button>
+<button type="button">delete inventory</button>
+<button type="button">edit roles</button>
+<button type="button">edit host</button>
+<button type="button">edit ansible hostvar</button>
+<button type="button">edit file</button>
+<button type="button">edit file ansible.cfg</button> -->
+
+
